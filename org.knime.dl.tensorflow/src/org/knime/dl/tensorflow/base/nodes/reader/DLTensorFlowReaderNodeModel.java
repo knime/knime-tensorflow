@@ -49,13 +49,10 @@ package org.knime.dl.tensorflow.base.nodes.reader;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.InvalidPathException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 
+import org.knime.core.data.filestore.FileStore;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -70,17 +67,15 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.util.FileUtil;
+import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.core.DLInvalidSourceException;
-import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObjectSpec;
+import org.knime.dl.tensorflow.core.DLTensorFlowNetwork;
 import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetwork;
 import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetworkSpec;
 import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelUtil;
-import org.tensorflow.framework.MetaGraphDef;
 import org.tensorflow.framework.SavedModel;
-import org.tensorflow.framework.SignatureDef;
-import org.tensorflow.framework.TensorInfo;
 
 /**
  *
@@ -103,6 +98,10 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 	private final SettingsModelStringArray m_tags = createTagsSettingsModel();
 
 	private final SettingsModelStringArray m_signatures = createSignaturesSettingsModel();
+
+	private DLTensorFlowSavedModelNetworkSpec m_networkSpec;
+
+	private URL m_url;
 
 	static SettingsModelString createFilePathSettingsModel() {
 		return new SettingsModelString(CFG_KEY_FILE_PATH, "");
@@ -127,25 +126,38 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		try {
-			SavedModel sm = DLTensorFlowSavedModelUtil
-					.readSavedModelProtoBuf(FileUtil.toURL(m_filePath.getStringValue()));
-			// Create the NetworkSpec
-			DLTensorFlowSavedModelNetworkSpec networkSpec = DLTensorFlowSavedModelNetworkSpec.createSpecs(sm,
-					m_tags.getStringArrayValue(), m_signatures.getStringArrayValue());
-			return new PortObjectSpec[] {
-					new DLTensorFlowNetworkPortObjectSpec(networkSpec, DLTensorFlowSavedModelNetwork.class) };
-		} catch (DLInvalidSourceException e) {
-			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
+			m_url = FileUtil.toURL(m_filePath.getStringValue());
 		} catch (InvalidPathException | MalformedURLException e) {
 			throw new InvalidSettingsException("The file path is not valid.", e);
 		}
+		try {
+			SavedModel sm = DLTensorFlowSavedModelUtil.readSavedModelProtoBuf(m_url);
+			// Create the NetworkSpec
+			m_networkSpec = DLTensorFlowSavedModelNetworkSpec.createSpecs(sm, m_tags.getStringArrayValue(),
+					m_signatures.getStringArrayValue());
+		} catch (DLInvalidSourceException e) {
+			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
+		}
+		return new PortObjectSpec[] {
+				new DLTensorFlowNetworkPortObjectSpec(m_networkSpec, DLTensorFlowSavedModelNetwork.class) };
+
 	}
 
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
-		// TODO create a DLTensorFlowSavedModelNetwork and create a
-		// DLTensorFlowNetworkPortObject with this network
-		return new PortObject[] { new DLTensorFlowNetworkPortObject() };
+		if (m_url == null || m_networkSpec == null) {
+			throw new RuntimeException("Please run configure first.");
+		}
+		// Create the network object
+		DLTensorFlowNetwork network = m_networkSpec.create(m_url);
+		DLTensorFlowNetworkPortObject portObject;
+		if (m_copyNetwork.getBooleanValue()) {
+			FileStore fileStore = DLNetworkPortObject.createFileStoreForCopy(m_url, exec);
+			portObject = new DLTensorFlowNetworkPortObject(network, fileStore);
+		} else {
+			portObject = new DLTensorFlowNetworkPortObject(network);
+		}
+		return new PortObject[] { portObject };
 	}
 
 	@Override
@@ -186,6 +198,7 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 
 	@Override
 	protected void reset() {
-		// nothing to do
+		m_url = null;
+		m_networkSpec = null;
 	}
 }

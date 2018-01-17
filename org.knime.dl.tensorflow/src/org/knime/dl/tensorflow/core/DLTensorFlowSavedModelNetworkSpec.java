@@ -104,8 +104,7 @@ public class DLTensorFlowSavedModelNetworkSpec extends DLAbstractNetworkSpec<DLT
 
 	@Override
 	public DLTensorFlowNetwork create(URL source) throws DLInvalidSourceException {
-		// TODO Auto-generated method stub
-		return null;
+		return new DLTensorFlowSavedModelNetwork(this, source);
 	}
 	
 	public String[] getTags() {
