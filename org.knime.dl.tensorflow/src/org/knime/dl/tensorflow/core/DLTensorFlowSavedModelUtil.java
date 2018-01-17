@@ -143,12 +143,12 @@ public class DLTensorFlowSavedModelUtil {
 	 */
 	public static Collection<String> getContainedTags(SavedModel sm) {
 		return sm.getMetaGraphsList().stream().flatMap(m -> m.getMetaInfoDef().getTagsList().stream())
-				.collect(Collectors.toList());
+				.collect(Collectors.toSet());
 	}
 
 	public static Collection<String> getSignatureDefs(SavedModel sm, Collection<String> tags) {
 		return sm.getMetaGraphsList().stream()
-				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(t -> tags.contains(t)))
-				.flatMap(m -> m.getSignatureDefMap().keySet().stream()).collect(Collectors.toList());
+				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tags::contains))
+				.flatMap(m -> m.getSignatureDefMap().keySet().stream()).collect(Collectors.toSet());
 	}
 }
