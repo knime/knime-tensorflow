@@ -46,6 +46,9 @@
  */
 package org.knime.dl.tensorflow.core;
 
+import java.io.IOException;
+
+import org.knime.core.data.filestore.FileStore;
 import org.knime.dl.python.core.DLPythonNetwork;
 
 /**
@@ -57,4 +60,15 @@ public interface DLTensorFlowNetwork extends DLPythonNetwork {
 
 	@Override
 	DLTensorFlowNetworkSpec getSpec();
+
+	/**
+	 * Copy the relevant files of the network from the source to the given file
+	 * store for saving it with the workflow.
+	 *
+	 * @param destination
+	 *            the file store
+	 * @throws IOException
+	 *             if copying the file store failed
+	 */
+	void copyRelevantToFileStore(FileStore destination) throws IOException;
 }

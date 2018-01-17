@@ -126,7 +126,7 @@ public class DLTensorFlowNetworkPortObject
 
 	@Override
 	protected void flushToFileStoreInternal(DLTensorFlowNetwork network, FileStore fileStore) throws IOException {
-		DLNetworkPortObject.copyFileToFileStore(network.getSource(), fileStore);
+		network.copyRelevantToFileStore(fileStore);
 	}
 
 	@Override

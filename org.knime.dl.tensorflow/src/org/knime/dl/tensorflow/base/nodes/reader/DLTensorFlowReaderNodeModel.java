@@ -152,7 +152,7 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		DLTensorFlowNetwork network = m_networkSpec.create(m_url);
 		DLTensorFlowNetworkPortObject portObject;
 		if (m_copyNetwork.getBooleanValue()) {
-			FileStore fileStore = DLNetworkPortObject.createFileStoreForCopy(m_url, exec);
+			FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
 			portObject = new DLTensorFlowNetworkPortObject(network, fileStore);
 		} else {
 			portObject = new DLTensorFlowNetworkPortObject(network);

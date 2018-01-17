@@ -46,8 +46,12 @@
  */
 package org.knime.dl.tensorflow.core;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
+import org.knime.core.data.filestore.FileStore;
+import org.knime.core.util.FileUtil;
 import org.knime.dl.python.core.DLPythonAbstractNetwork;
 
 /**
@@ -62,4 +66,28 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 		super(spec, source);
 	}
 
+	@Override
+	public void copyRelevantToFileStore(final FileStore destination) throws IOException {
+		final File sourceFile = FileUtil.getFileFromURL(getSource());
+		final File destinationFile = destination.getFile();
+		if (sourceFile.isDirectory()) {
+			copyDirToFileStore(sourceFile, destinationFile);
+		} else {
+			extractZipToFileStore(sourceFile, destinationFile);
+		}
+	}
+
+	private void copyDirToFileStore(final File source, final File destination) throws IOException {
+		// TODO limit on relevant files. Use SavedModel definition
+		if (!destination.toURI().toURL().equals(getSource())) {
+			FileUtil.copyDir(source, destination);
+		}
+	}
+
+	private void extractZipToFileStore(File source, File destination) throws IOException {
+		// TODO limit on relevant files. Use SavedModel definition
+		// TODO manage zips with different directory structure: remove leading paths
+		destination.mkdirs();
+		FileUtil.unzip(source, destination);
+	}
 }
