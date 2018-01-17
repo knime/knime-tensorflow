@@ -23,4 +23,12 @@
             path="/labs/deeplearning">
       </category>
    </extension>
+   <extension
+         point="org.knime.workbench.repository.nodes">
+      <node
+            category-path="/labs/deeplearning/tensorflow"
+            deprecated="false"
+            factory-class="org.knime.dl.tensorflow.base.nodes.reader.DLTensorFlowReaderNodeFactory">
+      </node>
+  </extension>
 </plugin>
