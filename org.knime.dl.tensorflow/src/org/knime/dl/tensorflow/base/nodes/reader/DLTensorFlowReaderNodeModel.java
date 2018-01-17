@@ -74,6 +74,7 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObjectSpec;
+import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetwork;
 import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetworkSpec;
 import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelUtil;
 import org.tensorflow.framework.MetaGraphDef;
@@ -131,7 +132,8 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 			// Create the NetworkSpec
 			DLTensorFlowSavedModelNetworkSpec networkSpec = DLTensorFlowSavedModelNetworkSpec.createSpecs(sm,
 					m_tags.getStringArrayValue(), m_signatures.getStringArrayValue());
-			return new PortObjectSpec[] { new DLTensorFlowNetworkPortObjectSpec(networkSpec) };
+			return new PortObjectSpec[] {
+					new DLTensorFlowNetworkPortObjectSpec(networkSpec, DLTensorFlowSavedModelNetwork.class) };
 		} catch (DLInvalidSourceException e) {
 			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
 		} catch (InvalidPathException | MalformedURLException e) {

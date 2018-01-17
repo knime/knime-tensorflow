@@ -68,8 +68,9 @@ public class DLTensorFlowNetworkPortObjectSpec extends DLAbstractNetworkPortObje
 
 	private static final String ZIP_ENTRY_NAME = "DLTensorFlowNetworkPortObjectSpec";
 
-	public DLTensorFlowNetworkPortObjectSpec(DLTensorFlowNetworkSpec spec) {
-		super(spec, DLTensorFlowNetwork.class);
+	public DLTensorFlowNetworkPortObjectSpec(DLTensorFlowNetworkSpec spec,
+			final Class<? extends DLTensorFlowNetwork> type) {
+		super(spec, type);
 	}
 
 	@Override
@@ -94,6 +95,7 @@ public class DLTensorFlowNetworkPortObjectSpec extends DLAbstractNetworkPortObje
 			out.putNextEntry(new ZipEntry(ZIP_ENTRY_NAME));
 			final ObjectOutputStream objOut = new ObjectOutputStream(out);
 			objOut.writeObject(portObjectSpec.m_spec);
+			objOut.writeObject(portObjectSpec.m_type);
 			objOut.flush();
 		}
 
@@ -108,7 +110,13 @@ public class DLTensorFlowNetworkPortObjectSpec extends DLAbstractNetworkPortObje
 			final ObjectInputStream objIn = new ObjectInputStream(in);
 			try {
 				final DLTensorFlowNetworkSpec spec = (DLTensorFlowNetworkSpec) objIn.readObject();
-				return new DLTensorFlowNetworkPortObjectSpec(spec);
+				@SuppressWarnings("unchecked")
+				final Class<? extends DLTensorFlowNetwork> type = (Class<? extends DLTensorFlowNetwork>) objIn
+						.readObject();
+				return new DLTensorFlowNetworkPortObjectSpec(spec, type);
+			} catch (final ClassNotFoundException e) {
+				throw new IOException(
+						"Failed to load TensorFlow deep learning network. Are you missing a KNIME extension?");
 			} catch (final Throwable t) {
 				throw new IOException("Failed to load TensorFlow deep learning network.", t);
 			}

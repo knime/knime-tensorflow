@@ -100,7 +100,7 @@ public class DLTensorFlowNetworkPortObject
 	 */
 	public DLTensorFlowNetworkPortObject(final DLTensorFlowNetwork network, final FileStore fileStore)
 			throws IOException {
-		super(network, new DLTensorFlowNetworkPortObjectSpec(network.getSpec()), fileStore);
+		super(network, new DLTensorFlowNetworkPortObjectSpec(network.getSpec(), network.getClass()), fileStore);
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class DLTensorFlowNetworkPortObject
 	 *            stored
 	 */
 	public DLTensorFlowNetworkPortObject(final DLTensorFlowNetwork network) {
-		super(network, new DLTensorFlowNetworkPortObjectSpec(network.getSpec()));
+		super(network, new DLTensorFlowNetworkPortObjectSpec(network.getSpec(), network.getClass()));
 		m_networkReference = network.getSource();
 	}
 
