@@ -48,6 +48,13 @@ package org.knime.dl.tensorflow.base.nodes.reader;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.InvalidPathException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -62,7 +69,17 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+import org.knime.core.util.FileUtil;
+import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObject;
+import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObjectSpec;
+import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetworkSpec;
+import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelUtil;
+import org.tensorflow.framework.MetaGraphDef;
+import org.tensorflow.framework.SavedModel;
+import org.tensorflow.framework.SignatureDef;
+import org.tensorflow.framework.TensorInfo;
 
 /**
  *
@@ -108,10 +125,18 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		// TODO read the SavedModel, create a DLTensorFlowSavedModelNetworkSpec
-		// for it and create a DLTensorFlowNetworkPortObjectSpec with this
-		// NetworkSpec
-		return new PortObjectSpec[] { null };
+		try {
+			SavedModel sm = DLTensorFlowSavedModelUtil
+					.readSavedModelProtoBuf(FileUtil.toURL(m_filePath.getStringValue()));
+			// Create the NetworkSpec
+			DLTensorFlowSavedModelNetworkSpec networkSpec = DLTensorFlowSavedModelNetworkSpec.createSpecs(sm,
+					m_tags.getStringArrayValue(), m_signatures.getStringArrayValue());
+			return new PortObjectSpec[] { new DLTensorFlowNetworkPortObjectSpec(networkSpec) };
+		} catch (DLInvalidSourceException e) {
+			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
+		} catch (InvalidPathException | MalformedURLException e) {
+			throw new InvalidSettingsException("The file path is not valid.", e);
+		}
 	}
 
 	@Override

@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.ui,
  org.knime.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
-Export-Package: org.tensorflow,
+Export-Package: com.google.protobuf,
+ org.tensorflow,
  org.tensorflow.framework,
  org.tensorflow.op
 Bundle-ActivationPolicy: lazy

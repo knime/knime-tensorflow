@@ -68,7 +68,7 @@ public class DLTensorFlowNetworkPortObjectSpec extends DLAbstractNetworkPortObje
 
 	private static final String ZIP_ENTRY_NAME = "DLTensorFlowNetworkPortObjectSpec";
 
-	protected DLTensorFlowNetworkPortObjectSpec(DLTensorFlowNetworkSpec spec) {
+	public DLTensorFlowNetworkPortObjectSpec(DLTensorFlowNetworkSpec spec) {
 		super(spec, DLTensorFlowNetwork.class);
 	}
 
