@@ -56,6 +56,8 @@ import java.util.List;
 
 import javax.swing.JFileChooser;
 
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringListSelection;
@@ -183,5 +185,22 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 			newSignatureList = EMPTY_COLLECTION;
 		}
 		m_dcSignatures.replaceListItems(newSignatureList);
+	}
+
+	@Override
+	public void saveAdditionalSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+		validateSelection();
+	}
+
+	private void validateSelection() throws InvalidSettingsException {
+		if (m_savedModel == null) {
+			throw new InvalidSettingsException("The path doesn't point to a valid SavedModel.");
+		}
+		if (m_smTags.getStringArrayValue().length == 0) {
+			throw new InvalidSettingsException("No tags are selected.");
+		}
+		if (m_smSignatures.getStringArrayValue().length == 0) {
+			throw new InvalidSettingsException("No signatures are selected.");
+		}
 	}
 }
