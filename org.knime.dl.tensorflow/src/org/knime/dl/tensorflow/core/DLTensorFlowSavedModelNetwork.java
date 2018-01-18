@@ -87,7 +87,7 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 	}
 
 	/**
-	 * Copies the relevant files of a SavedModel to another directory. Asumes
+	 * Copies the relevant files of a SavedModel to another directory. Assumes
 	 * that the source is a directory and exists.
 	 *
 	 * @param source

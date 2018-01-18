@@ -48,10 +48,6 @@ package org.knime.dl.tensorflow.core;
 
 import java.net.URL;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.knime.dl.core.DLAbstractNetworkSpec;
@@ -59,10 +55,6 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.tensorflow.core.training.DLTensorFlowTrainingConfig;
-import org.tensorflow.framework.MetaGraphDef;
-import org.tensorflow.framework.SavedModel;
-import org.tensorflow.framework.SignatureDef;
-import org.tensorflow.framework.TensorInfo;
 
 /**
  * The spec of a {@link DLTensorFlowSavedModelNetwork}.
@@ -110,35 +102,5 @@ public class DLTensorFlowSavedModelNetworkSpec extends DLAbstractNetworkSpec<DLT
 	
 	public String[] getTags() {
 		return m_tags;
-	}
-
-	public static DLTensorFlowSavedModelNetworkSpec createSpecs(final SavedModel sm, final String[] tags,
-			final String[] signatures) {
-		List<String> tagsList = Arrays.asList(tags);
-		List<String> signaturesList = Arrays.asList(signatures);
-
-		List<MetaGraphDef> metaGraphDefs = DLTensorFlowSavedModelUtil.getMetaGraphDefs(sm);
-
-		// Get the signature definitions of the selected tags and signatures
-		Set<SignatureDef> signatureDefs = metaGraphDefs.stream()
-				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tagsList::contains))
-				.flatMap(m -> m.getSignatureDefMap().entrySet().stream()
-						.filter(e -> signaturesList.contains(e.getKey())).map(e -> e.getValue()))
-				.collect(Collectors.toSet());
-
-		// Get the inputs and outputs from the signature definitions
-		List<Entry<String, TensorInfo>> inputs = signatureDefs.stream()
-				.flatMap(s -> s.getInputsMap().entrySet().stream()).collect(Collectors.toList());
-		List<Entry<String, TensorInfo>> outputs = signatureDefs.stream()
-				.flatMap(s -> s.getOutputsMap().entrySet().stream()).collect(Collectors.toList());
-
-		// Create DLTensorSpec for the inputs and outputs
-		DLTensorSpec[] inputSpecs = new DLTensorSpec[0];
-		DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
-		DLTensorSpec[] outputSpecs = new DLTensorSpec[0];
-		// TODO this is affected by the refactoring
-
-		// Create the NetworkSpec
-		return new DLTensorFlowSavedModelNetworkSpec(tags, inputSpecs, hiddenSpecs, outputSpecs);
 	}
 }

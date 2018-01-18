@@ -68,8 +68,7 @@ import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentColoredLabel;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentFileOrDirChooser;
-import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelUtil;
-import org.tensorflow.framework.SavedModel;
+import org.knime.dl.tensorflow.core.DLTensorFlowSavedModel;
 
 /**
  * Dialog for the TensorFlow SavedModel Reader node.
@@ -100,7 +99,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private final DialogComponentColoredLabel m_dcErrorLabel;
 
-	private SavedModel m_savedModel;
+	private DLTensorFlowSavedModel m_savedModel;
 
 	private String m_previousFilePath;
 
@@ -139,7 +138,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		try {
 			String filePath = m_smFilePath.getStringValue();
 			if (!filePath.equals(m_previousFilePath)) {
-				m_savedModel = DLTensorFlowSavedModelUtil.readSavedModelProtoBuf(FileUtil.toURL(filePath));
+				m_savedModel = new DLTensorFlowSavedModel(FileUtil.toURL(filePath));
 			}
 			return;
 		} catch (DLInvalidSourceException e) {
@@ -158,7 +157,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	private void updateTags() {
 		Collection<String> newTagList;
 		if (m_savedModel != null) {
-			newTagList = DLTensorFlowSavedModelUtil.getContainedTags(m_savedModel);
+			newTagList = m_savedModel.getContainedTags();
 			if (newTagList.isEmpty()) {
 				newTagList = EMPTY_COLLECTION;
 				m_dcErrorLabel.setText("The SavedModel doesn't contain tags.");
@@ -176,7 +175,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		Collection<String> newSignatureList;
 		List<String> tags = Arrays.asList(m_smTags.getStringArrayValue());
 		if (m_savedModel != null && !tags.isEmpty()) {
-			newSignatureList = DLTensorFlowSavedModelUtil.getSignatureDefs(m_savedModel, tags);
+			newSignatureList = m_savedModel.getSignatureDefs(tags);
 			if (newSignatureList.isEmpty()) {
 				newSignatureList = EMPTY_COLLECTION;
 				m_dcErrorLabel.setText("The SavedModel doesn't contain signatures with the selected tag");

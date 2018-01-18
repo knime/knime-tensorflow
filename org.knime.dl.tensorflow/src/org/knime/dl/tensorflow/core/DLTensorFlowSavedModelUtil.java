@@ -52,17 +52,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLInvalidSourceException;
-import org.tensorflow.framework.MetaGraphDef;
 import org.tensorflow.framework.SavedModel;
 
 /**
@@ -125,30 +121,5 @@ public class DLTensorFlowSavedModelUtil {
 				throw new DLInvalidSourceException("The SavedModel file could not be read.", e);
 			}
 		}
-	}
-
-	public static List<MetaGraphDef> getMetaGraphDefs(SavedModel sm) {
-		return sm.getMetaGraphsList();
-	}
-
-	public static List<MetaGraphDef> getMetaGraphDefs(URL source) throws DLInvalidSourceException {
-		return getMetaGraphDefs(readSavedModelProtoBuf(source));
-	}
-
-	/**
-	 * TODO move to DLTensorFlowReaderNodeDialog if not generally useful
-	 *
-	 * @param sm
-	 * @return
-	 */
-	public static Collection<String> getContainedTags(SavedModel sm) {
-		return sm.getMetaGraphsList().stream().flatMap(m -> m.getMetaInfoDef().getTagsList().stream())
-				.collect(Collectors.toSet());
-	}
-
-	public static Collection<String> getSignatureDefs(SavedModel sm, Collection<String> tags) {
-		return sm.getMetaGraphsList().stream()
-				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tags::contains))
-				.flatMap(m -> m.getSignatureDefMap().keySet().stream()).collect(Collectors.toSet());
 	}
 }

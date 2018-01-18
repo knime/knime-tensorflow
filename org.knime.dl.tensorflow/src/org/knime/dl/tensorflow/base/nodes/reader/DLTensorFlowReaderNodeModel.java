@@ -72,10 +72,9 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObjectSpec;
 import org.knime.dl.tensorflow.core.DLTensorFlowNetwork;
+import org.knime.dl.tensorflow.core.DLTensorFlowSavedModel;
 import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetwork;
 import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetworkSpec;
-import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelUtil;
-import org.tensorflow.framework.SavedModel;
 
 /**
  *
@@ -131,10 +130,9 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 			throw new InvalidSettingsException("The file path is not valid.", e);
 		}
 		try {
-			SavedModel sm = DLTensorFlowSavedModelUtil.readSavedModelProtoBuf(m_url);
+			DLTensorFlowSavedModel sm = new DLTensorFlowSavedModel(m_url);
 			// Create the NetworkSpec
-			m_networkSpec = DLTensorFlowSavedModelNetworkSpec.createSpecs(sm, m_tags.getStringArrayValue(),
-					m_signatures.getStringArrayValue());
+			m_networkSpec = sm.createSpecs(m_tags.getStringArrayValue(), m_signatures.getStringArrayValue());
 		} catch (DLInvalidSourceException e) {
 			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
 		}
