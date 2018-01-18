@@ -80,26 +80,27 @@ public class DLTensorFlowSavedModelNetworkSpec extends DLAbstractNetworkSpec<DLT
 			final DLTensorSpec[] outputSpecs) {
 		super(inputSpecs, hiddenOutputSpecs, outputSpecs);
 		m_tags = tags;
-		// TODO Auto-generated constructor stub
 	}
 
 	protected DLTensorFlowSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
 			final DLTensorSpec[] outputSpecs, DLTensorFlowTrainingConfig trainingConfig) {
 		super(inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
 		m_tags = tags;
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	protected void hashCodeInternal(HashCodeBuilder b) {
-		// TODO Auto-generated method stub
-
+		b.append(m_tags);
 	}
 
 	@Override
 	protected boolean equalsInternal(DLNetworkSpec other) {
-		// TODO Auto-generated method stub
-		return false;
+		DLTensorFlowSavedModelNetworkSpec o = (DLTensorFlowSavedModelNetworkSpec) other;
+		if (m_tags.length != o.m_tags.length) {
+			return false;
+		}
+		// The order of the tags doesn't matter
+		return Arrays.asList(m_tags).containsAll(Arrays.asList(o.m_tags));
 	}
 
 	@Override
