@@ -49,6 +49,9 @@ package org.knime.dl.tensorflow.core;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.util.FileUtil;
@@ -61,6 +64,9 @@ import org.knime.dl.python.core.DLPythonAbstractNetwork;
  */
 public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTensorFlowSavedModelNetworkSpec>
 		implements DLTensorFlowNetwork {
+
+	private static final Collection<String> SAVED_MODEL_FILES = Stream
+			.of("saved_model.pb", "saved_model.pbtxt", "variables", "assets").collect(Collectors.toSet());
 
 	protected DLTensorFlowSavedModelNetwork(DLTensorFlowSavedModelNetworkSpec spec, URL source) {
 		super(spec, source);
@@ -77,16 +83,42 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 		}
 	}
 
+	/**
+	 * Copies the relevant files of a SavedModel to another directory. Asumes
+	 * that the source is a directory and exists.
+	 *
+	 * @param source
+	 *            the source directory
+	 * @param destination
+	 *            the destination directory
+	 * @throws IOException
+	 *             if copying failed
+	 */
 	private void copyDirToFileStore(final File source, final File destination) throws IOException {
-		// TODO limit on relevant files. Use SavedModel definition
 		if (!destination.toURI().toURL().equals(getSource())) {
-			FileUtil.copyDir(source, destination);
+			// Create the target directory if it doesn't exist yet
+			if (!destination.isDirectory() && !destination.mkdirs()) {
+				throw new IOException("Cannot create destination directory \"" + destination.getAbsolutePath()
+						+ "\" for the SavedModel.");
+			}
+			final String[] sourceList = source.list();
+			if (sourceList == null) {
+				throw new IOException(
+						"Can't copy SavedModel directory \"" + source.getAbsolutePath() + "\", no read permissions.");
+			}
+			for (String child : sourceList) {
+				// Only copy the child if it is part of the SavedModel definition
+				if (SAVED_MODEL_FILES.contains(child)) {
+					FileUtil.copyDir(new File(source, child), new File(destination, child));
+				}
+			}
 		}
 	}
 
 	private void extractZipToFileStore(File source, File destination) throws IOException {
 		// TODO limit on relevant files. Use SavedModel definition
-		// TODO manage zips with different directory structure: remove leading paths
+		// TODO manage zips with different directory structure: remove leading
+		// paths
 		destination.mkdirs();
 		FileUtil.unzip(source, destination);
 	}
