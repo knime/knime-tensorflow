@@ -4,21 +4,32 @@
 	<name>DL TensorFlow Network Reader</name>
 
 	<shortDescription>
-		Reads a TensorFlow saved model from an input directory.
+		Reads a TensorFlow saved model from an input zip file or directory.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			This node reads a TensorFlow deep learning network from an input file.
-			The file must be an zip file containing a valid SavedModel (See also
-			<a href="https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">
-				Structure of a SavedModel directory
-			</a>
-			)
+			This node reads a TensorFlow deep learning network from an directory or zip file.
+			<p>
+				If the network should be read from a directory it has to be a valid SavedModel.
+				If the network should be read from a zip file it must contain a valid SavedModel.
+			</p>
+			<p>
+				See the TensorFlow documentation for more information on SavedModels:
+				<a href="https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">
+					Structure of a SavedModel directory
+				</a>
+			</p>
 		</intro>
 		<option name="Input Location">
-			The path to the input directory that contains the TensorFlow saved model.
+			The path to the input directory or zip file that contains the TensorFlow SavedModel.
 			KNIME URLs like "knime://knime.workflow/ ... &lt;filename&gt;" are supported.
+		</option>
+		<option name="Tags">
+			The tags identifying the meta graph definition to load.
+		</option>
+		<option name="Signatures">
+			The signatures which should be available for executing and training the model.
 		</option>
 		<option name="Copy deep learning network into KNIME workflow?">
 			If selected, the TensorFlow network will be copied into the KNIME workflow, so
