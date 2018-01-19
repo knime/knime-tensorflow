@@ -79,7 +79,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private static final Collection<String> EMPTY_COLLECTION = Collections.singleton("                        ");
 
-	private static final String FILE_HISTORY_ID = "org.knime.dl.tensorflow,base.nodes.reader";
+	private static final String FILE_HISTORY_ID = "org.knime.dl.tensorflow.base.nodes.reader";
 
 	private final SettingsModelString m_smFilePath = DLTensorFlowReaderNodeModel.createFilePathSettingsModel();
 
