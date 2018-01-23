@@ -61,6 +61,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringListSelection;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
@@ -87,7 +88,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private final SettingsModelStringArray m_smTags = DLTensorFlowReaderNodeModel.createTagsSettingsModel();
 
-	private final SettingsModelStringArray m_smSignatures = DLTensorFlowReaderNodeModel.createSignaturesSettingsModel();
+	private final SettingsModelString m_smSignature = DLTensorFlowReaderNodeModel.createSignatureSettingsModel();
 
 	private final DialogComponentFileOrDirChooser m_dcFiles;
 
@@ -95,7 +96,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private final DialogComponentStringListSelection m_dcTags;
 
-	private final DialogComponentStringListSelection m_dcSignatures;
+	private final DialogComponentStringSelection m_dcSignature;
 
 	private final DialogComponentColoredLabel m_dcErrorLabel;
 
@@ -112,15 +113,14 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		m_dcCopyNetwork = new DialogComponentBoolean(m_smCopyNetwork,
 				"Copy deep learning network into KNIME workflow?");
 		m_dcTags = new DialogComponentStringListSelection(m_smTags, "Tags", EMPTY_COLLECTION, true, 5);
-		m_dcSignatures = new DialogComponentStringListSelection(m_smSignatures, "Signatures", EMPTY_COLLECTION, true,
-				5);
+		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_COLLECTION);
 		m_dcErrorLabel = new DialogComponentColoredLabel("", Color.RED);
 
 		// Add the dialog components
 		createNewGroup("Input Location");
 		addDialogComponent(m_dcFiles);
 		addDialogComponent(m_dcTags);
-		addDialogComponent(m_dcSignatures);
+		addDialogComponent(m_dcSignature);
 		addDialogComponent(m_dcCopyNetwork);
 		addDialogComponent(m_dcErrorLabel);
 		closeCurrentGroup();
@@ -169,7 +169,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	}
 
 	/**
-	 * Updates the signatures shown for selection in {@link #m_dcSignatures}.
+	 * Updates the signatures shown for selection in {@link #m_dcSignature}.
 	 */
 	private void updateSignatures() {
 		Collection<String> newSignatureList;
@@ -183,7 +183,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		} else {
 			newSignatureList = EMPTY_COLLECTION;
 		}
-		m_dcSignatures.replaceListItems(newSignatureList);
+		m_dcSignature.replaceListItems(newSignatureList, null);
 	}
 
 	@Override
@@ -198,8 +198,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		if (m_smTags.getStringArrayValue().length == 0) {
 			throw new InvalidSettingsException("No tags are selected.");
 		}
-		if (m_smSignatures.getStringArrayValue().length == 0) {
-			throw new InvalidSettingsException("No signatures are selected.");
+		if (m_smSignature.getStringValue() == null || m_smSignature.getStringValue().isEmpty()) {
+			throw new InvalidSettingsException("No signature is selected.");
 		}
 	}
 }

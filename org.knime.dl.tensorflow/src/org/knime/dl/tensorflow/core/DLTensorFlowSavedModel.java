@@ -50,8 +50,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.knime.dl.core.DLInvalidSourceException;
@@ -76,8 +75,8 @@ public class DLTensorFlowSavedModel {
 	 * {@link DLTensorFlowSavedModel}.
 	 *
 	 * @param source
-	 *            URL to the SavedModel directory or zip file. The directory
-	 *            must be a valid SavedModel as defined <a href=
+	 *            URL to the SavedModel directory or zip file. The directory must be
+	 *            a valid SavedModel as defined <a href=
 	 *            "https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">here</a>.
 	 *            A zip file must contain such a SavedModel directory.
 	 * @throws DLInvalidSourceException
@@ -119,24 +118,21 @@ public class DLTensorFlowSavedModel {
 	 *            the signatures to consider.
 	 * @return the specs.
 	 */
-	public DLTensorFlowSavedModelNetworkSpec createSpecs(final String[] tags, final String[] signatures) {
+	public DLTensorFlowSavedModelNetworkSpec createSpecs(final String[] tags, final String signature) {
 		List<String> tagsList = Arrays.asList(tags);
-		List<String> signaturesList = Arrays.asList(signatures);
 
 		List<MetaGraphDef> metaGraphDefs = m_savedModel.getMetaGraphsList();
 
 		// Get the signature definitions of the selected tags and signatures
-		Set<SignatureDef> signatureDefs = metaGraphDefs.stream()
+		SignatureDef signatureDef = metaGraphDefs.stream()
 				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tagsList::contains))
-				.flatMap(m -> m.getSignatureDefMap().entrySet().stream()
-						.filter(e -> signaturesList.contains(e.getKey())).map(e -> e.getValue()))
-				.collect(Collectors.toSet());
+				.flatMap(m -> m.getSignatureDefMap().entrySet().stream().filter(e -> signature.equals(e.getKey()))
+						.map(e -> e.getValue()))
+				.findFirst().get(); // TODO throw exception if not present
 
 		// Get the inputs and outputs from the signature definitions
-		List<Entry<String, TensorInfo>> inputs = signatureDefs.stream()
-				.flatMap(s -> s.getInputsMap().entrySet().stream()).collect(Collectors.toList());
-		List<Entry<String, TensorInfo>> outputs = signatureDefs.stream()
-				.flatMap(s -> s.getOutputsMap().entrySet().stream()).collect(Collectors.toList());
+		Map<String, TensorInfo> inputs = signatureDef.getInputsMap();
+		Map<String, TensorInfo> outputs = signatureDef.getOutputsMap();
 
 		// Create DLTensorSpec for the inputs and outputs
 		DLTensorSpec[] inputSpecs = new DLTensorSpec[0];

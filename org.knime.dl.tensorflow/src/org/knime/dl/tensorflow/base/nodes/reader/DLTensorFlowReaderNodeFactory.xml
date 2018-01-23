@@ -28,8 +28,8 @@
 		<option name="Tags">
 			The tags identifying the meta graph definition to load.
 		</option>
-		<option name="Signatures">
-			The signatures which should be available for executing and training the model.
+		<option name="Signature">
+			The signature which should be available for executing or training the model.
 		</option>
 		<option name="Copy deep learning network into KNIME workflow?">
 			If selected, the TensorFlow network will be copied into the KNIME workflow, so

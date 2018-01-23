@@ -88,7 +88,7 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 
 	private static final String CFG_KEY_TAGS = "tags";
 
-	private static final String CFG_KEY_SIGNATURES = "signatures";
+	private static final String CFG_KEY_SIGNATURE = "signature";
 
 	private final SettingsModelString m_filePath = createFilePathSettingsModel();
 
@@ -96,7 +96,7 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 
 	private final SettingsModelStringArray m_tags = createTagsSettingsModel();
 
-	private final SettingsModelStringArray m_signatures = createSignaturesSettingsModel();
+	private final SettingsModelString m_signatures = createSignatureSettingsModel();
 
 	private DLTensorFlowSavedModelNetworkSpec m_networkSpec;
 
@@ -114,8 +114,8 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		return new SettingsModelStringArray(CFG_KEY_TAGS, new String[] {});
 	}
 
-	static SettingsModelStringArray createSignaturesSettingsModel() {
-		return new SettingsModelStringArray(CFG_KEY_SIGNATURES, new String[] {});
+	static SettingsModelString createSignatureSettingsModel() {
+		return new SettingsModelString(CFG_KEY_SIGNATURE, "");
 	}
 
 	protected DLTensorFlowReaderNodeModel() {
@@ -132,7 +132,7 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		try {
 			DLTensorFlowSavedModel sm = new DLTensorFlowSavedModel(m_url);
 			// Create the NetworkSpec
-			m_networkSpec = sm.createSpecs(m_tags.getStringArrayValue(), m_signatures.getStringArrayValue());
+			m_networkSpec = sm.createSpecs(m_tags.getStringArrayValue(), m_signatures.getStringValue());
 		} catch (DLInvalidSourceException e) {
 			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
 		}
