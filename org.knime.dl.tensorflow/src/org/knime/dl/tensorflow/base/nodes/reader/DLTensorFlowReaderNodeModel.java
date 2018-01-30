@@ -90,6 +90,8 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 
 	private static final String CFG_KEY_SIGNATURE = "signature";
 
+	private static final String CFG_KEY_ADVANCED = "advanced";
+
 	private final SettingsModelString m_filePath = createFilePathSettingsModel();
 
 	private final SettingsModelBoolean m_copyNetwork = createCopyNetworkSettingsModel();
@@ -97,6 +99,8 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 	private final SettingsModelStringArray m_tags = createTagsSettingsModel();
 
 	private final SettingsModelString m_signatures = createSignatureSettingsModel();
+
+	private final SettingsModelBoolean m_advanced = createAdvancedSettingsModel();
 
 	private DLTensorFlowSavedModelNetworkSpec m_networkSpec;
 
@@ -116,6 +120,10 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 
 	static SettingsModelString createSignatureSettingsModel() {
 		return new SettingsModelString(CFG_KEY_SIGNATURE, "");
+	}
+
+	static SettingsModelBoolean createAdvancedSettingsModel() {
+		return new SettingsModelBoolean(CFG_KEY_ADVANCED, false);
 	}
 
 	protected DLTensorFlowReaderNodeModel() {

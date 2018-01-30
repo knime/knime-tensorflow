@@ -90,6 +90,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private final SettingsModelString m_smSignature = DLTensorFlowReaderNodeModel.createSignatureSettingsModel();
 
+	private final SettingsModelBoolean m_smAdvanced = DLTensorFlowReaderNodeModel.createAdvancedSettingsModel();
+
 	private final DialogComponentFileOrDirChooser m_dcFiles;
 
 	private final DialogComponentBoolean m_dcCopyNetwork;
@@ -99,6 +101,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	private final DialogComponentStringSelection m_dcSignature;
 
 	private final DialogComponentColoredLabel m_dcErrorLabel;
+
+	private final DialogComponentBoolean m_dcAdvanced;
 
 	private DLTensorFlowSavedModel m_savedModel;
 
@@ -115,6 +119,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		m_dcTags = new DialogComponentStringListSelection(m_smTags, "Tags", EMPTY_COLLECTION, true, 5);
 		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_COLLECTION);
 		m_dcErrorLabel = new DialogComponentColoredLabel("", Color.RED);
+		m_dcAdvanced = new DialogComponentBoolean(m_smAdvanced, "Use advanced settings");
 
 		// Add the dialog components
 		createNewGroup("Input Location");
@@ -124,6 +129,9 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(m_dcCopyNetwork);
 		addDialogComponent(m_dcErrorLabel);
 		closeCurrentGroup();
+
+		createNewTab("Advanced Settings");
+		addDialogComponent(m_dcAdvanced);
 
 		// Add change listeners
 		m_smFilePath.addChangeListener((e) -> {
