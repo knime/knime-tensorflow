@@ -51,10 +51,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLTensorSpec;
+import org.tensorflow.framework.DataType;
 import org.tensorflow.framework.MetaGraphDef;
 import org.tensorflow.framework.SavedModel;
 import org.tensorflow.framework.SignatureDef;
@@ -103,10 +105,8 @@ public class DLTensorFlowSavedModel {
 	 *            the tags to consider
 	 * @return a list of signature names
 	 */
-	public Collection<String> getSignatureDefs(Collection<String> tags) {
-		return m_savedModel.getMetaGraphsList().stream()
-				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tags::contains))
-				.flatMap(m -> m.getSignatureDefMap().keySet().stream()).collect(Collectors.toSet());
+	public Collection<String> getSignatureDefsStrings(Collection<String> tags) {
+		return getSignatureDefsWithoutSerializedTensors(tags).stream().map(e -> e.getKey()).collect(Collectors.toSet());
 	}
 
 	/**
@@ -142,5 +142,28 @@ public class DLTensorFlowSavedModel {
 
 		// Create the NetworkSpec
 		return new DLTensorFlowSavedModelNetworkSpec(tags, inputSpecs, hiddenSpecs, outputSpecs);
+	}
+
+	private Collection<Entry<String, SignatureDef>> getSignatureDefsWithoutSerializedTensors(
+			final Collection<String> tags) {
+		return getSignatureDefs(tags).stream().filter(e -> !containsSerializedTensors(e.getValue()))
+				.collect(Collectors.toSet());
+	}
+
+	private Collection<Entry<String, SignatureDef>> getSignatureDefs(final Collection<String> tags) {
+		return m_savedModel.getMetaGraphsList().stream()
+				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tags::contains))
+				.flatMap(m -> m.getSignatureDefMap().entrySet().stream()).collect(Collectors.toSet());
+	}
+
+	private boolean containsSerializedTensors(final SignatureDef signatureDef) {
+		return signatureDef.getInputsMap().entrySet().stream().anyMatch(t -> isSerializedTensor(t.getValue()))
+				|| signatureDef.getOutputsMap().entrySet().stream().anyMatch(t -> isSerializedTensor(t.getValue()));
+	}
+
+	private boolean isSerializedTensor(final TensorInfo t) {
+		// TODO not really every String tensor is a serialized tensor but as we do not
+		// support String inputs yet it is fine
+		return t.getDtype().equals(DataType.DT_STRING);
 	}
 }

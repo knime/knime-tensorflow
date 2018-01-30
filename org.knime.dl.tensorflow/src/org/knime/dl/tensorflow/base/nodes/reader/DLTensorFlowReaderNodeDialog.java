@@ -175,7 +175,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		Collection<String> newSignatureList;
 		List<String> tags = Arrays.asList(m_smTags.getStringArrayValue());
 		if (m_savedModel != null && !tags.isEmpty()) {
-			newSignatureList = m_savedModel.getSignatureDefs(tags);
+			newSignatureList = m_savedModel.getSignatureDefsStrings(tags);
 			if (newSignatureList.isEmpty()) {
 				newSignatureList = EMPTY_COLLECTION;
 				m_dcErrorLabel.setText("The SavedModel doesn't contain signatures with the selected tag");
