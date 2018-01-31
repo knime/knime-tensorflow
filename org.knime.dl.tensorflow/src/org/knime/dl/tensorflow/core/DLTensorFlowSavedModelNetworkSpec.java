@@ -68,13 +68,13 @@ public class DLTensorFlowSavedModelNetworkSpec extends DLAbstractNetworkSpec<DLT
 	
 	private final String[] m_tags;
 
-	protected DLTensorFlowSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
+	public DLTensorFlowSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
 			final DLTensorSpec[] outputSpecs) {
 		super(inputSpecs, hiddenOutputSpecs, outputSpecs);
 		m_tags = tags;
 	}
 
-	protected DLTensorFlowSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
+	public DLTensorFlowSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
 			final DLTensorSpec[] outputSpecs, DLTensorFlowTrainingConfig trainingConfig) {
 		super(inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
 		m_tags = tags;

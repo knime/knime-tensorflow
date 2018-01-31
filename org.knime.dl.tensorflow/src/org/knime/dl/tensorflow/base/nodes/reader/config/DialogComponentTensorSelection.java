@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -86,10 +87,13 @@ public class DialogComponentTensorSelection extends DialogComponent {
 
 	private final JButton m_addButton;
 
+	private final Function<DLTensorSpec, String> m_identifierFunc;
+
 	public DialogComponentTensorSelection(final SettingsModelStringArray stringArrayModel, final String title,
-			final Collection<DLTensorSpec> tensors) {
+			final Collection<DLTensorSpec> tensors, Function<DLTensorSpec, String> identifierFunc) {
 		super(stringArrayModel);
 		m_tensors = tensors;
+		m_identifierFunc = identifierFunc;
 
 		// Set layout
 		getComponentPanel().setLayout(new GridBagLayout());
@@ -127,7 +131,7 @@ public class DialogComponentTensorSelection extends DialogComponent {
 		m_gbc.anchor = GridBagConstraints.NORTHEAST;
 		m_gbc.fill = GridBagConstraints.HORIZONTAL;
 		m_gbc.gridy = 1;
-		m_tensors.stream().filter(t -> selected.contains(getIdentifier(t))).forEach(t -> {
+		m_tensors.stream().filter(t -> selected.contains(m_identifierFunc.apply(t))).forEach(t -> {
 			final TensorPanel panel = new TensorPanel(t.getName(), t.getShape(), t.getElementType());
 			getComponentPanel().add(panel, m_gbc);
 			m_gbc.gridy++;
@@ -135,7 +139,7 @@ public class DialogComponentTensorSelection extends DialogComponent {
 			// Action listener for the remove button
 			panel.m_removeButton.addActionListener(e -> {
 				List<String> current = new ArrayList<>(Arrays.asList(model.getStringArrayValue()));
-				current.remove(getIdentifier(t));
+				current.remove(m_identifierFunc.apply(t));
 				model.setStringArrayValue(current.toArray(new String[current.size()]));
 				updateComponent();
 			});
@@ -157,8 +161,8 @@ public class DialogComponentTensorSelection extends DialogComponent {
 		// Remove strings that aren't available
 		final SettingsModelStringArray model = getModelStringArray();
 		final List<String> current = Arrays.asList(model.getStringArrayValue());
-		final List<String> selected = m_tensors.stream().map(t -> getIdentifier(t)).filter(t -> current.contains(t))
-				.collect(Collectors.toList());
+		final List<String> selected = m_tensors.stream().map(t -> m_identifierFunc.apply(t))
+				.filter(t -> current.contains(t)).collect(Collectors.toList());
 		model.setStringArrayValue(selected.toArray(new String[selected.size()]));
 	}
 
@@ -185,19 +189,14 @@ public class DialogComponentTensorSelection extends DialogComponent {
 		updateComponent();
 	}
 
-	private String getIdentifier(final DLTensorSpec t) {
-		// TODO save other identifier?
-		return t.getName();
-	}
-
 	private List<DLTensorSpec> getSelectableTensors() {
 		SettingsModelStringArray model = getModelStringArray();
 		List<String> selected = Arrays.asList(model.getStringArrayValue());
-		return m_tensors.stream().filter(t -> !selected.contains(getIdentifier(t))).collect(Collectors.toList());
+		return m_tensors.stream().filter(t -> !selected.contains(m_identifierFunc.apply(t))).collect(Collectors.toList());
 	}
 
 	private void showAddDialog() {
-		final List<String> selectableStrings = getSelectableTensors().stream().map(t -> getIdentifier(t))
+		final List<String> selectableStrings = getSelectableTensors().stream().map(t -> m_identifierFunc.apply(t))
 				.collect(Collectors.toList());
 		final SettingsModelString smTensor = new SettingsModelString("tensor", selectableStrings.get(0));
 		final int selectedOption = JOptionPane.showConfirmDialog(getComponentPanel(),

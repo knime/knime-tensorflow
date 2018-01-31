@@ -201,6 +201,7 @@ public class DLTensorFlowSavedModel {
 	}
 
 	private DLTensorSpec getTensorSpecFromNodeDef(final NodeDef n) {
+		// TODO the shape isn't right here. Fix it when the refactoring is done
 		// Get the shape and batch size
 		DLTensorShape shape = null;
 		OptionalLong batchSize = OptionalLong.empty();

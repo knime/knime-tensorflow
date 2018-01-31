@@ -51,6 +51,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.node.CanceledExecutionException;
@@ -69,6 +71,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.util.FileUtil;
 import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObjectSpec;
 import org.knime.dl.tensorflow.core.DLTensorFlowNetwork;
@@ -142,6 +145,11 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		return new SettingsModelStringArray(CFG_KEY_OUTPUTS, new String[0]);
 	}
 
+	static String getIdentifier(final DLTensorSpec t) {
+		// TODO save other identifier?
+		return t.getName();
+	}
+
 	protected DLTensorFlowReaderNodeModel() {
 		super(new PortType[] {}, new PortType[] { DLTensorFlowNetworkPortObject.TYPE });
 	}
@@ -153,10 +161,23 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		} catch (InvalidPathException | MalformedURLException e) {
 			throw new InvalidSettingsException("The file path is not valid.", e);
 		}
+		String signature = m_signatures.getStringValue();
 		try {
 			DLTensorFlowSavedModel sm = new DLTensorFlowSavedModel(m_url);
 			// Create the NetworkSpec
-			m_networkSpec = sm.createSpecs(m_tags.getStringArrayValue(), m_signatures.getStringValue());
+			if (!m_advanced.getBooleanValue()) {
+				m_networkSpec = sm.createSpecs(m_tags.getStringArrayValue(), signature);
+			} else {
+				List<String> tags = Arrays.asList(m_tags.getStringArrayValue());
+				List<String> inputs = Arrays.asList(m_inputs.getStringArrayValue());
+				List<String> outputs = Arrays.asList(m_outputs.getStringArrayValue());
+				DLTensorSpec[] inputSpecs = sm.getPossibleInputTensors(tags).stream()
+						.filter(t -> inputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
+				DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
+				DLTensorSpec[] outputSpecs = sm.getPossibleOutputTensors(tags).stream()
+						.filter(t -> outputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
+				m_networkSpec = new DLTensorFlowSavedModelNetworkSpec(m_tags.getStringArrayValue(), inputSpecs, hiddenSpecs, outputSpecs);
+			}
 		} catch (DLInvalidSourceException e) {
 			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
 		}
