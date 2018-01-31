@@ -69,6 +69,7 @@ import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentColoredLabel;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentFileOrDirChooser;
+import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentTensorSelection;
 import org.knime.dl.tensorflow.core.DLTensorFlowSavedModel;
 
 /**
@@ -92,6 +93,10 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private final SettingsModelBoolean m_smAdvanced = DLTensorFlowReaderNodeModel.createAdvancedSettingsModel();
 
+	private final SettingsModelStringArray m_smInputs = DLTensorFlowReaderNodeModel.createInputsSettingsModel();
+
+	private final SettingsModelStringArray m_smOutputs = DLTensorFlowReaderNodeModel.createOutputsSettingsModel();
+
 	private final DialogComponentFileOrDirChooser m_dcFiles;
 
 	private final DialogComponentBoolean m_dcCopyNetwork;
@@ -103,6 +108,10 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	private final DialogComponentColoredLabel m_dcErrorLabel;
 
 	private final DialogComponentBoolean m_dcAdvanced;
+
+	private final DialogComponentTensorSelection m_dcInputs;
+
+	private final DialogComponentTensorSelection m_dcOutputs;
 
 	private DLTensorFlowSavedModel m_savedModel;
 
@@ -120,6 +129,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_COLLECTION);
 		m_dcErrorLabel = new DialogComponentColoredLabel("", Color.RED);
 		m_dcAdvanced = new DialogComponentBoolean(m_smAdvanced, "Use advanced settings");
+		m_dcInputs = new DialogComponentTensorSelection(m_smInputs, "Inputs", Collections.emptySet());
+		m_dcOutputs = new DialogComponentTensorSelection(m_smOutputs, "Outputs", Collections.emptySet());
 
 		// Add the dialog components
 		createNewGroup("Input Location");
@@ -132,13 +143,23 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 		createNewTab("Advanced Settings");
 		addDialogComponent(m_dcAdvanced);
+		addDialogComponent(m_dcInputs);
+		addDialogComponent(m_dcOutputs);
 
 		// Add change listeners
-		m_smFilePath.addChangeListener((e) -> {
+		m_smFilePath.addChangeListener(e -> {
 			readSavedModel();
 			updateTags();
 		});
-		m_smTags.addChangeListener((e) -> updateSignatures());
+		m_smTags.addChangeListener(e -> updateSignatures());
+		m_smAdvanced.addChangeListener(e -> activateAdvanced());
+	}
+
+	private void activateAdvanced() {
+		final boolean advanced = m_smAdvanced.getBooleanValue();
+		m_smSignature.setEnabled(!advanced);
+		m_smInputs.setEnabled(advanced);
+		m_smOutputs.setEnabled(advanced);
 	}
 
 	private void readSavedModel() {
@@ -177,21 +198,37 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	}
 
 	/**
-	 * Updates the signatures shown for selection in {@link #m_dcSignature}.
+	 * Updates the signatures shown for selection in {@link #m_dcSignature} and the
+	 * advanced signature selection.
 	 */
 	private void updateSignatures() {
-		Collection<String> newSignatureList;
 		List<String> tags = Arrays.asList(m_smTags.getStringArrayValue());
-		if (m_savedModel != null && !tags.isEmpty()) {
-			newSignatureList = m_savedModel.getSignatureDefsStrings(tags);
-			if (newSignatureList.isEmpty()) {
-				newSignatureList = EMPTY_COLLECTION;
-				m_dcErrorLabel.setText("The SavedModel doesn't contain signatures with the selected tag");
-			}
-		} else {
-			newSignatureList = EMPTY_COLLECTION;
+
+		// Check if we can't find the signatures
+		if (m_savedModel == null || tags.isEmpty()) {
+			m_dcSignature.replaceListItems(EMPTY_COLLECTION, null);
+			m_dcInputs.setTensorOptions(Collections.emptySet());
+			m_dcOutputs.setTensorOptions(Collections.emptySet());
+			return;
 		}
-		m_dcSignature.replaceListItems(newSignatureList, null);
+
+		// Get the available signatures
+		final Collection<String> newSignatureList = m_savedModel.getSignatureDefsStrings(tags);
+
+		if (newSignatureList.isEmpty()) {
+			// If there are no signatures activate the advanced settings
+			m_smAdvanced.setBooleanValue(true);
+			m_dcErrorLabel.setText(
+					"The SavedModel doesn't contain signatures with the selected tag. " + "Use the advanced settings.");
+			m_dcSignature.replaceListItems(EMPTY_COLLECTION, null);
+		} else {
+			// Else set the signatures
+			m_dcSignature.replaceListItems(newSignatureList, null);
+		}
+
+		// Get the available tensors for the advanced settings
+		m_dcInputs.setTensorOptions(m_savedModel.getPossibleInputTensors(tags));
+		m_dcOutputs.setTensorOptions(m_savedModel.getPossibleOutputTensors(tags));
 	}
 
 	@Override

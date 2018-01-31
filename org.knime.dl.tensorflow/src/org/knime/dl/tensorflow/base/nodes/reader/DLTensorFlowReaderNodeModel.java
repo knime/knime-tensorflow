@@ -92,6 +92,10 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 
 	private static final String CFG_KEY_ADVANCED = "advanced";
 
+	private static final String CFG_KEY_INPUTS = "inputs";
+
+	private static final String CFG_KEY_OUTPUTS = "outputs";
+
 	private final SettingsModelString m_filePath = createFilePathSettingsModel();
 
 	private final SettingsModelBoolean m_copyNetwork = createCopyNetworkSettingsModel();
@@ -101,6 +105,10 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 	private final SettingsModelString m_signatures = createSignatureSettingsModel();
 
 	private final SettingsModelBoolean m_advanced = createAdvancedSettingsModel();
+
+	private final SettingsModelStringArray m_inputs = createInputsSettingsModel();
+
+	private final SettingsModelStringArray m_outputs = createOutputsSettingsModel();
 
 	private DLTensorFlowSavedModelNetworkSpec m_networkSpec;
 
@@ -124,6 +132,14 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 
 	static SettingsModelBoolean createAdvancedSettingsModel() {
 		return new SettingsModelBoolean(CFG_KEY_ADVANCED, false);
+	}
+
+	static SettingsModelStringArray createInputsSettingsModel() {
+		return new SettingsModelStringArray(CFG_KEY_INPUTS, new String[0]);
+	}
+
+	static SettingsModelStringArray createOutputsSettingsModel() {
+		return new SettingsModelStringArray(CFG_KEY_OUTPUTS, new String[0]);
 	}
 
 	protected DLTensorFlowReaderNodeModel() {

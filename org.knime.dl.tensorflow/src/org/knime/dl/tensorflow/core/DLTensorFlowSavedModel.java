@@ -47,17 +47,23 @@
 package org.knime.dl.tensorflow.core;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.OptionalLong;
 import java.util.stream.Collectors;
 
+import org.knime.dl.core.DLDefaultTensorSpec;
 import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLTensorShape;
 import org.knime.dl.core.DLTensorSpec;
+import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.DataType;
 import org.tensorflow.framework.MetaGraphDef;
+import org.tensorflow.framework.NodeDef;
 import org.tensorflow.framework.SavedModel;
 import org.tensorflow.framework.SignatureDef;
 import org.tensorflow.framework.TensorInfo;
@@ -110,6 +116,32 @@ public class DLTensorFlowSavedModel {
 	}
 
 	/**
+	 * Extracts the tensor specifications of all tensors which may can be used as
+	 * inputs to the graph.
+	 *
+	 * @param tags
+	 *            the tags to consider
+	 * @return a collection of tensor specifications
+	 */
+	public Collection<DLTensorSpec> getPossibleInputTensors(final Collection<String> tags) {
+		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getGraphDef().getNodeList().stream()
+				.filter(n -> nodeDefCanBeInput(n)).map(n -> getTensorSpecFromNodeDef(n))).collect(Collectors.toSet());
+	}
+
+	/**
+	 * Extracts the tensor specifications of all tensors which may can be used as
+	 * outputs from the graph.
+	 *
+	 * @param tags
+	 *            the tags to consider
+	 * @return a collection of tensor specifications
+	 */
+	public Collection<DLTensorSpec> getPossibleOutputTensors(final Collection<String> tags) {
+		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getGraphDef().getNodeList().stream()
+				.filter(n -> nodeDefCanBeOutput(n)).map(n -> getTensorSpecFromNodeDef(n))).collect(Collectors.toSet());
+	}
+
+	/**
 	 * Creates the specs for a DLNetwork with this SavedModel.
 	 *
 	 * @param tags
@@ -121,14 +153,10 @@ public class DLTensorFlowSavedModel {
 	public DLTensorFlowSavedModelNetworkSpec createSpecs(final String[] tags, final String signature) {
 		List<String> tagsList = Arrays.asList(tags);
 
-		List<MetaGraphDef> metaGraphDefs = m_savedModel.getMetaGraphsList();
-
 		// Get the signature definitions of the selected tags and signatures
-		SignatureDef signatureDef = metaGraphDefs.stream()
-				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tagsList::contains))
-				.flatMap(m -> m.getSignatureDefMap().entrySet().stream().filter(e -> signature.equals(e.getKey()))
-						.map(e -> e.getValue()))
-				.findFirst().get(); // TODO throw exception if not present
+		SignatureDef signatureDef = getFilteredMetagraphDefs(tagsList).stream().flatMap(m -> m.getSignatureDefMap()
+				.entrySet().stream().filter(e -> signature.equals(e.getKey())).map(e -> e.getValue())).findFirst()
+				.get(); // TODO throw exception if not present
 
 		// Get the inputs and outputs from the signature definitions
 		Map<String, TensorInfo> inputs = signatureDef.getInputsMap();
@@ -144,6 +172,12 @@ public class DLTensorFlowSavedModel {
 		return new DLTensorFlowSavedModelNetworkSpec(tags, inputSpecs, hiddenSpecs, outputSpecs);
 	}
 
+	private Collection<MetaGraphDef> getFilteredMetagraphDefs(final Collection<String> tags) {
+		return m_savedModel.getMetaGraphsList().stream()
+				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tags::contains))
+				.collect(Collectors.toList());
+	}
+
 	private Collection<Entry<String, SignatureDef>> getSignatureDefsWithoutSerializedTensors(
 			final Collection<String> tags) {
 		return getSignatureDefs(tags).stream().filter(e -> !containsSerializedTensors(e.getValue()))
@@ -151,9 +185,8 @@ public class DLTensorFlowSavedModel {
 	}
 
 	private Collection<Entry<String, SignatureDef>> getSignatureDefs(final Collection<String> tags) {
-		return m_savedModel.getMetaGraphsList().stream()
-				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tags::contains))
-				.flatMap(m -> m.getSignatureDefMap().entrySet().stream()).collect(Collectors.toSet());
+		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getSignatureDefMap().entrySet().stream())
+				.collect(Collectors.toSet());
 	}
 
 	private boolean containsSerializedTensors(final SignatureDef signatureDef) {
@@ -165,5 +198,64 @@ public class DLTensorFlowSavedModel {
 		// TODO not really every String tensor is a serialized tensor but as we do not
 		// support String inputs yet it is fine
 		return t.getDtype().equals(DataType.DT_STRING);
+	}
+
+	private DLTensorSpec getTensorSpecFromNodeDef(final NodeDef n) {
+		// Get the shape and batch size
+		DLTensorShape shape = null;
+		OptionalLong batchSize = OptionalLong.empty();
+		try {
+			final AttrValue shapeAttr = n.getAttrOrThrow("shape");
+			final List<Long> shapeList = new ArrayList<>(
+					shapeAttr.getShape().getDimList().stream().map(d -> d.getSize()).collect(Collectors.toList()));
+			if (shapeList.size() > 0) {
+				batchSize = OptionalLong.of(shapeList.get(0));
+				shapeList.remove(0);
+				shape = new DLTensorShape() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public int getNumDimensions() {
+						return shapeList.size();
+					}
+
+					@Override
+					public String toString() {
+						return shapeList.toString();
+					}
+				};
+			}
+		} catch (IllegalArgumentException e) {
+			// nothing to do
+		}
+
+		// Get the type
+		Class<?> type = getDataTypeOfNodeDef(n);
+
+		if (batchSize.isPresent() && batchSize.getAsLong() > 0) {
+			return new DLDefaultTensorSpec(n.getName(), batchSize.getAsLong(), shape, type);
+		}
+		if (batchSize.isPresent()) {
+			return new DLDefaultTensorSpec(n.getName(), shape, type);
+		}
+		return new DLDefaultTensorSpec(n.getName(), type);
+	}
+
+	private boolean nodeDefCanBeInput(final NodeDef n) {
+		return getDataTypeOfNodeDef(n) != null; // TODO not everything can be an input, right?
+	}
+
+	private boolean nodeDefCanBeOutput(final NodeDef n) {
+		return getDataTypeOfNodeDef(n) != null; // TODO not everything can be an output, right?
+	}
+
+	private Class<?> getDataTypeOfNodeDef(final NodeDef n) {
+		try {
+			final AttrValue typeAttr = n.getAttrOrThrow("dtype");
+			return Float.class; // TODO implement
+		} catch (IllegalArgumentException e) {
+			return null; // Couldn't find a data type
+		}
 	}
 }
