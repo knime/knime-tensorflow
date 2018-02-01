@@ -221,6 +221,9 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		m_copyNetwork.saveSettingsTo(settings);
 		m_tags.saveSettingsTo(settings);
 		m_signatures.saveSettingsTo(settings);
+		m_advanced.saveSettingsTo(settings);
+		m_inputs.saveSettingsTo(settings);
+		m_outputs.saveSettingsTo(settings);
 	}
 
 	@Override
@@ -229,6 +232,9 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		m_copyNetwork.validateSettings(settings);
 		m_tags.validateSettings(settings);
 		m_signatures.validateSettings(settings);
+		m_advanced.validateSettings(settings);
+		m_inputs.validateSettings(settings);
+		m_outputs.validateSettings(settings);
 	}
 
 	@Override
@@ -237,6 +243,9 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		m_copyNetwork.loadSettingsFrom(settings);
 		m_tags.loadSettingsFrom(settings);
 		m_signatures.loadSettingsFrom(settings);
+		m_advanced.loadSettingsFrom(settings);
+		m_inputs.loadSettingsFrom(settings);
+		m_outputs.loadSettingsFrom(settings);
 	}
 
 	@Override
