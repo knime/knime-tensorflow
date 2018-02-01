@@ -105,9 +105,11 @@ public class DialogComponentTensorSelection extends DialogComponent {
 
 		// Add "add" button
 		m_gbc.insets = new Insets(5, 5, 5, 5);
-		m_gbc.anchor = GridBagConstraints.NORTHEAST;
-		m_gbc.gridx = 0;
+		m_gbc.anchor = GridBagConstraints.FIRST_LINE_END;
+		m_gbc.gridx = 3;
 		m_gbc.gridy = 0;
+		m_gbc.weightx = 1;
+		m_gbc.weighty = 1;
 		m_addButton = new JButton("Add");
 		getComponentPanel().add(m_addButton, m_gbc);
 
@@ -128,9 +130,11 @@ public class DialogComponentTensorSelection extends DialogComponent {
 				.forEach(c -> getComponentPanel().remove(c));
 
 		// Add selected panels
-		m_gbc.anchor = GridBagConstraints.NORTHEAST;
+		m_gbc.anchor = GridBagConstraints.FIRST_LINE_START;
 		m_gbc.fill = GridBagConstraints.HORIZONTAL;
 		m_gbc.gridy = 1;
+		m_gbc.gridwidth = 3;
+		m_gbc.weightx = 1;
 		m_tensors.stream().filter(t -> selected.contains(m_identifierFunc.apply(t))).forEach(t -> {
 			final TensorPanel panel = new TensorPanel(t.getName(), t.getShape(), t.getElementType());
 			getComponentPanel().add(panel, m_gbc);
@@ -189,7 +193,8 @@ public class DialogComponentTensorSelection extends DialogComponent {
 	private List<DLTensorSpec> getSelectableTensors() {
 		SettingsModelStringArray model = getModelStringArray();
 		List<String> selected = Arrays.asList(model.getStringArrayValue());
-		return m_tensors.stream().filter(t -> !selected.contains(m_identifierFunc.apply(t))).collect(Collectors.toList());
+		return m_tensors.stream().filter(t -> !selected.contains(m_identifierFunc.apply(t)))
+				.collect(Collectors.toList());
 	}
 
 	private void showAddDialog() {
@@ -225,19 +230,22 @@ public class DialogComponentTensorSelection extends DialogComponent {
 			setBorder(border);
 
 			gbc.insets = new Insets(5, 5, 5, 5);
-			gbc.anchor = GridBagConstraints.NORTHWEST;
+			gbc.anchor = GridBagConstraints.FIRST_LINE_START;
 			gbc.gridx = 0;
 			gbc.gridy = 0;
-			gbc.weighty = 1;
+			gbc.weightx = 2;
 			add(new JLabel("Shape: " + shape.toString()), gbc);
 
+			gbc.anchor = GridBagConstraints.FIRST_LINE_END;
 			gbc.gridx++;
-			gbc.weighty = 0;
+			gbc.weightx = 1;
 			m_removeButton = new JButton("remove");
 			add(m_removeButton, gbc);
 
+			gbc.anchor = GridBagConstraints.FIRST_LINE_START;
 			gbc.gridx = 0;
 			gbc.gridy++;
+			gbc.weightx = 2;
 			add(new JLabel("Type: " + elementType.getSimpleName()), gbc);
 		}
 
