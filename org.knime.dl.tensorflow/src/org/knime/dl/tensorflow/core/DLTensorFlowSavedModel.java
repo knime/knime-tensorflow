@@ -56,10 +56,15 @@ import java.util.Map.Entry;
 import java.util.OptionalLong;
 import java.util.stream.Collectors;
 
+import org.knime.dl.core.DLDefaultFixedTensorShape;
+import org.knime.dl.core.DLDefaultPartialTensorShape;
+import org.knime.dl.core.DLDefaultTensorId;
 import org.knime.dl.core.DLDefaultTensorSpec;
 import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorShape;
 import org.knime.dl.core.DLTensorSpec;
+import org.knime.dl.core.DLUnknownTensorShape;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.DataType;
 import org.tensorflow.framework.MetaGraphDef;
@@ -201,46 +206,50 @@ public class DLTensorFlowSavedModel {
 	}
 
 	private DLTensorSpec getTensorSpecFromNodeDef(final NodeDef n) {
-		// TODO the shape isn't right here. Fix it when the refactoring is done
+		// Get the type
+		final Class<?> type = getDataTypeOfNodeDef(n);
+		// Get the name
+		final String name = n.getName();
+		// The names should work as identifiers in a TensorFlow graph
+		final DLTensorId id = new DLDefaultTensorId(name);
+
 		// Get the shape and batch size
-		DLTensorShape shape = null;
-		OptionalLong batchSize = OptionalLong.empty();
 		try {
 			final AttrValue shapeAttr = n.getAttrOrThrow("shape");
 			final List<Long> shapeList = new ArrayList<>(
 					shapeAttr.getShape().getDimList().stream().map(d -> d.getSize()).collect(Collectors.toList()));
 			if (shapeList.size() > 0) {
-				batchSize = OptionalLong.of(shapeList.get(0));
+				// Get the batch size
+				final long batchSize = shapeList.get(0);
 				shapeList.remove(0);
-				shape = new DLTensorShape() {
 
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public int getNumDimensions() {
-						return shapeList.size();
-					}
-
-					@Override
-					public String toString() {
-						return shapeList.toString();
-					}
-				};
+				// Create the shape
+				DLTensorShape shape;
+				if (shapeList.isEmpty()) {
+					// No shape other than the batch size
+					shape = DLUnknownTensorShape.INSTANCE;
+				} else if (shapeList.contains(-1L)) {
+					// At least one dimension is unknown
+					OptionalLong[] dims = shapeList.stream().map(l -> l > 0 ? OptionalLong.of(l) : OptionalLong.empty())
+							.toArray(OptionalLong[]::new);
+					shape = new DLDefaultPartialTensorShape(dims);
+				} else {
+					// The shape is fixed
+					long[] dims = shapeList.stream().mapToLong(Long::longValue).toArray();
+					shape = new DLDefaultFixedTensorShape(dims);
+				}
+				if (batchSize > 0) {
+					return new DLDefaultTensorSpec(id, name, batchSize, shape, type);
+				} else {
+					return new DLDefaultTensorSpec(id, name, shape, type);
+				}
 			}
 		} catch (IllegalArgumentException e) {
 			// nothing to do
 		}
 
-		// Get the type
-		Class<?> type = getDataTypeOfNodeDef(n);
-
-		if (batchSize.isPresent() && batchSize.getAsLong() > 0) {
-			return new DLDefaultTensorSpec(n.getName(), batchSize.getAsLong(), shape, type);
-		}
-		if (batchSize.isPresent()) {
-			return new DLDefaultTensorSpec(n.getName(), shape, type);
-		}
-		return new DLDefaultTensorSpec(n.getName(), type);
+		// Getting the shape and batch size wasn't successful
+		return new DLDefaultTensorSpec(id, name, type);
 	}
 
 	private boolean nodeDefCanBeInput(final NodeDef n) {

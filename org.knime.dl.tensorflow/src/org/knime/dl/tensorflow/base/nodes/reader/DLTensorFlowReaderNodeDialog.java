@@ -129,8 +129,10 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_COLLECTION);
 		m_dcErrorLabel = new DialogComponentColoredLabel("", Color.RED);
 		m_dcAdvanced = new DialogComponentBoolean(m_smAdvanced, "Use advanced settings");
-		m_dcInputs = new DialogComponentTensorSelection(m_smInputs, "Inputs", Collections.emptySet(), t -> DLTensorFlowReaderNodeModel.getIdentifier(t));
-		m_dcOutputs = new DialogComponentTensorSelection(m_smOutputs, "Outputs", Collections.emptySet(), t -> DLTensorFlowReaderNodeModel.getIdentifier(t));
+		m_dcInputs = new DialogComponentTensorSelection(m_smInputs, "Inputs", Collections.emptySet(),
+				t -> DLTensorFlowReaderNodeModel.getIdentifier(t));
+		m_dcOutputs = new DialogComponentTensorSelection(m_smOutputs, "Outputs", Collections.emptySet(),
+				t -> DLTensorFlowReaderNodeModel.getIdentifier(t));
 
 		// Add the dialog components
 		createNewGroup("Input Location");
