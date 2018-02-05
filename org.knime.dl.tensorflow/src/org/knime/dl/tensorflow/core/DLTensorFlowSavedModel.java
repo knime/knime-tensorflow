@@ -65,13 +65,13 @@ import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorShape;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.DLUnknownTensorShape;
-import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.DataType;
 import org.tensorflow.framework.MetaGraphDef;
 import org.tensorflow.framework.NodeDef;
 import org.tensorflow.framework.SavedModel;
 import org.tensorflow.framework.SignatureDef;
 import org.tensorflow.framework.TensorInfo;
+import org.tensorflow.framework.TensorShapeProto;
 
 /**
  * Wrapper for TensorFlow {@link SavedModel}. Can read them from a file or
@@ -117,7 +117,7 @@ public class DLTensorFlowSavedModel {
 	 * @return a list of signature names
 	 */
 	public Collection<String> getSignatureDefsStrings(Collection<String> tags) {
-		return getSignatureDefsWithoutSerializedTensors(tags).stream().map(e -> e.getKey()).collect(Collectors.toSet());
+		return getFilteredSignature(tags).stream().map(e -> e.getKey()).collect(Collectors.toSet());
 	}
 
 	/**
@@ -129,8 +129,9 @@ public class DLTensorFlowSavedModel {
 	 * @return a collection of tensor specifications
 	 */
 	public Collection<DLTensorSpec> getPossibleInputTensors(final Collection<String> tags) {
-		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getGraphDef().getNodeList().stream()
-				.filter(n -> nodeDefCanBeInput(n)).map(n -> getTensorSpecFromNodeDef(n))).collect(Collectors.toSet());
+		return getFilteredMetagraphDefs(tags).stream().flatMap(
+				m -> m.getGraphDef().getNodeList().stream().filter(n -> canBeInput(n)).map(n -> createTensorSpec(n)))
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -142,8 +143,9 @@ public class DLTensorFlowSavedModel {
 	 * @return a collection of tensor specifications
 	 */
 	public Collection<DLTensorSpec> getPossibleOutputTensors(final Collection<String> tags) {
-		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getGraphDef().getNodeList().stream()
-				.filter(n -> nodeDefCanBeOutput(n)).map(n -> getTensorSpecFromNodeDef(n))).collect(Collectors.toSet());
+		return getFilteredMetagraphDefs(tags).stream().flatMap(
+				m -> m.getGraphDef().getNodeList().stream().filter(n -> canBeOutput(n)).map(n -> createTensorSpec(n)))
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -151,27 +153,30 @@ public class DLTensorFlowSavedModel {
 	 *
 	 * @param tags
 	 *            the tags to consider.
-	 * @param signatures
-	 *            the signatures to consider.
+	 * @param signature
+	 *            the signature to consider which must be available.
 	 * @return the specs.
 	 */
 	public DLTensorFlowSavedModelNetworkSpec createSpecs(final String[] tags, final String signature) {
 		List<String> tagsList = Arrays.asList(tags);
 
 		// Get the signature definitions of the selected tags and signatures
-		SignatureDef signatureDef = getFilteredMetagraphDefs(tagsList).stream().flatMap(m -> m.getSignatureDefMap()
-				.entrySet().stream().filter(e -> signature.equals(e.getKey())).map(e -> e.getValue())).findFirst()
-				.get(); // TODO throw exception if not present
+		SignatureDef signatureDef = getFilteredMetagraphDefs(tagsList).stream()
+				.flatMap(m -> m.getSignatureDefMap().entrySet().stream().filter(e -> signature.equals(e.getKey()))
+						.map(e -> e.getValue()))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("The SavedModel doesn't contain the signature."));
 
 		// Get the inputs and outputs from the signature definitions
 		Map<String, TensorInfo> inputs = signatureDef.getInputsMap();
 		Map<String, TensorInfo> outputs = signatureDef.getOutputsMap();
 
 		// Create DLTensorSpec for the inputs and outputs
-		DLTensorSpec[] inputSpecs = new DLTensorSpec[0];
+		DLTensorSpec[] inputSpecs = inputs.entrySet().stream().map(e -> createTensorSpec(e.getKey(), e.getValue()))
+				.toArray(DLTensorSpec[]::new);
 		DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
-		DLTensorSpec[] outputSpecs = new DLTensorSpec[0];
-		// TODO this is affected by the refactoring
+		DLTensorSpec[] outputSpecs = outputs.entrySet().stream().map(e -> createTensorSpec(e.getKey(), e.getValue()))
+				.toArray(DLTensorSpec[]::new);
 
 		// Create the NetworkSpec
 		return new DLTensorFlowSavedModelNetworkSpec(tags, inputSpecs, hiddenSpecs, outputSpecs);
@@ -183,10 +188,8 @@ public class DLTensorFlowSavedModel {
 				.collect(Collectors.toList());
 	}
 
-	private Collection<Entry<String, SignatureDef>> getSignatureDefsWithoutSerializedTensors(
-			final Collection<String> tags) {
-		return getSignatureDefs(tags).stream().filter(e -> !containsSerializedTensors(e.getValue()))
-				.collect(Collectors.toSet());
+	private Collection<Entry<String, SignatureDef>> getFilteredSignature(final Collection<String> tags) {
+		return getSignatureDefs(tags).stream().filter(e -> canBeUsedInKNIME(e.getValue())).collect(Collectors.toSet());
 	}
 
 	private Collection<Entry<String, SignatureDef>> getSignatureDefs(final Collection<String> tags) {
@@ -194,18 +197,25 @@ public class DLTensorFlowSavedModel {
 				.collect(Collectors.toSet());
 	}
 
-	private boolean containsSerializedTensors(final SignatureDef signatureDef) {
-		return signatureDef.getInputsMap().entrySet().stream().anyMatch(t -> isSerializedTensor(t.getValue()))
-				|| signatureDef.getOutputsMap().entrySet().stream().anyMatch(t -> isSerializedTensor(t.getValue()));
+	private boolean canBeUsedInKNIME(final SignatureDef signatureDef) {
+		return signatureDef.getInputsMap().entrySet().stream().anyMatch(t -> canBeInput(t.getValue()))
+				&& signatureDef.getOutputsMap().entrySet().stream().anyMatch(t -> canBeOutput(t.getValue()));
 	}
 
-	private boolean isSerializedTensor(final TensorInfo t) {
-		// TODO not really every String tensor is a serialized tensor but as we do not
-		// support String inputs yet it is fine
-		return t.getDtype().equals(DataType.DT_STRING);
+	private DLTensorSpec createTensorSpec(final String name, final TensorInfo t) {
+		try {
+			final Class<?> type = getClassForType(t.getDtype());
+			final DLTensorId id = new DLDefaultTensorId(t.getName());
+			final TensorShapeProto shapeProto = t.getTensorShape();
+			return createTensorSpec(id, name, shapeProto, type);
+		} catch (DLInvalidTypeException e) {
+			throw new IllegalStateException();
+			// This should not happen because we only allow signatures where we know all
+			// types
+		}
 	}
 
-	private DLTensorSpec getTensorSpecFromNodeDef(final NodeDef n) {
+	private DLTensorSpec createTensorSpec(final NodeDef n) {
 		// Get the type
 		final Class<?> type = getDataTypeOfNodeDef(n);
 		// Get the name
@@ -213,11 +223,21 @@ public class DLTensorFlowSavedModel {
 		// The names should work as identifiers in a TensorFlow graph
 		final DLTensorId id = new DLDefaultTensorId(name);
 
-		// Get the shape and batch size
+		TensorShapeProto shapeProto = null;
 		try {
-			final AttrValue shapeAttr = n.getAttrOrThrow("shape");
+			shapeProto = n.getAttrOrThrow("shape").getShape();
+		} catch (IllegalArgumentException e) {
+			// Nothing to do
+		}
+		return createTensorSpec(id, name, shapeProto, type);
+	}
+
+	private DLTensorSpec createTensorSpec(final DLTensorId id, final String name, final TensorShapeProto shapeProto,
+			Class<?> type) {
+		// Get the shape and batch size
+		if (shapeProto != null) {
 			final List<Long> shapeList = new ArrayList<>(
-					shapeAttr.getShape().getDimList().stream().map(d -> d.getSize()).collect(Collectors.toList()));
+					shapeProto.getDimList().stream().map(d -> d.getSize()).collect(Collectors.toList()));
 			if (shapeList.size() > 0) {
 				// Get the batch size
 				final long batchSize = shapeList.get(0);
@@ -244,28 +264,75 @@ public class DLTensorFlowSavedModel {
 					return new DLDefaultTensorSpec(id, name, shape, type);
 				}
 			}
-		} catch (IllegalArgumentException e) {
-			// nothing to do
 		}
 
 		// Getting the shape and batch size wasn't successful
 		return new DLDefaultTensorSpec(id, name, type);
 	}
 
-	private boolean nodeDefCanBeInput(final NodeDef n) {
-		return getDataTypeOfNodeDef(n) != null; // TODO not everything can be an input, right?
+	private boolean canBeInput(final TensorInfo t) {
+		// TODO Can only placeholders be inputs?
+		return canBeInputOrOutput(t.getDtype());
 	}
 
-	private boolean nodeDefCanBeOutput(final NodeDef n) {
-		return getDataTypeOfNodeDef(n) != null; // TODO not everything can be an output, right?
+	private boolean canBeOutput(final TensorInfo t) {
+		return canBeInputOrOutput(t.getDtype());
+	}
+
+	private boolean canBeInput(final NodeDef n) {
+		try {
+			// TODO Can only placeholders be inputs?
+			return canBeInputOrOutput(n.getAttrOrThrow("dtype").getType());
+		} catch (IllegalArgumentException e) {
+			// It doesn't even has a type
+			return false;
+		}
+	}
+
+	private boolean canBeOutput(final NodeDef n) {
+		try {
+			return canBeInputOrOutput(n.getAttrOrThrow("dtype").getType());
+		} catch (IllegalArgumentException e) {
+			// It doesn't even has a type
+			return false;
+		}
+	}
+
+	private boolean canBeInputOrOutput(final DataType t) {
+		try {
+			return !getClassForType(t).equals(String.class);
+		} catch (DLInvalidTypeException e) {
+			return false;
+		}
 	}
 
 	private Class<?> getDataTypeOfNodeDef(final NodeDef n) {
 		try {
-			final AttrValue typeAttr = n.getAttrOrThrow("dtype");
-			return Float.class; // TODO implement
-		} catch (IllegalArgumentException e) {
+			final DataType typeAttr = n.getAttrOrThrow("dtype").getType();
+			return getClassForType(typeAttr);
+		} catch (IllegalArgumentException | DLInvalidTypeException e) {
 			return null; // Couldn't find a data type
+		}
+	}
+
+	private Class<?> getClassForType(final DataType t) throws DLInvalidTypeException {
+		switch (t) {
+		case DT_FLOAT:
+			return Float.class;
+		case DT_DOUBLE:
+			return Double.class;
+		case DT_INT32:
+			return Integer.class;
+		case DT_UINT8:
+			return Byte.class;
+		case DT_INT64:
+			return Long.class;
+		case DT_BOOL:
+			return Boolean.class;
+		case DT_STRING:
+			return String.class;
+		default:
+			throw new DLInvalidTypeException("The type " + t + " has no corresponding type in KNIME.");
 		}
 	}
 }

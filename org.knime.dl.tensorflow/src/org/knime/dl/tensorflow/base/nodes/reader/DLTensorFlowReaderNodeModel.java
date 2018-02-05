@@ -146,7 +146,7 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 	}
 
 	static String getIdentifier(final DLTensorSpec t) {
-		// TODO save other identifier?
+		// The names in a TensorFlow graph are unique
 		return t.getName();
 	}
 
