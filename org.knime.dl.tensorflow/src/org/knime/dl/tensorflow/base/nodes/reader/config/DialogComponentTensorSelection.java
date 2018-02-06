@@ -149,6 +149,9 @@ public class DialogComponentTensorSelection extends DialogComponent {
 			});
 		});
 
+		// Propagate the enabled status
+		setEnabledComponents(model.isEnabled());
+
 		// Disable the button if there is no unselected tensor
 		final boolean unselectedAvailable = !getSelectableTensors().isEmpty();
 		m_addButton.setEnabled(unselectedAvailable && model.isEnabled());

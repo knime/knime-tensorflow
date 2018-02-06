@@ -152,16 +152,17 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		m_smFilePath.addChangeListener(e -> {
 			readSavedModel();
 			updateTags();
+			updateAdvanced();
 		});
 		m_smTags.addChangeListener(e -> updateSignatures());
-		m_smAdvanced.addChangeListener(e -> activateAdvanced());
+		m_smAdvanced.addChangeListener(e -> updateAdvanced());
 
 		// Switch advanced on and off to update which components are enabled
 		m_smAdvanced.setBooleanValue(!m_smAdvanced.getBooleanValue());
 		m_smAdvanced.setBooleanValue(!m_smAdvanced.getBooleanValue());
 	}
 
-	private void activateAdvanced() {
+	private void updateAdvanced() {
 		final boolean advanced = m_smAdvanced.getBooleanValue();
 		m_smSignature.setEnabled(!advanced);
 		m_smInputs.setEnabled(advanced);
