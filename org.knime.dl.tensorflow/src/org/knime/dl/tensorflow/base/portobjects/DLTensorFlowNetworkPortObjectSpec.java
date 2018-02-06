@@ -68,18 +68,24 @@ public class DLTensorFlowNetworkPortObjectSpec extends DLAbstractNetworkPortObje
 
 	private static final String ZIP_ENTRY_NAME = "DLTensorFlowNetworkPortObjectSpec";
 
-	public DLTensorFlowNetworkPortObjectSpec(DLTensorFlowNetworkSpec spec,
+	/**
+	 * Creates new spec of a {@link DLTensorFlowNetworkPortObject}.
+	 *
+	 * @param spec the spec of the corresponding TensorFlow deep learning network
+	 * @param type
+	 */
+	public DLTensorFlowNetworkPortObjectSpec(final DLTensorFlowNetworkSpec spec,
 			final Class<? extends DLTensorFlowNetwork> type) {
 		super(spec, type);
 	}
 
 	@Override
-	protected void hashCodeInternal(HashCodeBuilder b) {
+	protected void hashCodeInternal(final HashCodeBuilder b) {
 		// no op - everything is handled in abstract base class
 	}
 
 	@Override
-	protected boolean equalsInternal(DLNetworkPortObjectSpec other) {
+	protected boolean equalsInternal(final DLNetworkPortObjectSpec other) {
 		// no op - everything is handled in abstract base class
 		return true;
 	}
@@ -90,8 +96,8 @@ public class DLTensorFlowNetworkPortObjectSpec extends DLAbstractNetworkPortObje
 	public static final class Serializer extends PortObjectSpecSerializer<DLTensorFlowNetworkPortObjectSpec> {
 
 		@Override
-		public void savePortObjectSpec(DLTensorFlowNetworkPortObjectSpec portObjectSpec,
-				PortObjectSpecZipOutputStream out) throws IOException {
+		public void savePortObjectSpec(final DLTensorFlowNetworkPortObjectSpec portObjectSpec,
+				final PortObjectSpecZipOutputStream out) throws IOException {
 			out.putNextEntry(new ZipEntry(ZIP_ENTRY_NAME));
 			final ObjectOutputStream objOut = new ObjectOutputStream(out);
 			objOut.writeObject(portObjectSpec.m_spec);
@@ -100,7 +106,7 @@ public class DLTensorFlowNetworkPortObjectSpec extends DLAbstractNetworkPortObje
 		}
 
 		@Override
-		public DLTensorFlowNetworkPortObjectSpec loadPortObjectSpec(PortObjectSpecZipInputStream in)
+		public DLTensorFlowNetworkPortObjectSpec loadPortObjectSpec(final PortObjectSpecZipInputStream in)
 				throws IOException {
 			final ZipEntry entry = in.getNextEntry();
 			if (!ZIP_ENTRY_NAME.equals(entry.getName())) {

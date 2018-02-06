@@ -54,6 +54,7 @@ import org.knime.dl.core.DLAbstractNetworkSpec;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
+import org.knime.dl.core.training.DLTrainingConfig;
 import org.knime.dl.tensorflow.core.training.DLTensorFlowTrainingConfig;
 
 /**
@@ -65,29 +66,47 @@ public class DLTensorFlowSavedModelNetworkSpec extends DLAbstractNetworkSpec<DLT
 		implements DLTensorFlowNetworkSpec {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private final String[] m_tags;
 
-	public DLTensorFlowSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
-			final DLTensorSpec[] outputSpecs) {
+	/**
+	 * Creates a new {@link DLTensorFlowNetworkSpec} for a {@link DLTensorFlowSavedModelNetwork}.
+	 *
+	 * @param tags a list of tags describing the graph definitions to load
+	 * @param inputSpecs the input tensor specs, can be empty
+	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
+	 * @param outputSpecs the output tensor specs, can be empty
+	 */
+	public DLTensorFlowSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs,
+			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs) {
 		super(inputSpecs, hiddenOutputSpecs, outputSpecs);
 		m_tags = tags;
 	}
 
-	public DLTensorFlowSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
-			final DLTensorSpec[] outputSpecs, DLTensorFlowTrainingConfig trainingConfig) {
+	/**
+	 * Creates a new {@link DLTensorFlowNetworkSpec} for a {@link DLTensorFlowSavedModelNetwork}.
+	 *
+	 * @param tags a list of tags describing the graph definitions to load
+	 * @param inputSpecs the input tensor specs, can be empty
+	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
+	 * @param outputSpecs the output tensor specs, can be empty
+	 * @param trainingConfig the {@link DLTrainingConfig training configuration}
+	 */
+	public DLTensorFlowSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs,
+			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs,
+			final DLTensorFlowTrainingConfig trainingConfig) {
 		super(inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
 		m_tags = tags;
 	}
 
 	@Override
-	protected void hashCodeInternal(HashCodeBuilder b) {
+	protected void hashCodeInternal(final HashCodeBuilder b) {
 		b.append(m_tags);
 	}
 
 	@Override
-	protected boolean equalsInternal(DLNetworkSpec other) {
-		DLTensorFlowSavedModelNetworkSpec o = (DLTensorFlowSavedModelNetworkSpec) other;
+	protected boolean equalsInternal(final DLNetworkSpec other) {
+		final DLTensorFlowSavedModelNetworkSpec o = (DLTensorFlowSavedModelNetworkSpec) other;
 		if (m_tags.length != o.m_tags.length) {
 			return false;
 		}
@@ -96,10 +115,13 @@ public class DLTensorFlowSavedModelNetworkSpec extends DLAbstractNetworkSpec<DLT
 	}
 
 	@Override
-	public DLTensorFlowNetwork create(URL source) throws DLInvalidSourceException {
+	public DLTensorFlowNetwork create(final URL source) throws DLInvalidSourceException {
 		return new DLTensorFlowSavedModelNetwork(this, source);
 	}
-	
+
+	/**
+	 * @return the list of tags describing the graph definitions to load
+	 */
 	public String[] getTags() {
 		return m_tags;
 	}

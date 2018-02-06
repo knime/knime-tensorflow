@@ -73,7 +73,7 @@ public class DLTensorFlowPluginActivator extends AbstractUIPlugin {
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(DLTensorFlowPluginActivator.class);
 
-	// The plug-in ID
+	/** The plug-in ID */
 	public static final String PLUGIN_ID = "org.knime.dl.tensorflow.libs"; //$NON-NLS-1$
 
 	// The shared instance

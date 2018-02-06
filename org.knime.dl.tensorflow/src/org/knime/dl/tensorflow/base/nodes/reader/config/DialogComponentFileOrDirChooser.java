@@ -66,9 +66,8 @@ import org.knime.core.node.util.FilesHistoryPanel;
 import org.knime.core.node.util.FilesHistoryPanel.LocationValidation;
 
 /**
- * Dialog component for choosing a file or a directory. Very similar to
- * {@link DialogComponentFileChooser} but allows to create and dialog which
- * allows the selection of a file and a directory.
+ * Dialog component for choosing a file or a directory. Very similar to {@link DialogComponentFileChooser} but allows to
+ * create and dialog which allows the selection of a file and a directory.
  *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
@@ -78,6 +77,15 @@ public class DialogComponentFileOrDirChooser extends DialogComponent {
 
 	private final FilesHistoryPanel m_filesPanel;
 
+	/**
+	 * Creates a new {@link DialogComponentFileOrDirChooser}.
+	 *
+	 * @param stringModel the settings model for the path
+	 * @param historyID a id for saving the history
+	 * @param dialogType the dialog type of the {@link FilesHistoryPanel}
+	 * @param fvm a flow variable model of null
+	 * @param suffixes a list of valid filename suffixes
+	 */
 	public DialogComponentFileOrDirChooser(final SettingsModelString stringModel, final String historyID,
 			final int dialogType, final FlowVariableModel fvm, final String... suffixes) {
 		super(stringModel);
@@ -89,7 +97,7 @@ public class DialogComponentFileOrDirChooser extends DialogComponent {
 		m_filesPanel.addChangeListener((e) -> {
 			try {
 				((SettingsModelString) getModel()).setStringValue(m_filesPanel.getSelectedFile());
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				NodeLogger.getLogger(DialogComponentFileOrDirChooser.class)
 						.error("Could not store selected file or directory in settings " + ex.getMessage(), ex);
 			}
@@ -110,7 +118,7 @@ public class DialogComponentFileOrDirChooser extends DialogComponent {
 		final SettingsModelString model = (SettingsModelString) getModel();
 		final String newValue = model.getStringValue();
 		if ((newValue == null && !m_filesPanel.getSelectedFile().isEmpty())
-				|| !newValue.equals(m_filesPanel.getSelectedFile())) {
+				|| newValue != null && !newValue.equals(m_filesPanel.getSelectedFile())) {
 			m_filesPanel.setSelectedFile(newValue);
 		}
 		setEnabledComponents(model.isEnabled());
@@ -122,17 +130,17 @@ public class DialogComponentFileOrDirChooser extends DialogComponent {
 	}
 
 	@Override
-	protected void checkConfigurabilityBeforeLoad(PortObjectSpec[] specs) throws NotConfigurableException {
+	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs) throws NotConfigurableException {
 		// nothing to do
 	}
 
 	@Override
-	protected void setEnabledComponents(boolean enabled) {
+	protected void setEnabledComponents(final boolean enabled) {
 		m_filesPanel.setEnabled(enabled);
 	}
 
 	@Override
-	public void setToolTipText(String text) {
+	public void setToolTipText(final String text) {
 		m_filesPanel.setToolTipText(text);
 	}
 

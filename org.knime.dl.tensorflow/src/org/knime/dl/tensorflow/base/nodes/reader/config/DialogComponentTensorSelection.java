@@ -74,8 +74,7 @@ import org.knime.dl.core.DLTensorShape;
 import org.knime.dl.core.DLTensorSpec;
 
 /**
- * DialogComponent for selecting tensors from a list of tensors in a
- * "add-remove" fashion.
+ * DialogComponent for selecting tensors from a list of tensors in a "add-remove" fashion.
  *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
@@ -89,8 +88,16 @@ public class DialogComponentTensorSelection extends DialogComponent {
 
 	private final Function<DLTensorSpec, String> m_identifierFunc;
 
+	/**
+	 * Creates a new {@link DialogComponentTensorSelection}.
+	 *
+	 * @param stringArrayModel the settings model to save the tensor identifiers
+	 * @param title the title of the component
+	 * @param tensors a collection of available tensors to choose from
+	 * @param identifierFunc a function which give the identifier of a given tensor
+	 */
 	public DialogComponentTensorSelection(final SettingsModelStringArray stringArrayModel, final String title,
-			final Collection<DLTensorSpec> tensors, Function<DLTensorSpec, String> identifierFunc) {
+			final Collection<DLTensorSpec> tensors, final Function<DLTensorSpec, String> identifierFunc) {
 		super(stringArrayModel);
 		m_tensors = tensors;
 		m_identifierFunc = identifierFunc;
@@ -100,7 +107,7 @@ public class DialogComponentTensorSelection extends DialogComponent {
 		m_gbc = new GridBagConstraints();
 
 		// Set the border
-		TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), title);
+		final TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), title);
 		getComponentPanel().setBorder(border);
 
 		// Add "add" button
@@ -142,7 +149,7 @@ public class DialogComponentTensorSelection extends DialogComponent {
 
 			// Action listener for the remove button
 			panel.m_removeButton.addActionListener(e -> {
-				List<String> current = new ArrayList<>(Arrays.asList(model.getStringArrayValue()));
+				final List<String> current = new ArrayList<>(Arrays.asList(model.getStringArrayValue()));
 				current.remove(m_identifierFunc.apply(t));
 				model.setStringArrayValue(current.toArray(new String[current.size()]));
 				updateComponent();
@@ -188,14 +195,19 @@ public class DialogComponentTensorSelection extends DialogComponent {
 		getComponentPanel().setToolTipText(text);
 	}
 
-	public void setTensorOptions(Collection<DLTensorSpec> tensors) {
+	/**
+	 * Updates the available tensors.
+	 *
+	 * @param tensors the available tensors
+	 */
+	public void setTensorOptions(final Collection<DLTensorSpec> tensors) {
 		m_tensors = tensors;
 		updateComponent();
 	}
 
 	private List<DLTensorSpec> getSelectableTensors() {
-		SettingsModelStringArray model = getModelStringArray();
-		List<String> selected = Arrays.asList(model.getStringArrayValue());
+		final SettingsModelStringArray model = getModelStringArray();
+		final List<String> selected = Arrays.asList(model.getStringArrayValue());
 		return m_tensors.stream().filter(t -> !selected.contains(m_identifierFunc.apply(t)))
 				.collect(Collectors.toList());
 	}
@@ -209,7 +221,7 @@ public class DialogComponentTensorSelection extends DialogComponent {
 				JOptionPane.PLAIN_MESSAGE);
 		if (selectedOption == JOptionPane.OK_OPTION) {
 			final SettingsModelStringArray model = getModelStringArray();
-			List<String> current = new ArrayList<>(Arrays.asList(model.getStringArrayValue()));
+			final List<String> current = new ArrayList<>(Arrays.asList(model.getStringArrayValue()));
 			current.add(smTensor.getStringValue());
 			model.setStringArrayValue(current.toArray(new String[current.size()]));
 			updateComponent();
@@ -228,8 +240,8 @@ public class DialogComponentTensorSelection extends DialogComponent {
 
 		private TensorPanel(final String name, final DLTensorShape shape, final Class<?> elementType) {
 			super(new GridBagLayout());
-			GridBagConstraints gbc = new GridBagConstraints();
-			TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), name);
+			final GridBagConstraints gbc = new GridBagConstraints();
+			final TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), name);
 			setBorder(border);
 
 			gbc.insets = new Insets(5, 5, 5, 5);
@@ -253,7 +265,7 @@ public class DialogComponentTensorSelection extends DialogComponent {
 		}
 
 		@Override
-		public void setEnabled(boolean enabled) {
+		public void setEnabled(final boolean enabled) {
 			super.setEnabled(enabled);
 			Arrays.stream(getComponents()).forEach(c -> c.setEnabled(enabled));
 		}
@@ -265,7 +277,7 @@ public class DialogComponentTensorSelection extends DialogComponent {
 
 		public AddTensorDialogPanel(final SettingsModelString sm, final List<String> selectableStrings) {
 			super(new GridBagLayout());
-			GridBagConstraints gbc = new GridBagConstraints();
+			final GridBagConstraints gbc = new GridBagConstraints();
 			gbc.insets = new Insets(5, 5, 5, 5);
 			gbc.gridx = 0;
 			gbc.gridy = 0;

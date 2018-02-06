@@ -74,8 +74,7 @@ import org.tensorflow.framework.TensorInfo;
 import org.tensorflow.framework.TensorShapeProto;
 
 /**
- * Wrapper for TensorFlow {@link SavedModel}. Can read them from a file or
- * directory and extract important information.
+ * Wrapper for TensorFlow {@link SavedModel}. Can read them from a file or directory and extract important information.
  *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
@@ -84,18 +83,15 @@ public class DLTensorFlowSavedModel {
 	private final SavedModel m_savedModel;
 
 	/**
-	 * Wraps a SavedModel at the given location to an
-	 * {@link DLTensorFlowSavedModel}.
+	 * Wraps a SavedModel at the given location to an {@link DLTensorFlowSavedModel}.
 	 *
-	 * @param source
-	 *            URL to the SavedModel directory or zip file. The directory must be
-	 *            a valid SavedModel as defined <a href=
+	 * @param source URL to the SavedModel directory or zip file. The directory must be a valid SavedModel as defined
+	 *            <a href=
 	 *            "https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">here</a>.
 	 *            A zip file must contain such a SavedModel directory.
-	 * @throws DLInvalidSourceException
-	 *             if the SavedModel coudln't be read
+	 * @throws DLInvalidSourceException if the SavedModel coudln't be read
 	 */
-	public DLTensorFlowSavedModel(URL source) throws DLInvalidSourceException {
+	public DLTensorFlowSavedModel(final URL source) throws DLInvalidSourceException {
 		m_savedModel = DLTensorFlowSavedModelUtil.readSavedModelProtoBuf(source);
 	}
 
@@ -112,20 +108,17 @@ public class DLTensorFlowSavedModel {
 	/**
 	 * Extracts the signature names from the SavedModel.
 	 *
-	 * @param tags
-	 *            the tags to consider
+	 * @param tags the tags to consider
 	 * @return a list of signature names
 	 */
-	public Collection<String> getSignatureDefsStrings(Collection<String> tags) {
+	public Collection<String> getSignatureDefsStrings(final Collection<String> tags) {
 		return getFilteredSignature(tags).stream().map(e -> e.getKey()).collect(Collectors.toSet());
 	}
 
 	/**
-	 * Extracts the tensor specifications of all tensors which may can be used as
-	 * inputs to the graph.
+	 * Extracts the tensor specifications of all tensors which may can be used as inputs to the graph.
 	 *
-	 * @param tags
-	 *            the tags to consider
+	 * @param tags the tags to consider
 	 * @return a collection of tensor specifications
 	 */
 	public Collection<DLTensorSpec> getPossibleInputTensors(final Collection<String> tags) {
@@ -135,11 +128,9 @@ public class DLTensorFlowSavedModel {
 	}
 
 	/**
-	 * Extracts the tensor specifications of all tensors which may can be used as
-	 * outputs from the graph.
+	 * Extracts the tensor specifications of all tensors which may can be used as outputs from the graph.
 	 *
-	 * @param tags
-	 *            the tags to consider
+	 * @param tags the tags to consider
 	 * @return a collection of tensor specifications
 	 */
 	public Collection<DLTensorSpec> getPossibleOutputTensors(final Collection<String> tags) {
@@ -151,32 +142,30 @@ public class DLTensorFlowSavedModel {
 	/**
 	 * Creates the specs for a DLNetwork with this SavedModel.
 	 *
-	 * @param tags
-	 *            the tags to consider.
-	 * @param signature
-	 *            the signature to consider which must be available.
+	 * @param tags the tags to consider.
+	 * @param signature the signature to consider which must be available.
 	 * @return the specs.
 	 */
 	public DLTensorFlowSavedModelNetworkSpec createSpecs(final String[] tags, final String signature) {
-		List<String> tagsList = Arrays.asList(tags);
+		final List<String> tagsList = Arrays.asList(tags);
 
 		// Get the signature definitions of the selected tags and signatures
-		SignatureDef signatureDef = getFilteredMetagraphDefs(tagsList).stream()
+		final SignatureDef signatureDef = getFilteredMetagraphDefs(tagsList).stream()
 				.flatMap(m -> m.getSignatureDefMap().entrySet().stream().filter(e -> signature.equals(e.getKey()))
 						.map(e -> e.getValue()))
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("The SavedModel doesn't contain the signature."));
 
 		// Get the inputs and outputs from the signature definitions
-		Map<String, TensorInfo> inputs = signatureDef.getInputsMap();
-		Map<String, TensorInfo> outputs = signatureDef.getOutputsMap();
+		final Map<String, TensorInfo> inputs = signatureDef.getInputsMap();
+		final Map<String, TensorInfo> outputs = signatureDef.getOutputsMap();
 
 		// Create DLTensorSpec for the inputs and outputs
-		DLTensorSpec[] inputSpecs = inputs.entrySet().stream().map(e -> createTensorSpec(e.getKey(), e.getValue()))
-				.toArray(DLTensorSpec[]::new);
-		DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
-		DLTensorSpec[] outputSpecs = outputs.entrySet().stream().map(e -> createTensorSpec(e.getKey(), e.getValue()))
-				.toArray(DLTensorSpec[]::new);
+		final DLTensorSpec[] inputSpecs = inputs.entrySet().stream()
+				.map(e -> createTensorSpec(e.getKey(), e.getValue())).toArray(DLTensorSpec[]::new);
+		final DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
+		final DLTensorSpec[] outputSpecs = outputs.entrySet().stream()
+				.map(e -> createTensorSpec(e.getKey(), e.getValue())).toArray(DLTensorSpec[]::new);
 
 		// Create the NetworkSpec
 		return new DLTensorFlowSavedModelNetworkSpec(tags, inputSpecs, hiddenSpecs, outputSpecs);
@@ -208,7 +197,7 @@ public class DLTensorFlowSavedModel {
 			final DLTensorId id = new DLDefaultTensorId(t.getName());
 			final TensorShapeProto shapeProto = t.getTensorShape();
 			return createTensorSpec(id, name, shapeProto, type);
-		} catch (DLInvalidTypeException e) {
+		} catch (final DLInvalidTypeException e) {
 			throw new IllegalStateException();
 			// This should not happen because we only allow signatures where we know all
 			// types
@@ -226,14 +215,14 @@ public class DLTensorFlowSavedModel {
 		TensorShapeProto shapeProto = null;
 		try {
 			shapeProto = n.getAttrOrThrow("shape").getShape();
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			// Nothing to do
 		}
 		return createTensorSpec(id, name, shapeProto, type);
 	}
 
 	private DLTensorSpec createTensorSpec(final DLTensorId id, final String name, final TensorShapeProto shapeProto,
-			Class<?> type) {
+			final Class<?> type) {
 		// Get the shape and batch size
 		if (shapeProto != null) {
 			final List<Long> shapeList = new ArrayList<>(
@@ -250,12 +239,12 @@ public class DLTensorFlowSavedModel {
 					shape = DLUnknownTensorShape.INSTANCE;
 				} else if (shapeList.contains(-1L)) {
 					// At least one dimension is unknown
-					OptionalLong[] dims = shapeList.stream().map(l -> l > 0 ? OptionalLong.of(l) : OptionalLong.empty())
-							.toArray(OptionalLong[]::new);
+					final OptionalLong[] dims = shapeList.stream()
+							.map(l -> l > 0 ? OptionalLong.of(l) : OptionalLong.empty()).toArray(OptionalLong[]::new);
 					shape = new DLDefaultPartialTensorShape(dims);
 				} else {
 					// The shape is fixed
-					long[] dims = shapeList.stream().mapToLong(Long::longValue).toArray();
+					final long[] dims = shapeList.stream().mapToLong(Long::longValue).toArray();
 					shape = new DLDefaultFixedTensorShape(dims);
 				}
 				if (batchSize > 0) {
@@ -283,7 +272,7 @@ public class DLTensorFlowSavedModel {
 		try {
 			// TODO Can only placeholders be inputs?
 			return canBeInputOrOutput(n.getAttrOrThrow("dtype").getType());
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			// It doesn't even has a type
 			return false;
 		}
@@ -292,7 +281,7 @@ public class DLTensorFlowSavedModel {
 	private boolean canBeOutput(final NodeDef n) {
 		try {
 			return canBeInputOrOutput(n.getAttrOrThrow("dtype").getType());
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			// It doesn't even has a type
 			return false;
 		}
@@ -301,7 +290,7 @@ public class DLTensorFlowSavedModel {
 	private boolean canBeInputOrOutput(final DataType t) {
 		try {
 			return !getClassForType(t).equals(String.class);
-		} catch (DLInvalidTypeException e) {
+		} catch (final DLInvalidTypeException e) {
 			return false;
 		}
 	}

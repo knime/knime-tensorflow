@@ -73,19 +73,17 @@ public class DLTensorFlowSavedModelUtil {
 	}
 
 	/**
-	 * Reads the {@link SavedModel} inside the given zip file or directory. The
-	 * directory must be a valid SavedModel as defined <a href=
-	 * "https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">here</a>.
+	 * Reads the {@link SavedModel} inside the given zip file or directory. The directory must be a valid SavedModel as
+	 * defined
+	 * <a href= "https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">here</a>.
 	 * A zip file must contain such a SavedModel directory.
 	 *
-	 * @param source
-	 *            URL to the SavedModel directory or zip file
+	 * @param source URL to the SavedModel directory or zip file
 	 * @return the SavedModel
-	 * @throws DLInvalidSourceException
-	 *             if the SavedModel coudln't be read
+	 * @throws DLInvalidSourceException if the SavedModel coudln't be read
 	 */
-	public static SavedModel readSavedModelProtoBuf(URL source) throws DLInvalidSourceException {
-		File file = FileUtil.getFileFromURL(source);
+	public static SavedModel readSavedModelProtoBuf(final URL source) throws DLInvalidSourceException {
+		final File file = FileUtil.getFileFromURL(source);
 		if (file.isDirectory()) {
 			try {
 				final File[] savedModelPb = file
@@ -94,17 +92,17 @@ public class DLTensorFlowSavedModelUtil {
 					throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb");
 				}
 				return SavedModel.parseFrom(new FileInputStream(savedModelPb[0]));
-			} catch (FileNotFoundException e) {
+			} catch (final FileNotFoundException e) {
 				throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb", e);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				throw new DLInvalidSourceException("The SavedModel could not be parsed.", e);
 			}
 		} else {
 			try (ZipFile savedModelZip = new ZipFile(file)) {
-				Enumeration<? extends ZipEntry> entries = savedModelZip.entries();
+				final Enumeration<? extends ZipEntry> entries = savedModelZip.entries();
 				ZipEntry entry = null;
 				while (entries.hasMoreElements()) {
-					ZipEntry zipEntry = (ZipEntry) entries.nextElement();
+					final ZipEntry zipEntry = entries.nextElement();
 					if (zipEntry.getName().endsWith("saved_model.pb")
 							|| zipEntry.getName().endsWith("saved_model.pdtxt")) {
 						entry = zipEntry;
@@ -113,11 +111,11 @@ public class DLTensorFlowSavedModelUtil {
 				if (entry == null) {
 					throw new DLInvalidSourceException("The zip file doesn't contain a saved_model.pb");
 				}
-				InputStream inputStream = savedModelZip.getInputStream(entry);
+				final InputStream inputStream = savedModelZip.getInputStream(entry);
 				return SavedModel.parseFrom(inputStream);
-			} catch (ZipException e) {
+			} catch (final ZipException e) {
 				throw new DLInvalidSourceException("This SavedModel zip file isn't a valid zip file.", e);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				throw new DLInvalidSourceException("The SavedModel file could not be read.", e);
 			}
 		}

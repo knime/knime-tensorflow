@@ -62,13 +62,10 @@ public interface DLTensorFlowNetwork extends DLPythonNetwork {
 	DLTensorFlowNetworkSpec getSpec();
 
 	/**
-	 * Copy the relevant files of the network from the source to the given file
-	 * store for saving it with the workflow.
+	 * Copy the relevant files of the network from the source to the given file store for saving it with the workflow.
 	 *
-	 * @param destination
-	 *            the file store
-	 * @throws IOException
-	 *             if copying the file store failed
+	 * @param destination the file store
+	 * @throws IOException if copying the file store failed
 	 */
 	void copyRelevantToFileStore(FileStore destination) throws IOException;
 }

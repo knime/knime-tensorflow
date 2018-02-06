@@ -117,6 +117,9 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private String m_previousFilePath;
 
+	/**
+	 * Creates a new dialog for the TensorFlow Network Reader settings.
+	 */
 	public DLTensorFlowReaderNodeDialog() {
 		super();
 
@@ -172,12 +175,12 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	private void readSavedModel() {
 		m_dcErrorLabel.setText("");
 		try {
-			String filePath = m_smFilePath.getStringValue();
+			final String filePath = m_smFilePath.getStringValue();
 			if (!filePath.equals(m_previousFilePath)) {
 				m_savedModel = new DLTensorFlowSavedModel(FileUtil.toURL(filePath));
 			}
 			return;
-		} catch (DLInvalidSourceException e) {
+		} catch (final DLInvalidSourceException e) {
 			m_dcErrorLabel.setText(e.getMessage());
 		} catch (InvalidPathException | MalformedURLException e) {
 			m_dcErrorLabel.setText("The filepath is not valid.");
@@ -186,9 +189,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	}
 
 	/**
-	 * Updates the tags shown for selection in {@link #m_dcTags}. If
-	 * {@link #m_savedModel} is <code>null</code> the list is set to
-	 * {@link #EMPTY_COLLECTION}.
+	 * Updates the tags shown for selection in {@link #m_dcTags}. If {@link #m_savedModel} is <code>null</code> the list
+	 * is set to {@link #EMPTY_COLLECTION}.
 	 */
 	private void updateTags() {
 		Collection<String> newTagList;
@@ -205,11 +207,10 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	}
 
 	/**
-	 * Updates the signatures shown for selection in {@link #m_dcSignature} and the
-	 * advanced signature selection.
+	 * Updates the signatures shown for selection in {@link #m_dcSignature} and the advanced signature selection.
 	 */
 	private void updateSignatures() {
-		List<String> tags = Arrays.asList(m_smTags.getStringArrayValue());
+		final List<String> tags = Arrays.asList(m_smTags.getStringArrayValue());
 
 		// Check if we can't find the signatures
 		if (m_savedModel == null || tags.isEmpty()) {
@@ -239,7 +240,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	}
 
 	@Override
-	public void saveAdditionalSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+	public void saveAdditionalSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
 		validateSelection();
 	}
 

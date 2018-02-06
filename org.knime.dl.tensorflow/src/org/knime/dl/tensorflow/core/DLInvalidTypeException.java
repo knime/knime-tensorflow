@@ -49,7 +49,6 @@ package org.knime.dl.tensorflow.core;
 import org.knime.dl.core.DLCheckedException;
 
 /**
- *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class DLInvalidTypeException extends DLCheckedException {
@@ -62,7 +61,7 @@ public class DLInvalidTypeException extends DLCheckedException {
 	public DLInvalidTypeException(final String message) {
 		super(message);
 	}
-	
+
 	/**
 	 * @param message must be neither null nor empty
 	 * @param cause see {@link Throwable#Throwable(String, Throwable)}

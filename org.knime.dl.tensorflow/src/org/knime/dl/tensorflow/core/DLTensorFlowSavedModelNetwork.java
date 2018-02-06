@@ -71,7 +71,13 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 	private static final String SAVED_MODEL_REGEX = "^.*saved_model.pb(txt)?$" + "|^.*variables(/.*|\\.*)?$"
 			+ "|^.*assets(/.*|\\.*)?$";
 
-	protected DLTensorFlowSavedModelNetwork(DLTensorFlowSavedModelNetworkSpec spec, URL source) {
+	/**
+	 * Creates a new {@link DLTensorFlowSavedModelNetwork}.
+	 *
+	 * @param spec the spec of this network
+	 * @param source URL to the location where the deep learning model is saved
+	 */
+	protected DLTensorFlowSavedModelNetwork(final DLTensorFlowSavedModelNetworkSpec spec, final URL source) {
 		super(spec, source);
 	}
 
@@ -87,15 +93,12 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 	}
 
 	/**
-	 * Copies the relevant files of a SavedModel to another directory. Assumes
-	 * that the source is a directory and exists.
+	 * Copies the relevant files of a SavedModel to another directory. Assumes that the source is a directory and
+	 * exists.
 	 *
-	 * @param source
-	 *            the source directory
-	 * @param destination
-	 *            the destination directory
-	 * @throws IOException
-	 *             if copying failed
+	 * @param source the source directory
+	 * @param destination the destination directory
+	 * @throws IOException if copying failed
 	 */
 	private void copyDirToFileStore(final File source, final File destination) throws IOException {
 		if (!destination.toURI().toURL().equals(getSource())) {
@@ -106,7 +109,7 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 				throw new IOException(
 						"Can't copy SavedModel directory \"" + source.getAbsolutePath() + "\", no read permissions.");
 			}
-			for (String child : sourceList) {
+			for (final String child : sourceList) {
 				// Only copy the child if it is part of the SavedModel
 				// definition
 				if (child.matches(SAVED_MODEL_REGEX)) {
@@ -116,12 +119,12 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 		}
 	}
 
-	private void extractZipToFileStore(File source, File destination) throws IOException {
+	private void extractZipToFileStore(final File source, final File destination) throws IOException {
 		createDirs(destination);
 		try (final ZipFile zip = new ZipFile(source)) {
 			final String prefix = getZipPrefix(zip);
 
-			Enumeration<? extends ZipEntry> entries = zip.entries();
+			final Enumeration<? extends ZipEntry> entries = zip.entries();
 			while (entries.hasMoreElements()) {
 				final ZipEntry e = entries.nextElement();
 
@@ -138,7 +141,7 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 					createDirs(destFile);
 				} else {
 					createDirs(destFile.getParentFile());
-					InputStream inputStream = zip.getInputStream(e);
+					final InputStream inputStream = zip.getInputStream(e);
 					FileUtils.copyInputStreamToFile(inputStream, destFile);
 				}
 			}
@@ -153,11 +156,11 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 	}
 
 	private String getZipPrefix(final ZipFile zip) throws IOException {
-		Enumeration<? extends ZipEntry> entries = zip.entries();
-		ZipEntry savedModelZip = Collections.list(entries).stream()
+		final Enumeration<? extends ZipEntry> entries = zip.entries();
+		final ZipEntry savedModelZip = Collections.list(entries).stream()
 				.filter(e -> e.getName().matches("^.*saved_model.pb(txt)?$")).findFirst()
 				.orElseThrow(() -> new IOException("The zip file is not a valid SavedModel"));
-		int prefixLength = savedModelZip.getName().lastIndexOf("saved_model.pb");
+		final int prefixLength = savedModelZip.getName().lastIndexOf("saved_model.pb");
 		return savedModelZip.getName().substring(0, prefixLength);
 	}
 }

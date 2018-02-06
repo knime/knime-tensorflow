@@ -65,6 +65,12 @@ public class DialogComponentColoredLabel extends DialogComponent {
 
 	private final JLabel m_label;
 
+	/**
+	 * Creates a dialog component containing only a colored label.
+	 *
+	 * @param text the text of the label
+	 * @param color the text color of the label
+	 */
 	public DialogComponentColoredLabel(final String text, final Color color) {
 		super(new EmptySettingsModel());
 
@@ -74,10 +80,20 @@ public class DialogComponentColoredLabel extends DialogComponent {
 		getComponentPanel().add(m_label);
 	}
 
+	/**
+	 * Sets the text of the label.
+	 *
+	 * @param text the text
+	 */
 	public void setText(final String text) {
 		m_label.setText(text);
 	}
 
+	/**
+	 * Sets the text color of the label.
+	 *
+	 * @param color the text color
+	 */
 	public void setColor(final Color color) {
 		m_label.setForeground(color);
 	}
@@ -93,17 +109,17 @@ public class DialogComponentColoredLabel extends DialogComponent {
 	}
 
 	@Override
-	protected void checkConfigurabilityBeforeLoad(PortObjectSpec[] specs) throws NotConfigurableException {
+	protected void checkConfigurabilityBeforeLoad(final PortObjectSpec[] specs) throws NotConfigurableException {
 		// Nothing to do
 	}
 
 	@Override
-	protected void setEnabledComponents(boolean enabled) {
+	protected void setEnabledComponents(final boolean enabled) {
 		m_label.setEnabled(enabled);
 	}
 
 	@Override
-	public void setToolTipText(String text) {
+	public void setToolTipText(final String text) {
 		m_label.setToolTipText(text);
 	}
 

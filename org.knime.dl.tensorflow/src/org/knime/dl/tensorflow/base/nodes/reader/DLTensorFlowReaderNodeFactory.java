@@ -51,7 +51,6 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
 /**
- *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowReaderNodeFactory extends NodeFactory<DLTensorFlowReaderNodeModel> {
@@ -67,7 +66,8 @@ public class DLTensorFlowReaderNodeFactory extends NodeFactory<DLTensorFlowReade
 	}
 
 	@Override
-	public NodeView<DLTensorFlowReaderNodeModel> createNodeView(int viewIndex, DLTensorFlowReaderNodeModel nodeModel) {
+	public NodeView<DLTensorFlowReaderNodeModel> createNodeView(final int viewIndex,
+			final DLTensorFlowReaderNodeModel nodeModel) {
 		return null;
 	}
 

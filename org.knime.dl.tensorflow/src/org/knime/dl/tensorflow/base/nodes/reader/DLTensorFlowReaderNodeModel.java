@@ -80,7 +80,6 @@ import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetwork;
 import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetworkSpec;
 
 /**
- *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowReaderNodeModel extends NodeModel {
@@ -150,35 +149,39 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		return t.getName();
 	}
 
+	/**
+	 * Creates a new {@link NodeModel} for the TensorFlow Network Reader.
+	 */
 	protected DLTensorFlowReaderNodeModel() {
 		super(new PortType[] {}, new PortType[] { DLTensorFlowNetworkPortObject.TYPE });
 	}
 
 	@Override
-	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		try {
 			m_url = FileUtil.toURL(m_filePath.getStringValue());
 		} catch (InvalidPathException | MalformedURLException e) {
 			throw new InvalidSettingsException("The file path is not valid.", e);
 		}
-		String signature = m_signatures.getStringValue();
+		final String signature = m_signatures.getStringValue();
 		try {
-			DLTensorFlowSavedModel sm = new DLTensorFlowSavedModel(m_url);
+			final DLTensorFlowSavedModel sm = new DLTensorFlowSavedModel(m_url);
 			// Create the NetworkSpec
 			if (!m_advanced.getBooleanValue()) {
 				m_networkSpec = sm.createSpecs(m_tags.getStringArrayValue(), signature);
 			} else {
-				List<String> tags = Arrays.asList(m_tags.getStringArrayValue());
-				List<String> inputs = Arrays.asList(m_inputs.getStringArrayValue());
-				List<String> outputs = Arrays.asList(m_outputs.getStringArrayValue());
-				DLTensorSpec[] inputSpecs = sm.getPossibleInputTensors(tags).stream()
+				final List<String> tags = Arrays.asList(m_tags.getStringArrayValue());
+				final List<String> inputs = Arrays.asList(m_inputs.getStringArrayValue());
+				final List<String> outputs = Arrays.asList(m_outputs.getStringArrayValue());
+				final DLTensorSpec[] inputSpecs = sm.getPossibleInputTensors(tags).stream()
 						.filter(t -> inputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
-				DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
-				DLTensorSpec[] outputSpecs = sm.getPossibleOutputTensors(tags).stream()
+				final DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
+				final DLTensorSpec[] outputSpecs = sm.getPossibleOutputTensors(tags).stream()
 						.filter(t -> outputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
-				m_networkSpec = new DLTensorFlowSavedModelNetworkSpec(m_tags.getStringArrayValue(), inputSpecs, hiddenSpecs, outputSpecs);
+				m_networkSpec = new DLTensorFlowSavedModelNetworkSpec(m_tags.getStringArrayValue(), inputSpecs,
+						hiddenSpecs, outputSpecs);
 			}
-		} catch (DLInvalidSourceException e) {
+		} catch (final DLInvalidSourceException e) {
 			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
 		}
 		return new PortObjectSpec[] {
@@ -187,15 +190,15 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 	}
 
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
+	protected PortObject[] execute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
 		if (m_url == null || m_networkSpec == null) {
 			throw new RuntimeException("Please run configure first.");
 		}
 		// Create the network object
-		DLTensorFlowNetwork network = m_networkSpec.create(m_url);
+		final DLTensorFlowNetwork network = m_networkSpec.create(m_url);
 		DLTensorFlowNetworkPortObject portObject;
 		if (m_copyNetwork.getBooleanValue()) {
-			FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
+			final FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
 			portObject = new DLTensorFlowNetworkPortObject(network, fileStore);
 		} else {
 			portObject = new DLTensorFlowNetworkPortObject(network);
@@ -204,19 +207,19 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 	}
 
 	@Override
-	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
+	protected void loadInternals(final File nodeInternDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 		// nothing to do
 	}
 
 	@Override
-	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
+	protected void saveInternals(final File nodeInternDir, final ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 		// nothing to do
 	}
 
 	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings) {
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		m_filePath.saveSettingsTo(settings);
 		m_copyNetwork.saveSettingsTo(settings);
 		m_tags.saveSettingsTo(settings);
@@ -227,7 +230,7 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 	}
 
 	@Override
-	protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
+	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
 		m_filePath.validateSettings(settings);
 		m_copyNetwork.validateSettings(settings);
 		m_tags.validateSettings(settings);
@@ -238,7 +241,7 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 	}
 
 	@Override
-	protected void loadValidatedSettingsFrom(NodeSettingsRO settings) throws InvalidSettingsException {
+	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
 		m_filePath.loadSettingsFrom(settings);
 		m_copyNetwork.loadSettingsFrom(settings);
 		m_tags.loadSettingsFrom(settings);

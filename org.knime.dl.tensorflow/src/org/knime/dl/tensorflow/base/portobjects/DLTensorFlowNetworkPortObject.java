@@ -75,12 +75,13 @@ import com.google.common.base.Objects;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowNetworkPortObject
-		extends DLAbstractNetworkPortObject<DLTensorFlowNetwork, DLTensorFlowNetworkPortObjectSpec>
+	extends DLAbstractNetworkPortObject<DLTensorFlowNetwork, DLTensorFlowNetworkPortObjectSpec>
 		implements DLPythonNetworkPortObject<DLTensorFlowNetwork> {
 
 	/**
 	 * The TensorFlow deep learning network port type
 	 */
+	@SuppressWarnings("hiding")
 	public static final PortType TYPE = PortTypeRegistry.getInstance().getPortType(DLTensorFlowNetworkPortObject.class);
 
 	private static final String ZIP_ENTRY_NAME = "DLTensorFlowNetworkPortObject";
@@ -88,15 +89,11 @@ public class DLTensorFlowNetworkPortObject
 	private URL m_networkReference;
 
 	/**
-	 * Creates a new TensorFlow deep learning network port object. The given
-	 * network is stored in the given file store.
+	 * Creates a new TensorFlow deep learning network port object. The given network is stored in the given file store.
 	 *
-	 * @param network
-	 *            the TensorFlow deep learning network to store
-	 * @param fileStore
-	 *            the file store in which to store the network
-	 * @throws IOException
-	 *             if failed to store the network
+	 * @param network the TensorFlow deep learning network to store
+	 * @param fileStore the file store in which to store the network
+	 * @throws IOException if failed to store the network
 	 */
 	public DLTensorFlowNetworkPortObject(final DLTensorFlowNetwork network, final FileStore fileStore)
 			throws IOException {
@@ -104,13 +101,10 @@ public class DLTensorFlowNetworkPortObject
 	}
 
 	/**
-	 * Creates a new TensorFlow deep learning network port object. The port
-	 * object only stores the given network's source URL and uses it as a
-	 * reference for later loading.
+	 * Creates a new TensorFlow deep learning network port object. The port object only stores the given network's
+	 * source URL and uses it as a reference for later loading.
 	 *
-	 * @param network
-	 *            the TensorFlow deep learning network which source URL is
-	 *            stored
+	 * @param network the TensorFlow deep learning network which source URL is stored
 	 */
 	public DLTensorFlowNetworkPortObject(final DLTensorFlowNetwork network) {
 		super(network, new DLTensorFlowNetworkPortObjectSpec(network.getSpec(), network.getClass()));
@@ -125,17 +119,18 @@ public class DLTensorFlowNetworkPortObject
 	}
 
 	@Override
-	protected void flushToFileStoreInternal(DLTensorFlowNetwork network, FileStore fileStore) throws IOException {
+	protected void flushToFileStoreInternal(final DLTensorFlowNetwork network, final FileStore fileStore)
+			throws IOException {
 		network.copyRelevantToFileStore(fileStore);
 	}
 
 	@Override
-	protected void hashCodeInternal(HashCodeBuilder b) {
+	protected void hashCodeInternal(final HashCodeBuilder b) {
 		b.append(m_networkReference);
 	}
 
 	@Override
-	protected boolean equalsInternal(DLNetworkPortObject other) {
+	protected boolean equalsInternal(final DLNetworkPortObject other) {
 		return Objects.equal(((DLTensorFlowNetworkPortObject) other).m_networkReference, m_networkReference);
 	}
 
@@ -145,7 +140,7 @@ public class DLTensorFlowNetworkPortObject
 	}
 
 	@Override
-	protected DLTensorFlowNetwork getNetworkInternal(DLTensorFlowNetworkPortObjectSpec spec)
+	protected DLTensorFlowNetwork getNetworkInternal(final DLTensorFlowNetworkPortObjectSpec spec)
 			throws DLInvalidSourceException, IOException {
 		return spec.getNetworkSpec()
 				.create(m_networkReference == null ? getFileStore(0).getFile().toURI().toURL() : m_networkReference);
@@ -157,8 +152,8 @@ public class DLTensorFlowNetworkPortObject
 	public static final class Serializer extends PortObjectSerializer<DLTensorFlowNetworkPortObject> {
 
 		@Override
-		public void savePortObject(DLTensorFlowNetworkPortObject portObject, PortObjectZipOutputStream out,
-				ExecutionMonitor exec) throws IOException, CanceledExecutionException {
+		public void savePortObject(final DLTensorFlowNetworkPortObject portObject, final PortObjectZipOutputStream out,
+				final ExecutionMonitor exec) throws IOException, CanceledExecutionException {
 			out.putNextEntry(new ZipEntry(ZIP_ENTRY_NAME));
 			final ObjectOutputStream objOut = new ObjectOutputStream(out);
 			final boolean storedInFileStore = portObject.m_networkReference != null;
@@ -170,8 +165,8 @@ public class DLTensorFlowNetworkPortObject
 		}
 
 		@Override
-		public DLTensorFlowNetworkPortObject loadPortObject(PortObjectZipInputStream in, PortObjectSpec spec,
-				ExecutionMonitor exec) throws IOException, CanceledExecutionException {
+		public DLTensorFlowNetworkPortObject loadPortObject(final PortObjectZipInputStream in,
+				final PortObjectSpec spec, final ExecutionMonitor exec) throws IOException, CanceledExecutionException {
 			final DLTensorFlowNetworkPortObject portObject = new DLTensorFlowNetworkPortObject();
 			final ZipEntry entry = in.getNextEntry();
 			if (!ZIP_ENTRY_NAME.equals(entry.getName())) {

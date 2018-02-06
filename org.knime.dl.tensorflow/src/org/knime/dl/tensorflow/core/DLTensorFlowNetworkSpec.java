@@ -61,6 +61,10 @@ public interface DLTensorFlowNetworkSpec extends DLNetworkSpec {
 
 	/**
 	 * Creates a network which {@link DLNetwork#getSpec()} returns this spec.
+	 *
+	 * @param source URL to the location where the deep learning model is saved
+	 * @return a new {@link DLTensorFlowNetwork}
+	 * @throws DLInvalidSourceException if reading the model failed
 	 */
 	DLTensorFlowNetwork create(URL source) throws DLInvalidSourceException;
 }
