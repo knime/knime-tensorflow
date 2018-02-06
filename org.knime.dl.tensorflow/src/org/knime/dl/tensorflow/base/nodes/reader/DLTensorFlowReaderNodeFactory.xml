@@ -4,38 +4,69 @@
 	<name>DL TensorFlow Network Reader</name>
 
 	<shortDescription>
-		Reads a TensorFlow saved model from an input zip file or directory.
+		Reads a TensorFlow saved model from an input zip file
+		or directory.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			This node reads a TensorFlow deep learning network from an directory or zip file.
+			This node reads a TensorFlow deep learning network from an directory
+			or zip file.
 			<p>
-				If the network should be read from a directory it has to be a valid SavedModel.
-				If the network should be read from a zip file it must contain a valid SavedModel.
+				If the network should be read from a directory it has to be a
+				valid SavedModel.
+				If the network should be read from a zip file it
+				must contain a valid SavedModel.
 			</p>
 			<p>
-				See the TensorFlow documentation for more information on SavedModels:
-				<a href="https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">
+				See the TensorFlow documentation for more information on
+				SavedModels:
+				<a
+					href="https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">
 					Structure of a SavedModel directory
 				</a>
 			</p>
 		</intro>
-		<option name="Input Location">
-			The path to the input directory or zip file that contains the TensorFlow SavedModel.
-			KNIME URLs like "knime://knime.workflow/ ... &lt;filename&gt;" are supported.
-		</option>
-		<option name="Tags">
-			The tags identifying the meta graph definition to load.
-		</option>
-		<option name="Signature">
-			The signature which should be available for executing or training the model.
-		</option>
-		<option name="Copy deep learning network into KNIME workflow?">
-			If selected, the TensorFlow network will be copied into the KNIME workflow, so
-			that it is available for export with the workflow. Otherwise, only a reference
-			to the actual network file is used by KNIME.
-		</option>
+		<tab name='General Settings'>
+			<option name="Input Location">
+				The path to the input directory or zip file that
+				contains the TensorFlow SavedModel. KNIME URLs like
+				"knime://knime.workflow/ ... &lt;filename&gt;" are supported.
+			</option>
+			<option name="Tags">
+				The tags identifying the meta graph definition to
+				load.
+			</option>
+			<option name="Signature">
+				The signature which should be available for
+				executing or training the model. (Use the advanced settings if you
+				want to use a signature which isn't available in the SavedModel)
+			</option>
+			<option name="Copy deep learning network into KNIME workflow?">
+				If selected, the TensorFlow network will be
+				copied into the KNIME workflow, so that it is available for export
+				with the workflow. Otherwise, only a reference to the actual network
+				file is used by KNIME.
+			</option>
+		</tab>
+		<tab name='Advanced Settings'>
+			<option name='Use advanced settings'>
+				If selected, the signature option has no effect anymore but the
+				desired signature can be created using the
+				<i>Inputs</i>
+				and
+				<i>Outputs</i>
+				options.
+			</option>
+			<option name='Inputs'>
+				Choose tensors which should be available as
+				inputs to the deep learning network.
+			</option>
+			<option name='Outputs'>
+				Choose tensors which should be available as
+				outputs to the deep learning network.
+			</option>
+		</tab>
 	</fullDescription>
 	<ports>
 		<outPort index="0" name="Deep Learning Network">The TensorFlow deep learning network.
