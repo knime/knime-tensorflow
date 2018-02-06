@@ -314,19 +314,13 @@ public class DLTensorFlowSavedModel {
 	private Class<?> getClassForType(final DataType t) throws DLInvalidTypeException {
 		switch (t) {
 		case DT_FLOAT:
-			return Float.class;
+			return float.class;
 		case DT_DOUBLE:
-			return Double.class;
+			return double.class;
 		case DT_INT32:
-			return Integer.class;
-		case DT_UINT8:
-			return Byte.class;
+			return int.class;
 		case DT_INT64:
-			return Long.class;
-		case DT_BOOL:
-			return Boolean.class;
-		case DT_STRING:
-			return String.class;
+			return long.class;
 		default:
 			throw new DLInvalidTypeException("The type " + t + " has no corresponding type in KNIME.");
 		}
