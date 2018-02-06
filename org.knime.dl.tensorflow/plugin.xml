@@ -31,4 +31,10 @@
             factory-class="org.knime.dl.tensorflow.base.nodes.reader.DLTensorFlowReaderNodeFactory">
       </node>
   </extension>
+   <extension
+         point="org.knime.dl.DLExecutionContext">
+      <DLExecutionContext
+            DLExecutionContext="org.knime.dl.tensorflow.savedmodel.core.execution.DLTensorFlowSavedModelExecutionContext">
+      </DLExecutionContext>
+   </extension>
 </plugin>
