@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.core;
+package org.knime.dl.tensorflow.savedmodel.core;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -55,6 +55,8 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.training.DLTrainingConfig;
+import org.knime.dl.tensorflow.core.DLTensorFlowNetwork;
+import org.knime.dl.tensorflow.core.DLTensorFlowNetworkSpec;
 import org.knime.dl.tensorflow.core.training.DLTensorFlowTrainingConfig;
 
 /**

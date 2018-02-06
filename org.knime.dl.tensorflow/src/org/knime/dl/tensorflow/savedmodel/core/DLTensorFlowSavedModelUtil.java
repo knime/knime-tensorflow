@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.core;
+package org.knime.dl.tensorflow.savedmodel.core;
 
 import java.io.File;
 import java.io.FileInputStream;

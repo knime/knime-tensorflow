@@ -70,7 +70,7 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentColoredLabel;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentFileOrDirChooser;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentTensorSelection;
-import org.knime.dl.tensorflow.core.DLTensorFlowSavedModel;
+import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModel;
 
 /**
  * Dialog for the TensorFlow SavedModel Reader node.

@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.core;
+package org.knime.dl.tensorflow.savedmodel.core;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -65,6 +65,7 @@ import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorShape;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.DLUnknownTensorShape;
+import org.knime.dl.tensorflow.core.DLInvalidTypeException;
 import org.tensorflow.framework.DataType;
 import org.tensorflow.framework.MetaGraphDef;
 import org.tensorflow.framework.NodeDef;

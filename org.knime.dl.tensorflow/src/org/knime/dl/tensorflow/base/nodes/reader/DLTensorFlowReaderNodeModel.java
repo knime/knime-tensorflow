@@ -75,9 +75,9 @@ import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObjectSpec;
 import org.knime.dl.tensorflow.core.DLTensorFlowNetwork;
-import org.knime.dl.tensorflow.core.DLTensorFlowSavedModel;
-import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetwork;
-import org.knime.dl.tensorflow.core.DLTensorFlowSavedModelNetworkSpec;
+import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModel;
+import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelNetwork;
+import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelNetworkSpec;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany

@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.core;
+package org.knime.dl.tensorflow.savedmodel.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +59,7 @@ import org.apache.commons.io.FileUtils;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.util.FileUtil;
 import org.knime.dl.python.core.DLPythonAbstractNetwork;
+import org.knime.dl.tensorflow.core.DLTensorFlowNetwork;
 
 /**
  * Deep learning network for TensorFlow using the SavedModel format.
