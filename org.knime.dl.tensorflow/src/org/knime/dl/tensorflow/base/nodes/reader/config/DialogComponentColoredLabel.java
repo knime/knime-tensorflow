@@ -74,7 +74,7 @@ public class DialogComponentColoredLabel extends DialogComponent {
 	public DialogComponentColoredLabel(final String text, final Color color) {
 		super(new EmptySettingsModel());
 
-		m_label = new JLabel(text);
+		m_label = new JLabel("<html><div WIDTH=400>" + text + "</div></html>");
 		m_label.setForeground(color);
 		getComponentPanel().setLayout(new FlowLayout());
 		getComponentPanel().add(m_label);
@@ -86,7 +86,7 @@ public class DialogComponentColoredLabel extends DialogComponent {
 	 * @param text the text
 	 */
 	public void setText(final String text) {
-		m_label.setText(text);
+		m_label.setText("<html><div WIDTH=400>" + text + "</div></html>");
 	}
 
 	/**

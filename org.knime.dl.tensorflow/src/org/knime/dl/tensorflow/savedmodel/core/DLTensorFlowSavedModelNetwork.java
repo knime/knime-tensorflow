@@ -69,7 +69,7 @@ import org.knime.dl.tensorflow.core.DLTensorFlowNetwork;
 public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTensorFlowSavedModelNetworkSpec>
 		implements DLTensorFlowNetwork {
 
-	private static final String SAVED_MODEL_REGEX = "^.*saved_model.pb(txt)?$" + "|^.*variables(/.*|\\.*)?$"
+	private static final String SAVED_MODEL_REGEX = "^.*saved_model.pb$" + "|^.*variables(/.*|\\.*)?$"
 			+ "|^.*assets(/.*|\\.*)?$";
 
 	/**
@@ -159,7 +159,7 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 	private String getZipPrefix(final ZipFile zip) throws IOException {
 		final Enumeration<? extends ZipEntry> entries = zip.entries();
 		final ZipEntry savedModelZip = Collections.list(entries).stream()
-				.filter(e -> e.getName().matches("^.*saved_model.pb(txt)?$")).findFirst()
+				.filter(e -> e.getName().matches("^.*saved_model.pb?$")).findFirst()
 				.orElseThrow(() -> new IOException("The zip file is not a valid SavedModel"));
 		final int prefixLength = savedModelZip.getName().lastIndexOf("saved_model.pb");
 		return savedModelZip.getName().substring(0, prefixLength);

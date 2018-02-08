@@ -84,40 +84,63 @@ public class DLTensorFlowSavedModelUtil {
 	 */
 	public static SavedModel readSavedModelProtoBuf(final URL source) throws DLInvalidSourceException {
 		final File file = FileUtil.getFileFromURL(source);
+		InputStream inputStream;
 		if (file.isDirectory()) {
-			try {
-				final File[] savedModelPb = file
-						.listFiles((d, n) -> n.equals("saved_model.pb") || n.equals("saved_model.pbtxt"));
-				if (savedModelPb.length == 0) {
+			inputStream = inputStreamForSavedModelDir(file);
+		} else {
+			inputStream = inputStreamForSavedModelZip(file);
+		}
+		try {
+			return SavedModel.parseFrom(inputStream);
+		} catch (IOException e) {
+			throw new DLInvalidSourceException("The SavedModel could not be parsed.", e);
+		}
+	}
+
+	private static InputStream inputStreamForSavedModelDir(final File file) throws DLInvalidSourceException {
+		try {
+			final File[] savedModelPb = file.listFiles((d, n) -> n.equals("saved_model.pb"));
+			if (savedModelPb.length == 0) {
+				if (file.listFiles((d, n) -> n.equals("saved_model.pbtxt")).length > 0) {
+					throw new DLInvalidSourceException(
+							"The SavedModel is stored in the non supported pbtxt format. Please save your model with a saved_model.pb");
+				} else {
 					throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb");
 				}
-				return SavedModel.parseFrom(new FileInputStream(savedModelPb[0]));
-			} catch (final FileNotFoundException e) {
-				throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb", e);
-			} catch (final IOException e) {
-				throw new DLInvalidSourceException("The SavedModel could not be parsed.", e);
 			}
-		} else {
-			try (ZipFile savedModelZip = new ZipFile(file)) {
-				final Enumeration<? extends ZipEntry> entries = savedModelZip.entries();
-				ZipEntry entry = null;
-				while (entries.hasMoreElements()) {
-					final ZipEntry zipEntry = entries.nextElement();
-					if (zipEntry.getName().endsWith("saved_model.pb")
-							|| zipEntry.getName().endsWith("saved_model.pdtxt")) {
-						entry = zipEntry;
-					}
+			return new FileInputStream(savedModelPb[0]);
+		} catch (FileNotFoundException e) {
+			throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb");
+		}
+	}
+
+	private static InputStream inputStreamForSavedModelZip(final File file) throws DLInvalidSourceException {
+		try (ZipFile savedModelZip = new ZipFile(file)) {
+			final Enumeration<? extends ZipEntry> entries = savedModelZip.entries();
+			ZipEntry entry = null;
+			boolean hasPBTXT = false;
+			while (entries.hasMoreElements()) {
+				final ZipEntry zipEntry = entries.nextElement();
+				if (zipEntry.getName().endsWith("saved_model.pb")) {
+					entry = zipEntry;
+				} else if (zipEntry.getName().endsWith("saved_model.pbtxt")) {
+					// Remember that there is a pbtxt to warn the user (but maybe we will still find an pb)
+					hasPBTXT = true;
 				}
-				if (entry == null) {
+			}
+			if (entry == null) {
+				if (hasPBTXT) {
+					throw new DLInvalidSourceException(
+							"The SavedModel is stored in the non supported pbtxt format. Please save your model with a saved_model.pb");
+				} else {
 					throw new DLInvalidSourceException("The zip file doesn't contain a saved_model.pb");
 				}
-				final InputStream inputStream = savedModelZip.getInputStream(entry);
-				return SavedModel.parseFrom(inputStream);
-			} catch (final ZipException e) {
-				throw new DLInvalidSourceException("This SavedModel zip file isn't a valid zip file.", e);
-			} catch (final IOException e) {
-				throw new DLInvalidSourceException("The SavedModel file could not be read.", e);
 			}
+			return savedModelZip.getInputStream(entry);
+		} catch (final ZipException e) {
+			throw new DLInvalidSourceException("This SavedModel zip file isn't a valid zip file.", e);
+		} catch (final IOException e) {
+			throw new DLInvalidSourceException("The SavedModel file could not be read.", e);
 		}
 	}
 }
