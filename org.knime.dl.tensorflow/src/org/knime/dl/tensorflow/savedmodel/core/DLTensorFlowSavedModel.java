@@ -261,7 +261,6 @@ public class DLTensorFlowSavedModel {
 	}
 
 	private boolean canBeInput(final TensorInfo t) {
-		// TODO Can only placeholders be inputs?
 		return canBeInputOrOutput(t.getDtype());
 	}
 
@@ -271,7 +270,6 @@ public class DLTensorFlowSavedModel {
 
 	private boolean canBeInput(final NodeDef n) {
 		try {
-			// TODO Can only placeholders be inputs?
 			return canBeInputOrOutput(n.getAttrOrThrow("dtype").getType());
 		} catch (final IllegalArgumentException e) {
 			// It doesn't even has a type
