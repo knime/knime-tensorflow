@@ -83,7 +83,7 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 	}
 
 	@Override
-	public void copyRelevantToFileStore(final FileStore destination) throws IOException {
+	public void copyFilesToFileStore(final FileStore destination) throws IOException {
 		final File sourceFile = FileUtil.getFileFromURL(getSource());
 		final File destinationFile = destination.getFile();
 		if (sourceFile.isDirectory()) {
