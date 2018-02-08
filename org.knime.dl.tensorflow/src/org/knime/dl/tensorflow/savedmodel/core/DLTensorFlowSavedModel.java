@@ -199,7 +199,7 @@ public class DLTensorFlowSavedModel {
 			final TensorShapeProto shapeProto = t.getTensorShape();
 			return createTensorSpec(id, name, shapeProto, type);
 		} catch (final DLInvalidTypeException e) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("The chosen tensor has no supported type.", e);
 			// This should not happen because we only allow signatures where we know all
 			// types
 		}
@@ -240,13 +240,10 @@ public class DLTensorFlowSavedModel {
 					shape = DLUnknownTensorShape.INSTANCE;
 				} else if (shapeList.contains(-1L)) {
 					// At least one dimension is unknown
-					final OptionalLong[] dims = shapeList.stream()
-							.map(l -> l > 0 ? OptionalLong.of(l) : OptionalLong.empty()).toArray(OptionalLong[]::new);
-					shape = new DLDefaultPartialTensorShape(dims);
+					shape = createPartialTensorShape(shapeList);
 				} else {
 					// The shape is fixed
-					final long[] dims = shapeList.stream().mapToLong(Long::longValue).toArray();
-					shape = new DLDefaultFixedTensorShape(dims);
+					shape = createFixedTensorShape(shapeList);
 				}
 				if (batchSize > 0) {
 					return new DLDefaultTensorSpec(id, name, batchSize, shape, type);
@@ -258,6 +255,17 @@ public class DLTensorFlowSavedModel {
 
 		// Getting the shape and batch size wasn't successful
 		return new DLDefaultTensorSpec(id, name, type);
+	}
+
+	private DLTensorShape createPartialTensorShape(final List<Long> shapeList) {
+		final OptionalLong[] dims = shapeList.stream()
+				.map(l -> l > 0 ? OptionalLong.of(l) : OptionalLong.empty()).toArray(OptionalLong[]::new);
+		return new DLDefaultPartialTensorShape(dims);
+	}
+
+	private DLTensorShape createFixedTensorShape(final List<Long> shapeList) {
+		final long[] dims = shapeList.stream().mapToLong(Long::longValue).toArray();
+		return new DLDefaultFixedTensorShape(dims);
 	}
 
 	private boolean canBeInput(final TensorInfo t) {
