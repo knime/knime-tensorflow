@@ -51,13 +51,13 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLCanceledExecutionException;
+import org.knime.dl.core.DLFixedTensorShape;
 import org.knime.dl.core.DLNetworkInputPreparer;
 import org.knime.dl.core.DLTensor;
 import org.knime.dl.core.DLTensorFactory;
@@ -71,7 +71,8 @@ import org.knime.dl.core.execution.DLExecutionMonitor;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
 import org.knime.dl.tensorflow.core.execution.DLTensorFlowNetworkExecutionSession;
 import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelNetwork;
-import org.knime.dl.util.DLUtils;
+import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableBuffer;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session;
 import org.tensorflow.Session.Runner;
@@ -123,60 +124,32 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private Tensor<?> createTFTensor(final DLTensor<? extends DLWritableBuffer> dlTensor) {
-		// TODO throw exception
-		final long[] shape = Arrays.stream(DLUtils.Shapes.getFixedShape(dlTensor.getSpec().getShape()).get()).skip(1)
-				.toArray();
-		final Class<?> elementType = dlTensor.getSpec().getElementType();
-
-		Tensor<?> tfTensor;
-		if (elementType.equals(int.class)) {
-			final DLWrappingDataBuffer<int[]> dlBuffer = (DLWrappingDataBuffer<int[]>) dlTensor.getBuffer();
-			tfTensor = Tensor.create(shape, IntBuffer.wrap(dlBuffer.getStorageForReading(0, dlBuffer.size())));
-		} else if (elementType.equals(long.class)) {
-			final DLWrappingDataBuffer<long[]> dlBuffer = (DLWrappingDataBuffer<long[]>) dlTensor.getBuffer();
-			tfTensor = Tensor.create(shape, LongBuffer.wrap(dlBuffer.getStorageForReading(0, dlBuffer.size())));
-		} else if (elementType.equals(float.class)) {
-			final DLWrappingDataBuffer<float[]> dlBuffer = (DLWrappingDataBuffer<float[]>) dlTensor.getBuffer();
-			tfTensor = Tensor.create(shape, FloatBuffer.wrap(dlBuffer.getStorageForReading(0, dlBuffer.size())));
-		} else if (elementType.equals(double.class)) {
-			final DLWrappingDataBuffer<double[]> dlBuffer = (DLWrappingDataBuffer<double[]>) dlTensor.getBuffer();
-			tfTensor = Tensor.create(shape, DoubleBuffer.wrap(dlBuffer.getStorageForReading(0, dlBuffer.size())));
-		} else {
-			throw new IllegalStateException("The data type " + elementType + "is not supported.");
+		DLFixedTensorShape shape;
+		try {
+			shape = (DLFixedTensorShape) dlTensor.getSpec().getShape();
+		} catch (final ClassCastException e) {
+			throw new IllegalStateException("The shape of the tensor must be known at runtime", e);
 		}
-		return tfTensor;
+
+		try {
+			final DLTensorFlowTensorWritableBuffer<?> buffer = (DLTensorFlowTensorWritableBuffer<?>) dlTensor
+					.getBuffer();
+			return buffer.getTensor(shape);
+		} catch (final ClassCastException e) {
+			// TODO change text
+			throw new IllegalStateException("The buffer must be an TensorFlow specific buffer.", e);
+		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void writeToDLTensor(final Tensor<?> tfTensor, final DLTensor<? extends DLReadableBuffer> dlTensor) {
-		// TODO how to tell the KNIME tensor the shape?
-		switch (tfTensor.dataType()) {
-		case INT32:
-			final IntBuffer intBuffer = IntBuffer.allocate(tfTensor.numElements());
-			tfTensor.writeTo(intBuffer);
-			((DLWrappingDataBuffer<int[]>) dlTensor.getBuffer()).setStorage(intBuffer.array(), intBuffer.capacity());
-			return;
-		case INT64:
-			final LongBuffer longBuffer = LongBuffer.allocate(tfTensor.numElements());
-			tfTensor.writeTo(longBuffer);
-			((DLWrappingDataBuffer<long[]>) dlTensor.getBuffer()).setStorage(longBuffer.array(), longBuffer.capacity());
-			return;
-		case FLOAT:
-			final FloatBuffer floatBuffer = FloatBuffer.allocate(tfTensor.numElements());
-			tfTensor.writeTo(floatBuffer);
-			((DLWrappingDataBuffer<float[]>) dlTensor.getBuffer()).setStorage(floatBuffer.array(),
-					floatBuffer.capacity());
-			return;
-		case DOUBLE:
-			final DoubleBuffer doubleBuffer = DoubleBuffer.allocate(tfTensor.numElements());
-			tfTensor.writeTo(doubleBuffer);
-			((DLWrappingDataBuffer<double[]>) dlTensor.getBuffer()).setStorage(doubleBuffer.array(),
-					doubleBuffer.capacity());
-			return;
-		default:
-			throw new IllegalStateException("Tensor has unsupported type " + tfTensor.dataType());
+		try {
+			final DLTensorFlowTensorReadableBuffer buffer = (DLTensorFlowTensorReadableBuffer) dlTensor.getBuffer();
+			buffer.setTensor(tfTensor);
+		} catch (final ClassCastException e) {
+
+			throw new IllegalStateException("The buffer must be an TensorFlow specific buffer.", e);
 		}
+		// TODO how to tell the KNIME tensor the shape?
 	}
 }
