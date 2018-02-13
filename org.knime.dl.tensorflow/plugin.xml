@@ -37,4 +37,10 @@
             DLExecutionContext="org.knime.dl.tensorflow.savedmodel.core.execution.DLTensorFlowSavedModelExecutionContext">
       </DLExecutionContext>
    </extension>
+   <extension
+         point="org.knime.dl.DLTensorFactory">
+      <DLTensorFactory
+            DLTensorFactory="org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelTensorFactory">
+      </DLTensorFactory>
+   </extension>
 </plugin>
