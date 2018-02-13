@@ -56,7 +56,7 @@ import org.tensorflow.Tensor;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowTensorIntBuffer extends DLDefaultIntBuffer
-		implements DLTensorFlowTensorReadableBuffer, DLTensorFlowTensorWritableBuffer<Integer> {
+		implements DLTensorFlowTensorReadableIntBuffer, DLTensorFlowTensorWritableIntBuffer {
 
 	/**
 	 * Creates a new instance of this buffer.

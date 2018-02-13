@@ -56,7 +56,7 @@ import org.tensorflow.Tensor;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowTensorFloatBuffer extends DLDefaultFloatBuffer
-		implements DLTensorFlowTensorReadableBuffer, DLTensorFlowTensorWritableBuffer<Float> {
+		implements DLTensorFlowTensorReadableFloatBuffer, DLTensorFlowTensorWritableFloatBuffer {
 
 	/**
 	 * Creates a new instance of this buffer.

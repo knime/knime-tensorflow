@@ -56,7 +56,7 @@ import org.tensorflow.Tensor;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowTensorLongBuffer extends DLDefaultLongBuffer
-		implements DLTensorFlowTensorReadableBuffer, DLTensorFlowTensorWritableBuffer<Long> {
+		implements DLTensorFlowTensorReadableLongBuffer, DLTensorFlowTensorWritableLongBuffer {
 
 	/**
 	 * Creates a new instance of this buffer.

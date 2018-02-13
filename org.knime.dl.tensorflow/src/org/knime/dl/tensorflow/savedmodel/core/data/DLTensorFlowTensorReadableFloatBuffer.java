@@ -46,38 +46,11 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
-import java.nio.DoubleBuffer;
-
-import org.knime.dl.core.DLFixedTensorShape;
-import org.knime.dl.core.data.DLDefaultDoubleBuffer;
-import org.tensorflow.Tensor;
+import org.knime.dl.core.data.DLReadableFloatBuffer;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class DLTensorFlowTensorDoubleBuffer extends DLDefaultDoubleBuffer
-		implements DLTensorFlowTensorReadableDoubleBuffer, DLTensorFlowTensorWritableDoubleBuffer {
+public interface DLTensorFlowTensorReadableFloatBuffer extends DLTensorFlowTensorReadableBuffer, DLReadableFloatBuffer {
 
-	/**
-	 * Creates a new instance of this buffer.
-	 *
-	 * @param capacity the immutable capacity of the buffer
-	 */
-	public DLTensorFlowTensorDoubleBuffer(final long capacity) {
-		super(capacity);
-	}
-
-	@Override
-	public Tensor<Double> getTensor(final DLFixedTensorShape shape) {
-		// TODO check if this is correct (with the shape)
-		Tensor.create(shape.getShape(), DoubleBuffer.wrap(getStorageForReading(0, size())));
-		return null;
-	}
-
-	@Override
-	public void setTensor(final Tensor<?> tensor) {
-		final DoubleBuffer doubleBuffer = DoubleBuffer.allocate(tensor.numElements());
-		tensor.writeTo(doubleBuffer);
-		setStorage(doubleBuffer.array(), doubleBuffer.capacity());
-	}
 }
