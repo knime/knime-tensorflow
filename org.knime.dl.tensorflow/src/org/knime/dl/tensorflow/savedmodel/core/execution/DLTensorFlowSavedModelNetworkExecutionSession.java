@@ -46,15 +46,16 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.execution;
 
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLFixedTensorShape;
@@ -64,28 +65,39 @@ import org.knime.dl.core.DLTensorFactory;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.data.DLReadableBuffer;
-import org.knime.dl.core.data.DLWrappingDataBuffer;
 import org.knime.dl.core.data.DLWritableBuffer;
 import org.knime.dl.core.execution.DLAbstractNetworkExecutionSession;
 import org.knime.dl.core.execution.DLExecutionMonitor;
+import org.knime.dl.core.execution.DLExecutionStatus;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
 import org.knime.dl.tensorflow.core.execution.DLTensorFlowNetworkExecutionSession;
 import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelNetwork;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableBuffer;
 import org.tensorflow.SavedModelBundle;
-import org.tensorflow.Session;
 import org.tensorflow.Session.Runner;
 import org.tensorflow.Tensor;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
+ * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowSavedModelNetworkExecutionSession extends
 	DLAbstractNetworkExecutionSession<DLTensorFlowSavedModelNetwork> implements DLTensorFlowNetworkExecutionSession {
 
 	private SavedModelBundle m_savedModelBundle;
 
+	/**
+	 * Creates a new execution session for a TensorFlow SavedModel deep learning network.
+	 *
+	 * @param network the deep learning network
+	 * @param executionInputSpecs the tensor spec of the inputs
+	 * @param requestedOutputs the ids of the requested outputs
+	 * @param inputPreparer an input preparer
+	 * @param outputConsumer an output consumer
+	 * @param tensorFactory a tensor factory which creates tensors with {@link DLTensorFlowTensorReadableBuffer}s and
+	 *            {@link DLTensorFlowTensorWritableBuffer}s.
+	 */
 	protected DLTensorFlowSavedModelNetworkExecutionSession(final DLTensorFlowSavedModelNetwork network,
 			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
 			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer,
@@ -99,57 +111,161 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 			m_savedModelBundle = SavedModelBundle.load(FileUtil.getFileFromURL(m_network.getSource()).getAbsolutePath(),
 					m_network.getSpec().getTags());
 		}
-		try (final Session session = m_savedModelBundle.session()) {
-			final Runner runner = session.runner();
 
-			// Feed the inputs
-			for (final Entry<DLTensorId, DLTensor<? extends DLWritableBuffer>> e : m_input.entrySet()) {
-				runner.feed(e.getKey().getIdentifierString(), createTFTensor(e.getValue()));
-			}
+		final DLExecutionStatus status = monitor.getExecutionStatus();
+		final long numBatches = m_inputPreparer.getNumBatches();
 
-			// Fetch the outputs
-			final List<Entry<DLTensorId, DLTensor<? extends DLReadableBuffer>>> outputs = new ArrayList<>(
-					m_output.entrySet());
-			for (int i = 0; i < outputs.size(); i++) {
-				runner.fetch(outputs.get(i).getKey().getIdentifierString(), i);
-			}
+		// TODO the last batch might not be full but the batch size of the input tensor is still the configured batch
+		// size. We should somehow not create a TF tensor with the full batch size.
 
-			// Run the model
-			final List<Tensor<?>> runOutputs = runner.run();
+		// Loop over batches
+		for (long i = 0; i < numBatches; i++) {
+			// Create a TensorFlow runner
+			try (final DLRunner runner = new DLRunner(m_savedModelBundle.session().runner())) {
+				// TODO check if runner gets closed on exception
+				monitor.checkCanceled();
 
-			// Write the result to the KNIME tensors
-			for (int i = 0; i < runOutputs.size(); i++) {
-				writeToDLTensor(runOutputs.get(i), outputs.get(i).getValue());
+				// Prepare the inputs
+				m_inputPreparer.prepare(m_input, i);
+				monitor.checkCanceled();
+
+				// Feed the inputs
+				m_input.entrySet().stream().forEach(e -> runner.feed(e.getKey(), e.getValue()));
+				monitor.checkCanceled();
+
+				// Request the outputs
+				m_requestedOutputs.stream().forEach(id -> runner.fetch(id));
+				monitor.checkCanceled();
+
+				// Run the model
+				runner.run();
+				monitor.checkCanceled();
+
+				// Reset the buffers of the input tensors
+				m_input.values().forEach(in -> in.getBuffer().reset());
+
+				// Create the output map if it doesn't exist yet
+				if (m_output == null) {
+					m_output = new HashMap<>(m_requestedOutputs.size());
+
+					// Fill a Map with the specs for a tensor id
+					final Map<DLTensorId, DLTensorSpec> allOutputSpecs = new HashMap<>(m_requestedOutputs.size());
+					Arrays.stream(ArrayUtils.addAll(m_network.getSpec().getOutputSpecs(),
+							m_network.getSpec().getHiddenOutputSpecs()))
+							.filter(s -> m_requestedOutputs.contains(s.getIdentifier()))
+							.forEach(s -> allOutputSpecs.put(s.getIdentifier(), s));
+
+					// Create tensors for the requested outputs
+					for (final DLTensorId id : m_requestedOutputs) {
+						final long[] outShape = runner.getOutputShape(id);
+						final long outBatchSize = outShape[0];
+						final long[] outShapeWithoutBatchSize = Arrays.stream(outShape).skip(1).toArray();
+						final DLTensorSpec executionSpec = m_tensorFactory.createExecutionTensorSpec(
+								allOutputSpecs.get(id), outBatchSize, outShapeWithoutBatchSize);
+						m_output.put(id, m_tensorFactory.createReadableTensor(executionSpec));
+					}
+					monitor.checkCanceled();
+				}
+
+				// Fill the output tensors
+				m_output.entrySet().forEach(e -> runner.fillTensor(e.getKey(), e.getValue()));
+				monitor.checkCanceled();
+
+				// Consume the output
+				m_outputConsumer.accept(m_output);
+
+				// Reset the buffers of the output tensors
+				m_output.values().stream().forEach(o -> o.getBuffer().reset());
+
+				// This batch is done!
+				status.batchEnded().raise(null);
 			}
 		}
 	}
 
-	private Tensor<?> createTFTensor(final DLTensor<? extends DLWritableBuffer> dlTensor) {
-		DLFixedTensorShape shape;
+	@Override
+	public void close() throws Exception {
+		if (m_savedModelBundle != null) {
+			m_savedModelBundle.close();
+		}
+		super.close();
+	}
+
+	private static Tensor<?> createTFTensor(final DLTensor<? extends DLWritableBuffer> dlTensor) {
+		final DLFixedTensorShape shape;
 		try {
 			shape = (DLFixedTensorShape) dlTensor.getSpec().getShape();
 		} catch (final ClassCastException e) {
 			throw new IllegalStateException("The shape of the tensor must be known at runtime", e);
 		}
+		final long batchSize;
+		try {
+			batchSize = dlTensor.getSpec().getBatchSize().getAsLong();
+		} catch (final NoSuchElementException e) {
+			throw new IllegalStateException("The batch size of the tensor must be known at runtime", e);
+		}
 
 		try {
 			final DLTensorFlowTensorWritableBuffer<?> buffer = (DLTensorFlowTensorWritableBuffer<?>) dlTensor
 					.getBuffer();
-			return buffer.getTensor(shape);
+			return buffer.getTensor(batchSize, shape);
 		} catch (final ClassCastException e) {
 			// TODO change text
 			throw new IllegalStateException("The buffer must be an TensorFlow specific buffer.", e);
 		}
 	}
 
-	private void writeToDLTensor(final Tensor<?> tfTensor, final DLTensor<? extends DLReadableBuffer> dlTensor) {
-		try {
-			final DLTensorFlowTensorReadableBuffer buffer = (DLTensorFlowTensorReadableBuffer) dlTensor.getBuffer();
-			buffer.setTensor(tfTensor);
-		} catch (final ClassCastException e) {
+	private static class DLRunner implements AutoCloseable {
 
-			throw new IllegalStateException("The buffer must be an TensorFlow specific buffer.", e);
+		private final Runner m_runner;
+
+		/** Keep track of open Tensors to close them */
+		private final List<Tensor<?>> m_openTensors = new ArrayList<>();
+
+		private final List<DLTensorId> m_outputIds = new ArrayList<>();
+
+		private List<Tensor<?>> m_outputs;
+
+		public DLRunner(final Runner runner) {
+			m_runner = runner;
 		}
-		// TODO how to tell the KNIME tensor the shape?
+
+		public void feed(final DLTensorId id, final DLTensor<? extends DLWritableBuffer> tensor) {
+			Tensor<?> t = createTFTensor(tensor);
+			m_openTensors.add(t);
+			m_runner.feed(id.getIdentifierString(), t);
+		}
+
+		public void fetch(final DLTensorId id) {
+			m_runner.fetch(id.getIdentifierString(), m_outputIds.size());
+			m_outputIds.add(id);
+		}
+
+		public void run() {
+			m_outputs = m_runner.run();
+		}
+
+		public long[] getOutputShape(final DLTensorId id) {
+			return m_outputs.get(m_outputIds.indexOf(id)).shape();
+		}
+
+		public void fillTensor(final DLTensorId id, final DLTensor<? extends DLReadableBuffer> tensor) {
+			final DLTensorFlowTensorReadableBuffer buffer;
+			try {
+				buffer = (DLTensorFlowTensorReadableBuffer) tensor.getBuffer();
+			} catch (final ClassCastException e) {
+				throw new IllegalStateException("Wrong type of buffer: \"" + tensor.getBuffer().getClass()
+						+ "\", expected: \"" + DLTensorFlowTensorReadableBuffer.class + "\".");
+			}
+			buffer.setTensor(m_outputs.get(m_outputIds.indexOf(id)));
+		}
+
+		@Override
+		public void close() throws IOException {
+			m_openTensors.forEach(Tensor::close);
+			m_openTensors.clear();
+			m_outputs.forEach(Tensor::close);
+			m_outputs.clear();
+		}
 	}
 }

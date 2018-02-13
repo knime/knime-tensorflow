@@ -192,10 +192,18 @@ public class DLTensorFlowSavedModel {
 				&& signatureDef.getOutputsMap().entrySet().stream().anyMatch(t -> canBeOutput(t.getValue()));
 	}
 
+	private String opName(final String name) {
+		if (name.contains(":")) {
+			return name.substring(0, name.lastIndexOf(':'));
+		} else {
+			return name;
+		}
+	}
+
 	private DLTensorSpec createTensorSpec(final String name, final TensorInfo t) {
 		try {
 			final Class<?> type = getClassForType(t.getDtype());
-			final DLTensorId id = new DLDefaultTensorId(t.getName());
+			final DLTensorId id = new DLDefaultTensorId(opName(t.getName()));
 			final TensorShapeProto shapeProto = t.getTensorShape();
 			return createTensorSpec(id, name, shapeProto, type);
 		} catch (final DLInvalidTypeException e) {
@@ -258,8 +266,8 @@ public class DLTensorFlowSavedModel {
 	}
 
 	private DLTensorShape createPartialTensorShape(final List<Long> shapeList) {
-		final OptionalLong[] dims = shapeList.stream()
-				.map(l -> l > 0 ? OptionalLong.of(l) : OptionalLong.empty()).toArray(OptionalLong[]::new);
+		final OptionalLong[] dims = shapeList.stream().map(l -> l > 0 ? OptionalLong.of(l) : OptionalLong.empty())
+				.toArray(OptionalLong[]::new);
 		return new DLDefaultPartialTensorShape(dims);
 	}
 

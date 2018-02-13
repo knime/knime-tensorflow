@@ -68,10 +68,11 @@ public class DLTensorFlowTensorDoubleBuffer extends DLDefaultDoubleBuffer
 	}
 
 	@Override
-	public Tensor<Double> getTensor(final DLFixedTensorShape shape) {
-		// TODO check if this is correct (with the shape)
-		Tensor.create(shape.getShape(), DoubleBuffer.wrap(getStorageForReading(0, size())));
-		return null;
+	public Tensor<Double> getTensor(final long batchSize, final DLFixedTensorShape shape) {
+		final long[] tfShape = new long[shape.getNumDimensions() + 1];
+		tfShape[0] = batchSize;
+		System.arraycopy(shape.getShape(), 0, tfShape, 1, shape.getNumDimensions());
+		return Tensor.create(tfShape, DoubleBuffer.wrap(getStorageForReading(0, size())));
 	}
 
 	@Override

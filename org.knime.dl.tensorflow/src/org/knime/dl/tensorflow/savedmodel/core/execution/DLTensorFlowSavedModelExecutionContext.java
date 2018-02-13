@@ -62,9 +62,9 @@ import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelNetwork;
 public class DLTensorFlowSavedModelExecutionContext
 	extends DLTensorFlowAbstractExecutionContext<DLTensorFlowSavedModelNetwork> {
 
-	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow (JAVA)";
+	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow (Java)";
 
-	protected DLTensorFlowSavedModelExecutionContext() {
+	public DLTensorFlowSavedModelExecutionContext() {
 		super(DLTensorFlowSavedModelNetwork.class, EXECUTION_CONTEXT_NAME);
 	}
 

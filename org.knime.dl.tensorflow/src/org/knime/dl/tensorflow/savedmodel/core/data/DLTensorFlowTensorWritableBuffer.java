@@ -55,5 +55,5 @@ import org.tensorflow.Tensor;
  */
 public interface DLTensorFlowTensorWritableBuffer<T> extends DLWritableBuffer {
 
-	Tensor<T> getTensor(DLFixedTensorShape shape);
+	Tensor<T> getTensor(long batchSize, DLFixedTensorShape shape);
 }
