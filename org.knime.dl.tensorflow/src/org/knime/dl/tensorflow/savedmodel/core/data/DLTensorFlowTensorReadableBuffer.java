@@ -54,6 +54,10 @@ import org.tensorflow.Tensor;
  */
 public interface DLTensorFlowTensorReadableBuffer extends DLReadableBuffer {
 
-	// TODO can we get type safety?
-	void setTensor(Tensor<?> tensor);
+	/**
+	 * Writes the data of the tensor into the buffer.
+	 *
+	 * @param tensor the tensor
+	 */
+	void writeFromTensor(Tensor<?> tensor);
 }

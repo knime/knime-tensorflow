@@ -51,9 +51,20 @@ import org.knime.dl.core.data.DLWritableBuffer;
 import org.tensorflow.Tensor;
 
 /**
+ * @param <T> Type of the TensorFlow {@link Tensor}.
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public interface DLTensorFlowTensorWritableBuffer<T> extends DLWritableBuffer {
 
-	Tensor<T> getTensor(long batchSize, DLFixedTensorShape shape);
+	/**
+	 * Reads the content of the buffer and creates a new tensor containing the data.
+	 * <p>
+	 * <b>WARNING:</b> The Tensor object <b>must</b> be explicitly freed by invoking the
+	 * {@link #close()} method when the object is no longer needed.
+	 *
+	 * @param batchSize the batch size which will be the size of the first dimension of the tensor
+	 * @param shape the shape of the tensor
+	 * @return a tensor with the content of the buffer.
+	 */
+	Tensor<T> readIntoTensor(long batchSize, DLFixedTensorShape shape);
 }

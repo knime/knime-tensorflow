@@ -208,7 +208,7 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 		try {
 			final DLTensorFlowTensorWritableBuffer<?> buffer = (DLTensorFlowTensorWritableBuffer<?>) dlTensor
 					.getBuffer();
-			return buffer.getTensor(batchSize, shape);
+			return buffer.readIntoTensor(batchSize, shape);
 		} catch (final ClassCastException e) {
 			// TODO change text
 			throw new IllegalStateException("The buffer must be an TensorFlow specific buffer.", e);
@@ -257,7 +257,7 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 				throw new IllegalStateException("Wrong type of buffer: \"" + tensor.getBuffer().getClass()
 						+ "\", expected: \"" + DLTensorFlowTensorReadableBuffer.class + "\".");
 			}
-			buffer.setTensor(m_outputs.get(m_outputIds.indexOf(id)));
+			buffer.writeFromTensor(m_outputs.get(m_outputIds.indexOf(id)));
 		}
 
 		@Override

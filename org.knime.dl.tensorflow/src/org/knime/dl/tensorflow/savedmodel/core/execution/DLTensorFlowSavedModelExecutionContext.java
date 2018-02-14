@@ -64,6 +64,9 @@ public class DLTensorFlowSavedModelExecutionContext
 
 	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow (Java)";
 
+	/**
+	 * Creates a new execution context for TensorFlow SavedModels.
+	 */
 	public DLTensorFlowSavedModelExecutionContext() {
 		super(DLTensorFlowSavedModelNetwork.class, EXECUTION_CONTEXT_NAME);
 	}

@@ -51,8 +51,9 @@ import org.knime.dl.core.DLTensorRegistry;
 import org.knime.dl.tensorflow.core.DLTensorFlowNetwork;
 
 /**
- * TODO is this class hierarchy necessary?
+ * Abstract class for TensorFlow execution contexts.
  *
+ * @param <N> the specific {@link DLTensorFlowNetwork} of this execution context
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public abstract class DLTensorFlowAbstractExecutionContext<N extends DLTensorFlowNetwork>
@@ -64,6 +65,12 @@ public abstract class DLTensorFlowAbstractExecutionContext<N extends DLTensorFlo
 
 	private final DLTensorFactory m_layerDataFactory;
 
+	/**
+	 * Creates a new execution context for TensorFlow networks.
+	 *
+	 * @param networkType the class of the networks
+	 * @param name the name of the execution context
+	 */
 	protected DLTensorFlowAbstractExecutionContext(final Class<N> networkType, final String name) {
 		m_networkType = networkType;
 		m_name = name;

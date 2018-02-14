@@ -129,6 +129,7 @@ public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 				new DLDefaultFixedTensorShape(shape), spec.getElementType());
 	}
 
+	@SuppressWarnings("unchecked")
 	private <B extends DLBuffer> DLTensor<B> createTensorInternal(final DLTensorSpec spec) {
 		final long[] shape = DLUtils.Shapes.getFixedShape(spec.getShape())
 				.orElseThrow(() -> new IllegalArgumentException(

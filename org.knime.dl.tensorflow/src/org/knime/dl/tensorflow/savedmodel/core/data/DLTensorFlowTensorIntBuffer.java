@@ -68,7 +68,7 @@ public class DLTensorFlowTensorIntBuffer extends DLDefaultIntBuffer
 	}
 
 	@Override
-	public Tensor<Integer> getTensor(final long batchSize, final DLFixedTensorShape shape) {
+	public Tensor<Integer> readIntoTensor(final long batchSize, final DLFixedTensorShape shape) {
 		final long[] tfShape = new long[shape.getNumDimensions() + 1];
 		tfShape[0] = batchSize;
 		System.arraycopy(shape.getShape(), 0, tfShape, 1, shape.getNumDimensions());
@@ -76,7 +76,7 @@ public class DLTensorFlowTensorIntBuffer extends DLDefaultIntBuffer
 	}
 
 	@Override
-	public void setTensor(final Tensor<?> tensor) {
+	public void writeFromTensor(final Tensor<?> tensor) {
 		final IntBuffer intBuffer = IntBuffer.allocate(tensor.numElements());
 		tensor.writeTo(intBuffer);
 		setStorage(intBuffer.array(), intBuffer.capacity());
