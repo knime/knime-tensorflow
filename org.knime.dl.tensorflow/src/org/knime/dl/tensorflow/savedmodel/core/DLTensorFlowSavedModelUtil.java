@@ -50,7 +50,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -84,20 +83,14 @@ public class DLTensorFlowSavedModelUtil {
 	 */
 	public static SavedModel readSavedModelProtoBuf(final URL source) throws DLInvalidSourceException {
 		final File file = FileUtil.getFileFromURL(source);
-		InputStream inputStream;
 		if (file.isDirectory()) {
-			inputStream = inputStreamForSavedModelDir(file);
+			return readSavedModelFromDir(file);
 		} else {
-			inputStream = inputStreamForSavedModelZip(file);
-		}
-		try {
-			return SavedModel.parseFrom(inputStream);
-		} catch (IOException e) {
-			throw new DLInvalidSourceException("The SavedModel could not be parsed.", e);
+			return readSavedModelFromZip(file);
 		}
 	}
 
-	private static InputStream inputStreamForSavedModelDir(final File file) throws DLInvalidSourceException {
+	private static SavedModel readSavedModelFromDir(final File file) throws DLInvalidSourceException {
 		try {
 			final File[] savedModelPb = file.listFiles((d, n) -> n.equals("saved_model.pb"));
 			if (savedModelPb.length == 0) {
@@ -108,13 +101,15 @@ public class DLTensorFlowSavedModelUtil {
 					throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb");
 				}
 			}
-			return new FileInputStream(savedModelPb[0]);
+			return SavedModel.parseFrom(new FileInputStream(savedModelPb[0]));
 		} catch (FileNotFoundException e) {
 			throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb");
+		} catch (IOException e) {
+			throw new DLInvalidSourceException("The SavedModel could not be parsed.", e);
 		}
 	}
 
-	private static InputStream inputStreamForSavedModelZip(final File file) throws DLInvalidSourceException {
+	private static SavedModel readSavedModelFromZip(final File file) throws DLInvalidSourceException {
 		try (ZipFile savedModelZip = new ZipFile(file)) {
 			final Enumeration<? extends ZipEntry> entries = savedModelZip.entries();
 			ZipEntry entry = null;
@@ -136,7 +131,7 @@ public class DLTensorFlowSavedModelUtil {
 					throw new DLInvalidSourceException("The zip file doesn't contain a saved_model.pb");
 				}
 			}
-			return savedModelZip.getInputStream(entry);
+			return SavedModel.parseFrom(savedModelZip.getInputStream(entry));
 		} catch (final ZipException e) {
 			throw new DLInvalidSourceException("This SavedModel zip file isn't a valid zip file.", e);
 		} catch (final IOException e) {
