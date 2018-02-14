@@ -72,6 +72,8 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 	private static final String SAVED_MODEL_REGEX = "^.*saved_model.pb$" + "|^.*variables(/.*|\\.*)?$"
 			+ "|^.*assets(/.*|\\.*)?$";
 
+	private File m_extractedDir;
+
 	/**
 	 * Creates a new {@link DLTensorFlowSavedModelNetwork}.
 	 *
@@ -87,9 +89,29 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 		final File sourceFile = FileUtil.getFileFromURL(getSource());
 		final File destinationFile = destination.getFile();
 		if (sourceFile.isDirectory()) {
-			copyDirToFileStore(sourceFile, destinationFile);
+			copyDirToFile(sourceFile, destinationFile);
 		} else {
-			extractZipToFileStore(sourceFile, destinationFile);
+			extractZipToFile(sourceFile, destinationFile);
+		}
+	}
+
+	/**
+	 * Gives a directory where the SavedModel lies as a directory. If the SavedModel is was read from a ZIP file and not
+	 * copied into the KNIME workflow it gets extracted into a temporary directory.
+	 *
+	 * @return the directory
+	 * @throws IOException if extracting the ZIP file to a temporary directory failed.
+	 */
+	public File getSavedModelInDir() throws IOException {
+		final File sourceFile = FileUtil.getFileFromURL(getSource());
+		if (sourceFile.isDirectory()) {
+			return sourceFile;
+		} else {
+			if (m_extractedDir == null) {
+				m_extractedDir = FileUtil.createTempDir("SavedModel");
+				extractZipToFile(sourceFile, m_extractedDir);
+			}
+			return m_extractedDir;
 		}
 	}
 
@@ -101,7 +123,7 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 	 * @param destination the destination directory
 	 * @throws IOException if copying failed
 	 */
-	private void copyDirToFileStore(final File source, final File destination) throws IOException {
+	private void copyDirToFile(final File source, final File destination) throws IOException {
 		if (!destination.toURI().toURL().equals(getSource())) {
 			// Create the target directory if it doesn't exist yet
 			createDirs(destination);
@@ -120,7 +142,7 @@ public class DLTensorFlowSavedModelNetwork extends DLPythonAbstractNetwork<DLTen
 		}
 	}
 
-	private void extractZipToFileStore(final File source, final File destination) throws IOException {
+	private void extractZipToFile(final File source, final File destination) throws IOException {
 		createDirs(destination);
 		try (final ZipFile zip = new ZipFile(source)) {
 			final String prefix = getZipPrefix(zip);

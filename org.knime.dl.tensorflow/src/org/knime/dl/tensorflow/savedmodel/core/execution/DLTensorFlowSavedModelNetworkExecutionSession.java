@@ -56,7 +56,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLFixedTensorShape;
 import org.knime.dl.core.DLNetworkInputPreparer;
@@ -108,7 +107,7 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 	@Override
 	protected void executeInternal(final DLExecutionMonitor monitor) throws DLCanceledExecutionException, Exception {
 		if (m_savedModelBundle == null) {
-			m_savedModelBundle = SavedModelBundle.load(FileUtil.getFileFromURL(m_network.getSource()).getAbsolutePath(),
+			m_savedModelBundle = SavedModelBundle.load(m_network.getSavedModelInDir().getAbsolutePath(),
 					m_network.getSpec().getTags());
 		}
 
