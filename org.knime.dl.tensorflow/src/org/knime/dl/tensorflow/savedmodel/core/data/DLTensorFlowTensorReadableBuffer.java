@@ -46,6 +46,7 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import org.knime.dl.core.DLInvalidNetworkOutputException;
 import org.knime.dl.core.data.DLReadableBuffer;
 import org.tensorflow.Tensor;
 
@@ -58,6 +59,7 @@ public interface DLTensorFlowTensorReadableBuffer extends DLReadableBuffer {
 	 * Writes the data of the tensor into the buffer.
 	 *
 	 * @param tensor the tensor
+	 * @throws DLInvalidNetworkOutputException if the data of the tensor could not be read into the buffer
 	 */
-	void writeFromTensor(Tensor<?> tensor);
+	void writeFromTensor(Tensor<?> tensor) throws DLInvalidNetworkOutputException;
 }

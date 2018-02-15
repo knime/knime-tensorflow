@@ -47,6 +47,7 @@
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
 import org.knime.dl.core.DLFixedTensorShape;
+import org.knime.dl.core.DLInvalidNetworkInputException;
 import org.knime.dl.core.data.DLWritableBuffer;
 import org.tensorflow.Tensor;
 
@@ -65,6 +66,7 @@ public interface DLTensorFlowTensorWritableBuffer<T> extends DLWritableBuffer {
 	 * @param batchSize the batch size which will be the size of the first dimension of the tensor
 	 * @param shape the shape of the tensor
 	 * @return a tensor with the content of the buffer.
+	 * @throws DLInvalidNetworkInputException if no tensor could be created from this buffer
 	 */
-	Tensor<T> readIntoTensor(long batchSize, DLFixedTensorShape shape);
+	Tensor<T> readIntoTensor(long batchSize, DLFixedTensorShape shape) throws DLInvalidNetworkInputException;
 }

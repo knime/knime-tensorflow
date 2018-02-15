@@ -49,7 +49,10 @@ package org.knime.dl.tensorflow.savedmodel.core.data;
 import java.nio.IntBuffer;
 
 import org.knime.dl.core.DLFixedTensorShape;
+import org.knime.dl.core.DLInvalidNetworkInputException;
+import org.knime.dl.core.DLInvalidNetworkOutputException;
 import org.knime.dl.core.data.DLDefaultIntBuffer;
+import org.tensorflow.DataType;
 import org.tensorflow.Tensor;
 
 /**
@@ -68,15 +71,27 @@ public class DLTensorFlowTensorIntBuffer extends DLDefaultIntBuffer
 	}
 
 	@Override
-	public Tensor<Integer> readIntoTensor(final long batchSize, final DLFixedTensorShape shape) {
+	public Tensor<Integer> readIntoTensor(final long batchSize, final DLFixedTensorShape shape)
+			throws DLInvalidNetworkInputException {
 		final long[] tfShape = new long[shape.getNumDimensions() + 1];
 		tfShape[0] = batchSize;
 		System.arraycopy(shape.getShape(), 0, tfShape, 1, shape.getNumDimensions());
-		return Tensor.create(tfShape, IntBuffer.wrap(getStorageForReading(0, size())));
+		final int bufferSize;
+		try {
+			bufferSize = Math.toIntExact(size());
+		} catch (final ArithmeticException e) {
+			throw new DLInvalidNetworkInputException("Tried to create a TensorFlow tensor with " + size()
+					+ " elements but a TensorFlow tensor can only contain " + Integer.MAX_VALUE + " elements.");
+		}
+		return Tensor.create(tfShape, IntBuffer.wrap(getStorageForReading(0, bufferSize), 0, bufferSize));
 	}
 
 	@Override
 	public void writeFromTensor(final Tensor<?> tensor) {
+		if (tensor.dataType() != DataType.INT32) {
+			throw new DLInvalidNetworkOutputException("Writing a TensorFlow tensor of type " + tensor.dataType()
+					+ " to a int buffer is not supported.");
+		}
 		final IntBuffer intBuffer = IntBuffer.allocate(tensor.numElements());
 		tensor.writeTo(intBuffer);
 		setStorage(intBuffer.array(), intBuffer.capacity());

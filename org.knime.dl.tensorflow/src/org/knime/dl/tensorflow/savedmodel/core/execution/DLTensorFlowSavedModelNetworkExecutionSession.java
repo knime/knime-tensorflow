@@ -114,14 +114,10 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 		final DLExecutionStatus status = monitor.getExecutionStatus();
 		final long numBatches = m_inputPreparer.getNumBatches();
 
-		// TODO the last batch might not be full but the batch size of the input tensor is still the configured batch
-		// size. We should somehow not create a TF tensor with the full batch size.
-
 		// Loop over batches
 		for (long i = 0; i < numBatches; i++) {
 			// Create a TensorFlow runner
 			try (final DLRunner runner = new DLRunner(m_savedModelBundle.session().runner())) {
-				// TODO check if runner gets closed on exception
 				monitor.checkCanceled();
 
 				// Prepare the inputs
@@ -199,7 +195,7 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 		}
 		final long batchSize;
 		try {
-			batchSize = dlTensor.getSpec().getBatchSize().getAsLong();
+			batchSize = dlTensor.getBuffer().size() / dlTensor.getExampleSize();
 		} catch (final NoSuchElementException e) {
 			throw new IllegalStateException("The batch size of the tensor must be known at runtime", e);
 		}
@@ -209,8 +205,8 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 					.getBuffer();
 			return buffer.readIntoTensor(batchSize, shape);
 		} catch (final ClassCastException e) {
-			// TODO change text
-			throw new IllegalStateException("The buffer must be an TensorFlow specific buffer.", e);
+			throw new IllegalStateException("Wrong type of buffer: \"" + dlTensor.getBuffer().getClass()
+					+ "\", expected: \"" + DLTensorFlowTensorWritableBuffer.class + "\".");
 		}
 	}
 
