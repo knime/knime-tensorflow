@@ -92,8 +92,7 @@ public class DLTensorFlowTensorIntBuffer extends DLDefaultIntBuffer
 			throw new DLInvalidNetworkOutputException("Writing a TensorFlow tensor of type " + tensor.dataType()
 					+ " to a int buffer is not supported.");
 		}
-		final IntBuffer intBuffer = IntBuffer.allocate(tensor.numElements());
+		final IntBuffer intBuffer = IntBuffer.wrap(getStorageForWriting(0, tensor.numElements()));
 		tensor.writeTo(intBuffer);
-		setStorage(intBuffer.array(), intBuffer.capacity());
 	}
 }

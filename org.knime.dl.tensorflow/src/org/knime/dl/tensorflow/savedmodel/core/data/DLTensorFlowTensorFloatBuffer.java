@@ -92,8 +92,7 @@ public class DLTensorFlowTensorFloatBuffer extends DLDefaultFloatBuffer
 			throw new DLInvalidNetworkOutputException("Writing a TensorFlow tensor of type " + tensor.dataType()
 					+ " to a float buffer is not supported.");
 		}
-		final FloatBuffer floatBuffer = FloatBuffer.allocate(tensor.numElements());
+		final FloatBuffer floatBuffer = FloatBuffer.wrap(getStorageForWriting(0, tensor.numElements()));
 		tensor.writeTo(floatBuffer);
-		setStorage(floatBuffer.array(), floatBuffer.capacity());
 	}
 }

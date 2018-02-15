@@ -92,8 +92,7 @@ public class DLTensorFlowTensorLongBuffer extends DLDefaultLongBuffer
 			throw new DLInvalidNetworkOutputException("Writing a TensorFlow tensor of type " + tensor.dataType()
 					+ " to a long buffer is not supported.");
 		}
-		final LongBuffer longBuffer = LongBuffer.allocate(tensor.numElements());
+		final LongBuffer longBuffer = LongBuffer.wrap(getStorageForWriting(0, tensor.numElements()));
 		tensor.writeTo(longBuffer);
-		setStorage(longBuffer.array(), longBuffer.capacity());
 	}
 }

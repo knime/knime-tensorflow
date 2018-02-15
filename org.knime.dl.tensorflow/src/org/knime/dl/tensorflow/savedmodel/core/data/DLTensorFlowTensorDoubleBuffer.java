@@ -92,8 +92,7 @@ public class DLTensorFlowTensorDoubleBuffer extends DLDefaultDoubleBuffer
 			throw new DLInvalidNetworkOutputException("Writing a TensorFlow tensor of type " + tensor.dataType()
 					+ " to a double buffer is not supported.");
 		}
-		final DoubleBuffer doubleBuffer = DoubleBuffer.allocate(tensor.numElements());
+		final DoubleBuffer doubleBuffer = DoubleBuffer.wrap(getStorageForWriting(0, tensor.numElements()));
 		tensor.writeTo(doubleBuffer);
-		setStorage(doubleBuffer.array(), doubleBuffer.capacity());
 	}
 }
