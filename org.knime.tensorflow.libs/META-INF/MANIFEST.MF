@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TensorFlow Libraries
-Bundle-SymbolicName: org.knime.dl.tensorflow.libs;singleton:=true
+Bundle-SymbolicName: org.knime.tensorflow.libs;singleton:=true
 Bundle-Version: 3.6.0.qualifier
-Bundle-Activator: org.knime.dl.tensorflow.libs.DLTensorFlowPluginActivator
+Bundle-Activator: org.knime.tensorflow.libs.DLTensorFlowPluginActivator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.knime.core

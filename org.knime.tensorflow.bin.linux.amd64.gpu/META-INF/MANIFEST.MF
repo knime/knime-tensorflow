@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TensorFlow GPU Libraries for Linux x86_64
-Bundle-SymbolicName: org.knime.dl.tensorflow.bin.linux.amd64.gpu
+Bundle-SymbolicName: org.knime.tensorflow.bin.linux.amd64.gpu
 Bundle-Version: 3.6.0.qualifier
-Fragment-Host: org.knime.dl.tensorflow.libs;bundle-version="3.6.0"
+Fragment-Host: org.knime.tensorflow.libs;bundle-version="3.6.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-PlatformFilter: (&(osgi.os=linux)(osgi.arch=x86_64))
 Bundle-Vendor: KNIME AG, Zurich, Switzerland

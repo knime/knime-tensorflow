@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.libs.prefs;
+package org.knime.tensorflow.libs.prefs;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
-import org.knime.dl.tensorflow.libs.DLTensorFlowPluginActivator;
+import org.knime.tensorflow.libs.DLTensorFlowPluginActivator;
 
 /**
  * Preference page for the TensorFlow deep learning backend.
@@ -79,7 +79,7 @@ public class DLTensorFlowPreferencePage extends FieldEditorPreferencePage implem
 		super(GRID);
 		IPreferenceStore ps = DLTensorFlowPluginActivator.getDefault().getPreferenceStore();
 		setPreferenceStore(ps);
-		setDescription("Preferences for the KNIME Deep Learning - TensorFlow Integration.");
+		setDescription("Preferences for the KNIME - TensorFlow Integration.");
 		m_forceCPU = ps.getBoolean(P_FORCE_CPU);
 	}
 

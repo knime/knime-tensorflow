@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.libs;
+package org.knime.tensorflow.libs;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +56,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.util.FileUtil;
-import org.knime.dl.tensorflow.libs.prefs.DLTensorFlowPreferencePage;
+import org.knime.tensorflow.libs.prefs.DLTensorFlowPreferencePage;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -67,14 +67,14 @@ import org.osgi.framework.BundleContext;
  */
 public class DLTensorFlowPluginActivator extends AbstractUIPlugin {
 
-	private static final String GPU_FRAGMENT_REGEX = "org\\.knime\\.dl\\.tensorflow\\.bin\\.[^\\.]+\\.amd64\\.gpu.*";
+	private static final String GPU_FRAGMENT_REGEX = "org\\.knime\\.tensorflow\\.bin\\.[^\\.]+\\.amd64\\.gpu.*";
 
-	private static final String CPU_FRAGMENT_REGEX = "org\\.knime\\.dl\\.tensorflow\\.bin\\.[^\\.]+\\.amd64\\.cpu.*";
+	private static final String CPU_FRAGMENT_REGEX = "org\\.knime\\.tensorflow\\.bin\\.[^\\.]+\\.amd64\\.cpu.*";
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(DLTensorFlowPluginActivator.class);
 
 	/** The plug-in ID */
-	public static final String PLUGIN_ID = "org.knime.dl.tensorflow.libs"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.knime.tensorflow.libs"; //$NON-NLS-1$
 
 	// The shared instance
 	private static DLTensorFlowPluginActivator plugin;

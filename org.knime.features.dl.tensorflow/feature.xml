@@ -734,7 +734,7 @@ propagated with or for interoperation with KNIME.
       <import plugin="org.knime.dl.python" version="3.6.0" match="compatible"/>
       <import plugin="org.apache.commons.lang3" version="3.2.1" match="compatible"/>
       <import plugin="com.google.guava" version="19.0.0" match="perfect"/>
-      <import plugin="org.knime.dl.tensorflow.libs" version="3.6.0" match="greaterOrEqual"/>
+      <import plugin="org.knime.tensorflow.libs" version="3.6.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
    </requires>
@@ -746,35 +746,35 @@ propagated with or for interoperation with KNIME.
          version="0.0.0"/>
 
    <plugin
-         id="org.knime.dl.tensorflow.libs"
+         id="org.knime.tensorflow.libs"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.knime.dl.tensorflow.bin.macosx.amd64.cpu"
+         id="org.knime.tensorflow.bin.macosx.amd64.cpu"
          download-size="0"
          install-size="0"
          version="0.0.0"
          fragment="true"/>
 
    <plugin
-         id="org.knime.dl.tensorflow.bin.linux.amd64.cpu"
+         id="org.knime.tensorflow.bin.linux.amd64.cpu"
          download-size="0"
          install-size="0"
          version="0.0.0"
          fragment="true"/>
 
    <plugin
-         id="org.knime.dl.tensorflow.bin.linux.amd64.gpu"
+         id="org.knime.tensorflow.bin.linux.amd64.gpu"
          download-size="0"
          install-size="0"
          version="0.0.0"
          fragment="true"/>
 
    <plugin
-         id="org.knime.dl.tensorflow.bin.windows.amd64.cpu"
+         id="org.knime.tensorflow.bin.windows.amd64.cpu"
          download-size="0"
          install-size="0"
          version="0.0.0"

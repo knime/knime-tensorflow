@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.libs.prefs;
+package org.knime.tensorflow.libs.prefs;
 
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.swt.SWT;
