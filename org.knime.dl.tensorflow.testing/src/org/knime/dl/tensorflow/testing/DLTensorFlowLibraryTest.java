@@ -55,7 +55,6 @@ import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
 
 /**
- *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowLibraryTest {
@@ -68,20 +67,22 @@ public class DLTensorFlowLibraryTest {
 	 */
 	@Test
 	public void test() throws Exception {
-		Graph g = new Graph();
+		final Graph g = new Graph();
 		final String value = "Hello from " + TensorFlow.version();
 
 		// Construct the computation graph with a single operation, a
 		// constant named "MyConst" with a value "value".
-		Tensor<?> t = Tensor.create(value.getBytes("UTF-8"));
-		// The Java API doesn't yet include convenience functions for
-		// adding operations.
-		g.opBuilder("Const", "MyConst").setAttr("dtype", t.dataType()).setAttr("value", t).build();
+		try (final Tensor<?> t = Tensor.create(value.getBytes("UTF-8"))) {
+			// The Java API doesn't yet include convenience functions for
+			// adding operations.
+			g.opBuilder("Const", "MyConst").setAttr("dtype", t.dataType()).setAttr("value", t).build();
 
-		// Execute the "MyConst" operation in a Session.
-		Session s = new Session(g);
-		Tensor<?> output = s.runner().fetch("MyConst").run().get(0);
-		assertEquals(new String(output.bytesValue(), "UTF-8"), "Hello from 1.4.0");
-		s.close();
+			// Execute the "MyConst" operation in a Session.
+			try (final Session s = new Session(g)) {
+				try (Tensor<?> output = s.runner().fetch("MyConst").run().get(0)) {
+					assertEquals("Hello from 1.4.0", new String(output.bytesValue(), "UTF-8"));
+				}
+			}
+		}
 	}
 }
