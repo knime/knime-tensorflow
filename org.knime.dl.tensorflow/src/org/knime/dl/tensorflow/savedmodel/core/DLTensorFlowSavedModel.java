@@ -123,9 +123,8 @@ public class DLTensorFlowSavedModel {
 	 * @return a collection of tensor specifications
 	 */
 	public Collection<DLTensorSpec> getPossibleInputTensors(final Collection<String> tags) {
-		return getFilteredMetagraphDefs(tags).stream().flatMap(
-				m -> m.getGraphDef().getNodeList().stream().filter(n -> canBeInput(n)).map(n -> createTensorSpec(n)))
-				.collect(Collectors.toSet());
+		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getGraphDef().getNodeList().stream()
+				.filter(n -> canBeInput(n)).map(n -> createTensorSpec(n, true))).collect(Collectors.toSet());
 	}
 
 	/**
@@ -135,9 +134,8 @@ public class DLTensorFlowSavedModel {
 	 * @return a collection of tensor specifications
 	 */
 	public Collection<DLTensorSpec> getPossibleOutputTensors(final Collection<String> tags) {
-		return getFilteredMetagraphDefs(tags).stream().flatMap(
-				m -> m.getGraphDef().getNodeList().stream().filter(n -> canBeOutput(n)).map(n -> createTensorSpec(n)))
-				.collect(Collectors.toSet());
+		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getGraphDef().getNodeList().stream()
+				.filter(n -> canBeOutput(n)).map(n -> createTensorSpec(n, false))).collect(Collectors.toSet());
 	}
 
 	/**
@@ -200,6 +198,8 @@ public class DLTensorFlowSavedModel {
 		}
 	}
 
+	// ---------------------- Methods on TensorInfo --------------------
+
 	private DLTensorSpec createTensorSpec(final String name, final TensorInfo t) {
 		try {
 			final Class<?> type = getClassForType(t.getDtype());
@@ -213,22 +213,67 @@ public class DLTensorFlowSavedModel {
 		}
 	}
 
-	private DLTensorSpec createTensorSpec(final NodeDef n) {
-		// Get the type
-		final Class<?> type = getDataTypeOfNodeDef(n);
+	private boolean canBeInput(final TensorInfo t) {
+		return canBeInputOrOutput(t.getDtype());
+	}
+
+	private boolean canBeOutput(final TensorInfo t) {
+		return canBeInputOrOutput(t.getDtype());
+	}
+
+	// ---------------------- Methods on NodeDef --------------------
+
+	private DLTensorSpec createTensorSpec(final NodeDef n, final boolean input) {
 		// Get the name
 		final String name = n.getName();
 		// The names should work as identifiers in a TensorFlow graph
 		final DLTensorId id = new DLDefaultTensorId(name);
 
-		TensorShapeProto shapeProto = null;
+		// Get the type
+		final Class<?> type;
 		try {
-			shapeProto = n.getAttrOrThrow("shape").getShape();
-		} catch (final IllegalArgumentException e) {
-			// Nothing to do
+			type = getClassForType(getDataTypeOfNodeDef(n));
+		} catch (DLInvalidTypeException e) {
+			// This node definition has no type. We cannot create a spec for it
+			return null;
 		}
+
+		// Get the shape
+		TensorShapeProto shapeProto = getShapeOfNodeDef(n, input);
 		return createTensorSpec(id, name, shapeProto, type);
 	}
+
+	private boolean canBeInput(final NodeDef n) {
+		final TensorShapeProto shape = getShapeOfNodeDef(n, true);
+		return shape != null && !shape.getUnknownRank();
+	}
+
+	private boolean canBeOutput(final NodeDef n) {
+		final TensorShapeProto shape = getShapeOfNodeDef(n, false);
+		return shape != null && !shape.getUnknownRank();
+	}
+
+	private DataType getDataTypeOfNodeDef(final NodeDef n) throws DLInvalidTypeException {
+		if (n.containsAttr("dtype")) {
+			return n.getAttrOrThrow("dtype").getType();
+		} else if (n.containsAttr("T")) {
+			return n.getAttrOrThrow("T").getType();
+		} else {
+			throw new DLInvalidTypeException("NodeDef doesn't define a type: " + n);
+		}
+	}
+
+	private TensorShapeProto getShapeOfNodeDef(final NodeDef n, final boolean input) {
+		if (input && n.containsAttr("shape")) {
+			return n.getAttrOrThrow("shape").getShape();
+		} else if (!input && n.containsAttr("_output_shapes")) {
+			return n.getAttrOrThrow("_output_shapes").getList().getShape(0);
+		} else {
+			return null;
+		}
+	}
+
+	// ---------------------- Methods on general stuff --------------------
 
 	private DLTensorSpec createTensorSpec(final DLTensorId id, final String name, final TensorShapeProto shapeProto,
 			final Class<?> type) {
@@ -276,46 +321,11 @@ public class DLTensorFlowSavedModel {
 		return new DLDefaultFixedTensorShape(dims);
 	}
 
-	private boolean canBeInput(final TensorInfo t) {
-		return canBeInputOrOutput(t.getDtype());
-	}
-
-	private boolean canBeOutput(final TensorInfo t) {
-		return canBeInputOrOutput(t.getDtype());
-	}
-
-	private boolean canBeInput(final NodeDef n) {
-		try {
-			return canBeInputOrOutput(n.getAttrOrThrow("dtype").getType());
-		} catch (final IllegalArgumentException e) {
-			// It doesn't even has a type
-			return false;
-		}
-	}
-
-	private boolean canBeOutput(final NodeDef n) {
-		try {
-			return canBeInputOrOutput(n.getAttrOrThrow("dtype").getType());
-		} catch (final IllegalArgumentException e) {
-			// It doesn't even has a type
-			return false;
-		}
-	}
-
 	private boolean canBeInputOrOutput(final DataType t) {
 		try {
 			return !getClassForType(t).equals(String.class);
 		} catch (final DLInvalidTypeException e) {
 			return false;
-		}
-	}
-
-	private Class<?> getDataTypeOfNodeDef(final NodeDef n) {
-		try {
-			final DataType typeAttr = n.getAttrOrThrow("dtype").getType();
-			return getClassForType(typeAttr);
-		} catch (IllegalArgumentException | DLInvalidTypeException e) {
-			return null; // Couldn't find a data type
 		}
 	}
 
