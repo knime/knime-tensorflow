@@ -57,10 +57,12 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.Collectors;
 
+import org.knime.dl.core.DLDefaultDimensionOrder;
 import org.knime.dl.core.DLDefaultFixedTensorShape;
 import org.knime.dl.core.DLDefaultPartialTensorShape;
 import org.knime.dl.core.DLDefaultTensorId;
 import org.knime.dl.core.DLDefaultTensorSpec;
+import org.knime.dl.core.DLDimensionOrder;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorShape;
@@ -282,6 +284,9 @@ public class DLTensorFlowSavedModel {
 
 	private DLTensorSpec createTensorSpec(final DLTensorId id, final String name, final TensorShapeProto shapeProto,
 			final Class<?> type) {
+		// TODO infer dimension order
+		DLDimensionOrder dimensionOrder = DLDefaultDimensionOrder.TDHWC;
+		
 		// Get the shape and batch size
 		if (shapeProto != null) {
 			final List<Long> shapeList = new ArrayList<>(
@@ -304,15 +309,15 @@ public class DLTensorFlowSavedModel {
 					shape = createFixedTensorShape(shapeList);
 				}
 				if (batchSize > 0) {
-					return new DLDefaultTensorSpec(id, name, batchSize, shape, type);
+					return new DLDefaultTensorSpec(id, name, batchSize, shape, type, dimensionOrder);
 				} else {
-					return new DLDefaultTensorSpec(id, name, shape, type);
+					return new DLDefaultTensorSpec(id, name, shape, type, dimensionOrder);
 				}
 			}
 		}
 
 		// Getting the shape and batch size wasn't successful
-		return new DLDefaultTensorSpec(id, name, type);
+		return new DLDefaultTensorSpec(id, name, type, dimensionOrder);
 	}
 
 	private DLTensorShape createPartialTensorShape(final List<Long> shapeList) {
