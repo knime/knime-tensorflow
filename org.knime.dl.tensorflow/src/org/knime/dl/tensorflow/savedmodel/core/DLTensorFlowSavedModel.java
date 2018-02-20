@@ -53,6 +53,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.Collectors;
 
@@ -123,8 +124,10 @@ public class DLTensorFlowSavedModel {
 	 * @return a collection of tensor specifications
 	 */
 	public Collection<DLTensorSpec> getPossibleInputTensors(final Collection<String> tags) {
-		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getGraphDef().getNodeList().stream()
-				.filter(n -> canBeInput(n)).map(n -> createTensorSpec(n, true))).collect(Collectors.toSet());
+		return getFilteredMetagraphDefs(tags).stream()
+				.flatMap(m -> m.getGraphDef().getNodeList().stream().filter(n -> canBeInput(n))
+						.map(n -> createTensorSpec(n, true)))
+				.filter(o -> o.isPresent()).map(o -> o.get()).collect(Collectors.toSet());
 	}
 
 	/**
@@ -134,8 +137,10 @@ public class DLTensorFlowSavedModel {
 	 * @return a collection of tensor specifications
 	 */
 	public Collection<DLTensorSpec> getPossibleOutputTensors(final Collection<String> tags) {
-		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getGraphDef().getNodeList().stream()
-				.filter(n -> canBeOutput(n)).map(n -> createTensorSpec(n, false))).collect(Collectors.toSet());
+		return getFilteredMetagraphDefs(tags).stream()
+				.flatMap(m -> m.getGraphDef().getNodeList().stream().filter(n -> canBeOutput(n))
+						.map(n -> createTensorSpec(n, false)))
+				.filter(o -> o.isPresent()).map(o -> o.get()).collect(Collectors.toSet());
 	}
 
 	/**
@@ -223,7 +228,7 @@ public class DLTensorFlowSavedModel {
 
 	// ---------------------- Methods on NodeDef --------------------
 
-	private DLTensorSpec createTensorSpec(final NodeDef n, final boolean input) {
+	private Optional<DLTensorSpec> createTensorSpec(final NodeDef n, final boolean input) {
 		// Get the name
 		final String name = n.getName();
 		// The names should work as identifiers in a TensorFlow graph
@@ -235,12 +240,12 @@ public class DLTensorFlowSavedModel {
 			type = getClassForType(getDataTypeOfNodeDef(n));
 		} catch (DLInvalidTypeException e) {
 			// This node definition has no type. We cannot create a spec for it
-			return null;
+			return Optional.empty();
 		}
 
 		// Get the shape
 		TensorShapeProto shapeProto = getShapeOfNodeDef(n, input);
-		return createTensorSpec(id, name, shapeProto, type);
+		return Optional.of(createTensorSpec(id, name, shapeProto, type));
 	}
 
 	private boolean canBeInput(final NodeDef n) {
