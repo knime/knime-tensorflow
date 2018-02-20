@@ -96,7 +96,7 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 	 * @param tensorFactory a tensor factory which creates tensors with {@link DLTensorFlowTensorReadableBuffer}s and
 	 *            {@link DLTensorFlowTensorWritableBuffer}s.
 	 */
-	protected DLTensorFlowSavedModelNetworkExecutionSession(final DLTensorFlowSavedModelNetwork network,
+	public DLTensorFlowSavedModelNetworkExecutionSession(final DLTensorFlowSavedModelNetwork network,
 			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
 			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer,
 			final DLTensorFactory tensorFactory) {
