@@ -52,7 +52,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -193,12 +192,8 @@ public class DLTensorFlowSavedModelNetworkExecutionSession extends
 		} catch (final ClassCastException e) {
 			throw new IllegalStateException("The shape of the tensor must be known at runtime", e);
 		}
-		final long batchSize;
-		try {
-			batchSize = dlTensor.getBuffer().size() / dlTensor.getExampleSize();
-		} catch (final NoSuchElementException e) {
-			throw new IllegalStateException("The batch size of the tensor must be known at runtime", e);
-		}
+
+		final long batchSize = dlTensor.getBuffer().size() / dlTensor.getExampleSize();
 
 		try {
 			final DLTensorFlowTensorWritableBuffer<?> buffer = (DLTensorFlowTensorWritableBuffer<?>) dlTensor
