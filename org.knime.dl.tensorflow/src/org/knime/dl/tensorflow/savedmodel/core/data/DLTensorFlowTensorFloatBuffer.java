@@ -52,6 +52,7 @@ import org.knime.dl.core.DLFixedTensorShape;
 import org.knime.dl.core.DLInvalidNetworkInputException;
 import org.knime.dl.core.DLInvalidNetworkOutputException;
 import org.knime.dl.core.data.DLDefaultFloatBuffer;
+import org.knime.dl.tensorflow.core.DLTensorFlowUtil;
 import org.tensorflow.DataType;
 import org.tensorflow.Tensor;
 
@@ -73,9 +74,7 @@ public class DLTensorFlowTensorFloatBuffer extends DLDefaultFloatBuffer
 	@Override
 	public Tensor<Float> readIntoTensor(final long batchSize, final DLFixedTensorShape shape)
 			throws DLInvalidNetworkInputException {
-		final long[] tfShape = new long[shape.getNumDimensions() + 1];
-		tfShape[0] = batchSize;
-		System.arraycopy(shape.getShape(), 0, tfShape, 1, shape.getNumDimensions());
+		final long[] tfShape = DLTensorFlowUtil.createTFShape(batchSize, shape);
 		final int bufferSize;
 		try {
 			bufferSize = Math.toIntExact(size());
