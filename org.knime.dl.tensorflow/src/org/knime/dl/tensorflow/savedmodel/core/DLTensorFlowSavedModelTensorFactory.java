@@ -126,7 +126,7 @@ public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 	@Override
 	public DLTensorSpec createExecutionTensorSpec(final DLTensorSpec spec, final long batchSize, final long[] shape) {
 		return new DLDefaultTensorSpec(spec.getIdentifier(), spec.getName(), batchSize,
-				new DLDefaultFixedTensorShape(shape), spec.getElementType());
+				new DLDefaultFixedTensorShape(shape), spec.getElementType(), spec.getDimensionOrder());
 	}
 
 	@SuppressWarnings("unchecked")
