@@ -63,7 +63,7 @@ public abstract class DLTensorFlowAbstractExecutionContext<N extends DLTensorFlo
 
 	private final String m_name;
 
-	private final DLTensorFactory m_layerDataFactory;
+	private final DLTensorFactory m_tensorFactory;
 
 	/**
 	 * Creates a new execution context for TensorFlow networks.
@@ -74,7 +74,7 @@ public abstract class DLTensorFlowAbstractExecutionContext<N extends DLTensorFlo
 	protected DLTensorFlowAbstractExecutionContext(final Class<N> networkType, final String name) {
 		m_networkType = networkType;
 		m_name = name;
-		m_layerDataFactory = DLTensorRegistry.getInstance().getTensorFactory(m_networkType)
+		m_tensorFactory = DLTensorRegistry.getInstance().getTensorFactory(m_networkType)
 				.orElseThrow(() -> new IllegalStateException("Deep learning network type '" + m_networkType
 						+ "' is not supported. No tensor factory found."));
 	}
@@ -91,6 +91,6 @@ public abstract class DLTensorFlowAbstractExecutionContext<N extends DLTensorFlo
 
 	@Override
 	public DLTensorFactory getTensorFactory() {
-		return m_layerDataFactory;
+		return m_tensorFactory;
 	}
 }
