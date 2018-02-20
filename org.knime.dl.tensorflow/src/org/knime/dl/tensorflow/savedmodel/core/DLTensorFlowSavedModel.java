@@ -286,7 +286,7 @@ public class DLTensorFlowSavedModel {
 			final Class<?> type) {
 		// TODO infer dimension order
 		DLDimensionOrder dimensionOrder = DLDefaultDimensionOrder.TDHWC;
-		
+
 		// Get the shape and batch size
 		if (shapeProto != null) {
 			final List<Long> shapeList = new ArrayList<>(
@@ -351,6 +351,28 @@ public class DLTensorFlowSavedModel {
 			return long.class;
 		default:
 			throw new DLInvalidTypeException("The type " + t + " has no corresponding type in KNIME.");
+		}
+	}
+
+	private DLDimensionOrder inferDimensionOrderFromGraph(final Collection<MetaGraphDef> metaGraphDefs) {
+		// TODO move default somewhere else
+		// TODO also look in meta_info_def for ops with data format and default values (but the default value should be
+		// the same as ours)
+		final DLDimensionOrder defaultDimensionOrder = DLDefaultDimensionOrder.TDHWC;
+		return metaGraphDefs.stream().map(m -> m.getGraphDef()).flatMap(g -> g.getNodeList().stream())
+				.filter(n -> n.containsAttr("data_format"))
+				.map(n -> inferDimensionOrderFromString(n.getAttrOrThrow("data_format").getS().toString()))
+				.filter(o -> o.isPresent()).map(o -> o.get()).findFirst().orElse(defaultDimensionOrder);
+	}
+
+	private Optional<DLDimensionOrder> inferDimensionOrderFromString(final String dimOrder) {
+		// TODO make more powerful
+		if (dimOrder.equals("NDHWC") || dimOrder.equals("NHWC") || dimOrder.equals("NWC")) {
+			return Optional.of(DLDefaultDimensionOrder.TDHWC);
+		} else if (dimOrder.equals("NCDHW") || dimOrder.equals("NCHW") || dimOrder.equals("NCW")) {
+			return Optional.of(DLDefaultDimensionOrder.TCDHW);
+		} else {
+			return Optional.empty();
 		}
 	}
 }
