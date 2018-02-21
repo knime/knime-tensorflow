@@ -87,6 +87,8 @@ public class DLTensorFlowSavedModel {
 
 	private Collection<String> m_tags;
 
+	private DLDimensionOrder m_dimensionOrder;
+
 	/**
 	 * Wraps a SavedModel at the given location to an {@link DLTensorFlowSavedModel}.
 	 *
@@ -116,8 +118,11 @@ public class DLTensorFlowSavedModel {
 	 * @param tags the tags to consider
 	 */
 	public void setSelectedTags(final Collection<String> tags) {
-		// TODO reset stuff that depends on the selected tags
-		m_tags = tags;
+		// Check if we still have the same tags
+		if (m_tags == null || tags.size() != m_tags.size() || !m_tags.containsAll(tags)) {
+			m_tags = tags;
+			m_dimensionOrder = null;
+		}
 	}
 
 	/**
@@ -292,8 +297,8 @@ public class DLTensorFlowSavedModel {
 
 	private DLTensorSpec createTensorSpec(final DLTensorId id, final String name, final TensorShapeProto shapeProto,
 			final Class<?> type) {
-		// TODO infer dimension order
-		DLDimensionOrder dimensionOrder = DLDefaultDimensionOrder.TDHWC;
+		// Get the dimension order
+		final DLDimensionOrder dimensionOrder = getDimensionOrder();
 
 		// Get the shape and batch size
 		if (shapeProto != null) {
@@ -362,12 +367,19 @@ public class DLTensorFlowSavedModel {
 		}
 	}
 
-	private DLDimensionOrder inferDimensionOrderFromGraph(final Collection<MetaGraphDef> metaGraphDefs) {
+	private DLDimensionOrder getDimensionOrder() {
+		if (m_dimensionOrder == null) {
+			m_dimensionOrder = inferDimensionOrderFromGraph();
+		}
+		return m_dimensionOrder;
+	}
+
+	private DLDimensionOrder inferDimensionOrderFromGraph() {
 		// TODO move default somewhere else
 		// TODO also look in meta_info_def for ops with data format and default values (but the default value should be
 		// the same as ours)
 		final DLDimensionOrder defaultDimensionOrder = DLDefaultDimensionOrder.TDHWC;
-		return metaGraphDefs.stream().map(m -> m.getGraphDef()).flatMap(g -> g.getNodeList().stream())
+		return getFilteredMetagraphDefs().stream().map(m -> m.getGraphDef()).flatMap(g -> g.getNodeList().stream())
 				.filter(n -> n.containsAttr("data_format"))
 				.map(n -> inferDimensionOrderFromString(n.getAttrOrThrow("data_format").getS().toString()))
 				.filter(o -> o.isPresent()).map(o -> o.get()).findFirst().orElse(defaultDimensionOrder);
