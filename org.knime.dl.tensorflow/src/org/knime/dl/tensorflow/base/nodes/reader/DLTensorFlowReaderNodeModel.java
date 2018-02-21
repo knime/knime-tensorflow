@@ -75,6 +75,7 @@ import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObjectSpec;
 import org.knime.dl.tensorflow.core.DLTensorFlowNetwork;
+import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowMetaGraphDefs;
 import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModel;
 import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelNetwork;
 import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelNetworkSpec;
@@ -165,19 +166,18 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		}
 		final List<String> tags = Arrays.asList(m_tags.getStringArrayValue());
 		try {
-			final DLTensorFlowSavedModel sm = new DLTensorFlowSavedModel(m_url);
-			sm.setSelectedTags(tags);
+			final DLTensorFlowMetaGraphDefs metaGraphDefs = new DLTensorFlowSavedModel(m_url).getMetaGraphDefs(tags);
 			// Create the NetworkSpec
 			if (!m_advanced.getBooleanValue()) {
 				final String signature = m_signatures.getStringValue();
-				m_networkSpec = sm.createSpecs(signature);
+				m_networkSpec = metaGraphDefs.createSpecs(signature);
 			} else {
 				final List<String> inputs = Arrays.asList(m_inputs.getStringArrayValue());
 				final List<String> outputs = Arrays.asList(m_outputs.getStringArrayValue());
-				final DLTensorSpec[] inputSpecs = sm.getPossibleInputTensors().stream()
+				final DLTensorSpec[] inputSpecs = metaGraphDefs.getPossibleInputTensors().stream()
 						.filter(t -> inputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
 				final DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
-				final DLTensorSpec[] outputSpecs = sm.getPossibleOutputTensors().stream()
+				final DLTensorSpec[] outputSpecs = metaGraphDefs.getPossibleOutputTensors().stream()
 						.filter(t -> outputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
 				m_networkSpec = new DLTensorFlowSavedModelNetworkSpec(m_tags.getStringArrayValue(), inputSpecs,
 						hiddenSpecs, outputSpecs);

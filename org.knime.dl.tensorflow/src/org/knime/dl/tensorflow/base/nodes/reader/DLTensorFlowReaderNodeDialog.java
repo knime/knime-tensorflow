@@ -70,6 +70,7 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentColoredLabel;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentFileOrDirChooser;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentTensorSelection;
+import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowMetaGraphDefs;
 import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModel;
 
 /**
@@ -221,8 +222,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		}
 
 		// Get the available signatures
-		m_savedModel.setSelectedTags(tags);
-		final Collection<String> newSignatureList = m_savedModel.getSignatureDefsStrings();
+		final DLTensorFlowMetaGraphDefs metaGraphDefs = m_savedModel.getMetaGraphDefs(tags);
+		final Collection<String> newSignatureList = metaGraphDefs.getSignatureDefsStrings();
 
 		if (newSignatureList.isEmpty()) {
 			// If there are no signatures activate the advanced settings
@@ -236,8 +237,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		}
 
 		// Get the available tensors for the advanced settings
-		m_dcInputs.setTensorOptions(m_savedModel.getPossibleInputTensors());
-		m_dcOutputs.setTensorOptions(m_savedModel.getPossibleOutputTensors());
+		m_dcInputs.setTensorOptions(metaGraphDefs.getPossibleInputTensors());
+		m_dcOutputs.setTensorOptions(metaGraphDefs.getPossibleOutputTensors());
 	}
 
 	@Override
