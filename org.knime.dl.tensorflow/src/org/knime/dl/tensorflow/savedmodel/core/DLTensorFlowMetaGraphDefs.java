@@ -66,6 +66,7 @@ import org.knime.dl.core.DLTensorShape;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.DLUnknownTensorShape;
 import org.knime.dl.tensorflow.core.DLInvalidTypeException;
+import org.knime.dl.tensorflow.core.DLTensorFlowUtil;
 import org.tensorflow.framework.DataType;
 import org.tensorflow.framework.MetaGraphDef;
 import org.tensorflow.framework.NodeDef;
@@ -344,14 +345,13 @@ public class DLTensorFlowMetaGraphDefs {
 	}
 
 	private DLDimensionOrder inferDimensionOrderFromGraph() {
-		// TODO move default somewhere else
 		// TODO also look in meta_info_def for ops with data format and default values (but the default value should be
 		// the same as ours)
-		final DLDimensionOrder defaultDimensionOrder = DLDefaultDimensionOrder.TDHWC;
 		return m_metaGraphDefs.stream().map(m -> m.getGraphDef()).flatMap(g -> g.getNodeList().stream())
 				.filter(n -> n.containsAttr("data_format"))
 				.map(n -> inferDimensionOrderFromString(n.getAttrOrThrow("data_format").getS().toString()))
-				.filter(o -> o.isPresent()).map(o -> o.get()).findFirst().orElse(defaultDimensionOrder);
+				.filter(o -> o.isPresent()).map(o -> o.get()).findFirst()
+				.orElse(DLTensorFlowUtil.DEFAULT_DIMENSION_ORDER);
 	}
 
 	private Optional<DLDimensionOrder> inferDimensionOrderFromString(final String dimOrder) {
