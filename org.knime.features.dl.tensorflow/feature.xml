@@ -754,6 +754,8 @@ propagated with or for interoperation with KNIME.
 
    <plugin
          id="org.knime.tensorflow.bin.macosx.amd64.cpu"
+         os="macosx"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -761,6 +763,8 @@ propagated with or for interoperation with KNIME.
 
    <plugin
          id="org.knime.tensorflow.bin.linux.amd64.cpu"
+         os="linux"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -768,6 +772,8 @@ propagated with or for interoperation with KNIME.
 
    <plugin
          id="org.knime.tensorflow.bin.linux.amd64.gpu"
+         os="linux"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -775,6 +781,8 @@ propagated with or for interoperation with KNIME.
 
    <plugin
          id="org.knime.tensorflow.bin.windows.amd64.cpu"
+         os="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
