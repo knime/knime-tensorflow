@@ -163,20 +163,21 @@ public class DLTensorFlowReaderNodeModel extends NodeModel {
 		} catch (InvalidPathException | MalformedURLException e) {
 			throw new InvalidSettingsException("The file path is not valid.", e);
 		}
-		final String signature = m_signatures.getStringValue();
+		final List<String> tags = Arrays.asList(m_tags.getStringArrayValue());
 		try {
 			final DLTensorFlowSavedModel sm = new DLTensorFlowSavedModel(m_url);
+			sm.setSelectedTags(tags);
 			// Create the NetworkSpec
 			if (!m_advanced.getBooleanValue()) {
-				m_networkSpec = sm.createSpecs(m_tags.getStringArrayValue(), signature);
+				final String signature = m_signatures.getStringValue();
+				m_networkSpec = sm.createSpecs(signature);
 			} else {
-				final List<String> tags = Arrays.asList(m_tags.getStringArrayValue());
 				final List<String> inputs = Arrays.asList(m_inputs.getStringArrayValue());
 				final List<String> outputs = Arrays.asList(m_outputs.getStringArrayValue());
-				final DLTensorSpec[] inputSpecs = sm.getPossibleInputTensors(tags).stream()
+				final DLTensorSpec[] inputSpecs = sm.getPossibleInputTensors().stream()
 						.filter(t -> inputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
 				final DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
-				final DLTensorSpec[] outputSpecs = sm.getPossibleOutputTensors(tags).stream()
+				final DLTensorSpec[] outputSpecs = sm.getPossibleOutputTensors().stream()
 						.filter(t -> outputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
 				m_networkSpec = new DLTensorFlowSavedModelNetworkSpec(m_tags.getStringArrayValue(), inputSpecs,
 						hiddenSpecs, outputSpecs);

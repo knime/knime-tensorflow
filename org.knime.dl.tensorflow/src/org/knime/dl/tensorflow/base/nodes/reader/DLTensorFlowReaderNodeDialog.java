@@ -221,7 +221,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		}
 
 		// Get the available signatures
-		final Collection<String> newSignatureList = m_savedModel.getSignatureDefsStrings(tags);
+		m_savedModel.setSelectedTags(tags);
+		final Collection<String> newSignatureList = m_savedModel.getSignatureDefsStrings();
 
 		if (newSignatureList.isEmpty()) {
 			// If there are no signatures activate the advanced settings
@@ -235,8 +236,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		}
 
 		// Get the available tensors for the advanced settings
-		m_dcInputs.setTensorOptions(m_savedModel.getPossibleInputTensors(tags));
-		m_dcOutputs.setTensorOptions(m_savedModel.getPossibleOutputTensors(tags));
+		m_dcInputs.setTensorOptions(m_savedModel.getPossibleInputTensors());
+		m_dcOutputs.setTensorOptions(m_savedModel.getPossibleOutputTensors());
 	}
 
 	@Override

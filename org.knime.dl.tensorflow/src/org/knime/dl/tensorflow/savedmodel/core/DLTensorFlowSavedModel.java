@@ -48,7 +48,6 @@ package org.knime.dl.tensorflow.savedmodel.core;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +85,8 @@ public class DLTensorFlowSavedModel {
 
 	private final SavedModel m_savedModel;
 
+	private Collection<String> m_tags;
+
 	/**
 	 * Wraps a SavedModel at the given location to an {@link DLTensorFlowSavedModel}.
 	 *
@@ -110,23 +111,31 @@ public class DLTensorFlowSavedModel {
 	}
 
 	/**
-	 * Extracts the signature names from the SavedModel.
+	 * Sets the tags that should be considered for all other operations.
 	 *
 	 * @param tags the tags to consider
+	 */
+	public void setSelectedTags(final Collection<String> tags) {
+		// TODO reset stuff that depends on the selected tags
+		m_tags = tags;
+	}
+
+	/**
+	 * Extracts the signature names from the SavedModel.
+	 *
 	 * @return a list of signature names
 	 */
-	public Collection<String> getSignatureDefsStrings(final Collection<String> tags) {
-		return getFilteredSignature(tags).stream().map(e -> e.getKey()).collect(Collectors.toSet());
+	public Collection<String> getSignatureDefsStrings() {
+		return getFilteredSignature().stream().map(e -> e.getKey()).collect(Collectors.toSet());
 	}
 
 	/**
 	 * Extracts the tensor specifications of all tensors which may can be used as inputs to the graph.
 	 *
-	 * @param tags the tags to consider
 	 * @return a collection of tensor specifications
 	 */
-	public Collection<DLTensorSpec> getPossibleInputTensors(final Collection<String> tags) {
-		return getFilteredMetagraphDefs(tags).stream()
+	public Collection<DLTensorSpec> getPossibleInputTensors() {
+		return getFilteredMetagraphDefs().stream()
 				.flatMap(m -> m.getGraphDef().getNodeList().stream().filter(n -> canBeInput(n))
 						.map(n -> createTensorSpec(n, true)))
 				.filter(o -> o.isPresent()).map(o -> o.get()).collect(Collectors.toSet());
@@ -135,11 +144,10 @@ public class DLTensorFlowSavedModel {
 	/**
 	 * Extracts the tensor specifications of all tensors which may can be used as outputs from the graph.
 	 *
-	 * @param tags the tags to consider
 	 * @return a collection of tensor specifications
 	 */
-	public Collection<DLTensorSpec> getPossibleOutputTensors(final Collection<String> tags) {
-		return getFilteredMetagraphDefs(tags).stream()
+	public Collection<DLTensorSpec> getPossibleOutputTensors() {
+		return getFilteredMetagraphDefs().stream()
 				.flatMap(m -> m.getGraphDef().getNodeList().stream().filter(n -> canBeOutput(n))
 						.map(n -> createTensorSpec(n, false)))
 				.filter(o -> o.isPresent()).map(o -> o.get()).collect(Collectors.toSet());
@@ -148,15 +156,12 @@ public class DLTensorFlowSavedModel {
 	/**
 	 * Creates the specs for a DLNetwork with this SavedModel.
 	 *
-	 * @param tags the tags to consider.
 	 * @param signature the signature to consider which must be available.
 	 * @return the specs.
 	 */
-	public DLTensorFlowSavedModelNetworkSpec createSpecs(final String[] tags, final String signature) {
-		final List<String> tagsList = Arrays.asList(tags);
-
+	public DLTensorFlowSavedModelNetworkSpec createSpecs(final String signature) {
 		// Get the signature definitions of the selected tags and signatures
-		final SignatureDef signatureDef = getFilteredMetagraphDefs(tagsList).stream()
+		final SignatureDef signatureDef = getFilteredMetagraphDefs().stream()
 				.flatMap(m -> m.getSignatureDefMap().entrySet().stream().filter(e -> signature.equals(e.getKey()))
 						.map(e -> e.getValue()))
 				.findFirst()
@@ -173,22 +178,25 @@ public class DLTensorFlowSavedModel {
 		final DLTensorSpec[] outputSpecs = outputs.entrySet().stream()
 				.map(e -> createTensorSpec(e.getKey(), e.getValue())).toArray(DLTensorSpec[]::new);
 
+		// Get the tags as array
+		final String[] tags = m_tags.toArray(new String[m_tags.size()]);
+
 		// Create the NetworkSpec
 		return new DLTensorFlowSavedModelNetworkSpec(tags, inputSpecs, hiddenSpecs, outputSpecs);
 	}
 
-	private Collection<MetaGraphDef> getFilteredMetagraphDefs(final Collection<String> tags) {
+	private Collection<MetaGraphDef> getFilteredMetagraphDefs() {
 		return m_savedModel.getMetaGraphsList().stream()
-				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(tags::contains))
+				.filter(m -> m.getMetaInfoDef().getTagsList().stream().anyMatch(m_tags::contains))
 				.collect(Collectors.toList());
 	}
 
-	private Collection<Entry<String, SignatureDef>> getFilteredSignature(final Collection<String> tags) {
-		return getSignatureDefs(tags).stream().filter(e -> canBeUsedInKNIME(e.getValue())).collect(Collectors.toSet());
+	private Collection<Entry<String, SignatureDef>> getFilteredSignature() {
+		return getSignatureDefs().stream().filter(e -> canBeUsedInKNIME(e.getValue())).collect(Collectors.toSet());
 	}
 
-	private Collection<Entry<String, SignatureDef>> getSignatureDefs(final Collection<String> tags) {
-		return getFilteredMetagraphDefs(tags).stream().flatMap(m -> m.getSignatureDefMap().entrySet().stream())
+	private Collection<Entry<String, SignatureDef>> getSignatureDefs() {
+		return getFilteredMetagraphDefs().stream().flatMap(m -> m.getSignatureDefMap().entrySet().stream())
 				.collect(Collectors.toSet());
 	}
 
