@@ -16,7 +16,7 @@
    <extension
          point="org.knime.workbench.repository.categories">
       <category
-            icon="icons/category.png"
+            icon="icons/tensorflow.png"
             level-id="tensorflow"
             locked="true"
             name="TensorFlow"
