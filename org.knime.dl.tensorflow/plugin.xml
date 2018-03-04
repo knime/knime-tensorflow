@@ -43,4 +43,16 @@
             DLTensorFactory="org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelTensorFactory">
       </DLTensorFactory>
    </extension>
+   <extension
+         point="org.knime.dl.DLTensorToDataCellConverterFactory">
+      <DLTensorToDataCellConverterFactory
+            DLTensorToDataCellConverterFactory="org.knime.dl.tensorflow.savedmodel.core.data.convert.DLStringTensorToStringCellConverterFactory">
+      </DLTensorToDataCellConverterFactory>
+   </extension>
+   <extension
+         point="org.knime.dl.DLDataValueToTensorConverterFactory">
+      <DLDataValueToTensorConverterFactory
+            DLDataValueToTensorConverterFactory="org.knime.dl.tensorflow.savedmodel.core.data.convert.DLStringValueToStringTensorConverterFactory">
+      </DLDataValueToTensorConverterFactory>
+   </extension>
 </plugin>
