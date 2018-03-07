@@ -49,10 +49,8 @@ package org.knime.dl.tensorflow.base.nodes.reader;
 import java.awt.Color;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import javax.swing.JFileChooser;
 
@@ -60,7 +58,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringListSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -69,8 +66,9 @@ import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentColoredLabel;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentFileOrDirChooser;
+import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentObjectSelection;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentTensorSelection;
-import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowMetaGraphDefs;
+import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowMetaGraphDef;
 import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModel;
 
 /**
@@ -80,7 +78,9 @@ import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModel;
  */
 public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
-	private static final Collection<String> EMPTY_COLLECTION = Collections.singleton("                        ");
+	private static final Collection<String> EMPTY_STRING_COLLECTION = Collections.singleton("                        ");
+
+	private static final Collection<String[]> EMPTY_STRING_ARRAY_COLLECTION = Collections.singleton(new String[] {});
 
 	private static final String FILE_HISTORY_ID = "org.knime.dl.tensorflow.base.nodes.reader";
 
@@ -102,7 +102,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private final DialogComponentBoolean m_dcCopyNetwork;
 
-	private final DialogComponentStringListSelection m_dcTags;
+	private final DialogComponentObjectSelection<SettingsModelStringArray, String[]> m_dcTags;
 
 	private final DialogComponentStringSelection m_dcSignature;
 
@@ -115,6 +115,8 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 	private final DialogComponentTensorSelection m_dcOutputs;
 
 	private DLTensorFlowSavedModel m_savedModel;
+
+	private boolean m_errorReading = false;
 
 	private String m_previousFilePath;
 
@@ -129,8 +131,9 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 				".zip");
 		m_dcCopyNetwork = new DialogComponentBoolean(m_smCopyNetwork,
 				"Copy deep learning network into KNIME workflow?");
-		m_dcTags = new DialogComponentStringListSelection(m_smTags, "Tags", EMPTY_COLLECTION, true, 5);
-		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_COLLECTION);
+		m_dcTags = new DialogComponentObjectSelection<>(m_smTags, t -> String.join(" ,", t),
+				(t, sm) -> sm.setStringArrayValue(t), sm -> sm.getStringArrayValue(), "Tags");
+		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_STRING_COLLECTION);
 		m_dcErrorLabel = new DialogComponentColoredLabel("", Color.RED);
 		m_dcAdvanced = new DialogComponentBoolean(m_smAdvanced, "Use advanced settings");
 		m_dcInputs = new DialogComponentTensorSelection(m_smInputs, "Inputs", Collections.emptySet(),
@@ -175,6 +178,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private void readSavedModel() {
 		m_dcErrorLabel.setText("");
+		m_errorReading = false;
 		try {
 			final String filePath = m_smFilePath.getStringValue();
 			if (!filePath.equals(m_previousFilePath)) {
@@ -182,8 +186,10 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 			}
 			return;
 		} catch (final DLInvalidSourceException e) {
+			m_errorReading = true;
 			m_dcErrorLabel.setText(e.getMessage());
 		} catch (InvalidPathException | MalformedURLException e) {
+			m_errorReading = true;
 			m_dcErrorLabel.setText("The filepath is not valid.");
 		}
 		m_savedModel = null;
@@ -191,38 +197,37 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	/**
 	 * Updates the tags shown for selection in {@link #m_dcTags}. If {@link #m_savedModel} is <code>null</code> the list
-	 * is set to {@link #EMPTY_COLLECTION}.
+	 * is set to {@link #EMPTY_STRING_COLLECTION}.
 	 */
 	private void updateTags() {
-		Collection<String> newTagList;
 		if (m_savedModel != null) {
-			newTagList = m_savedModel.getContainedTags();
+			Collection<String[]> newTagList = m_savedModel.getContainedTags();
 			if (newTagList.isEmpty()) {
-				newTagList = EMPTY_COLLECTION;
+				newTagList = EMPTY_STRING_ARRAY_COLLECTION;
 				m_dcErrorLabel.setText("The SavedModel doesn't contain tags.");
 			}
-		} else {
-			newTagList = EMPTY_COLLECTION;
+			m_dcTags.replaceListItems(newTagList, null);
+		} else if (m_errorReading){
+			m_dcTags.replaceListItems(EMPTY_STRING_ARRAY_COLLECTION, null);
 		}
-		m_dcTags.replaceListItems(newTagList);
 	}
 
 	/**
 	 * Updates the signatures shown for selection in {@link #m_dcSignature} and the advanced signature selection.
 	 */
 	private void updateSignatures() {
-		final List<String> tags = Arrays.asList(m_smTags.getStringArrayValue());
+		final String[] tags = m_smTags.getStringArrayValue();
 
 		// Check if we can't find the signatures
-		if (m_savedModel == null || tags.isEmpty()) {
-			m_dcSignature.replaceListItems(EMPTY_COLLECTION, null);
+		if (m_savedModel == null || tags.length < 1) {
+			m_dcSignature.replaceListItems(EMPTY_STRING_COLLECTION, null);
 			m_dcInputs.setTensorOptions(Collections.emptySet());
 			m_dcOutputs.setTensorOptions(Collections.emptySet());
 			return;
 		}
 
 		// Get the available signatures
-		final DLTensorFlowMetaGraphDefs metaGraphDefs = m_savedModel.getMetaGraphDefs(tags);
+		final DLTensorFlowMetaGraphDef metaGraphDefs = m_savedModel.getMetaGraphDefs(tags);
 		final Collection<String> newSignatureList = metaGraphDefs.getSignatureDefsStrings();
 
 		if (newSignatureList.isEmpty()) {
@@ -230,7 +235,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 			m_smAdvanced.setBooleanValue(true);
 			m_dcErrorLabel.setText(
 					"The SavedModel doesn't contain signatures with the selected tag. " + "Use the advanced settings.");
-			m_dcSignature.replaceListItems(EMPTY_COLLECTION, null);
+			m_dcSignature.replaceListItems(EMPTY_STRING_COLLECTION, null);
 		} else {
 			// Else set the signatures
 			m_dcSignature.replaceListItems(newSignatureList, null);
@@ -250,7 +255,7 @@ public class DLTensorFlowReaderNodeDialog extends DefaultNodeSettingsPane {
 		if (m_savedModel == null) {
 			throw new InvalidSettingsException("The path doesn't point to a valid SavedModel.");
 		}
-		if (m_smTags.getStringArrayValue().length == 0) {
+		if (m_smTags.getStringArrayValue() == null || m_smTags.getStringArrayValue().length < 1) {
 			throw new InvalidSettingsException("No tags are selected.");
 		}
 		if (m_smSignature.getStringValue() == null || m_smSignature.getStringValue().isEmpty()) {
