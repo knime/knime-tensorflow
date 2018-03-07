@@ -77,23 +77,23 @@ public class DLTensorFlowSavedModel {
 	}
 
 	/**
-	 * Extracts the tags from the SavedModel.
+	 * Extracts one list of tags per MetaGraph.
 	 *
-	 * @return a list of the tags
+	 * @return a collection containing arrays of tags
 	 */
-	public Collection<String> getContainedTags() {
-		return m_savedModel.getMetaGraphsList().stream().flatMap(m -> m.getMetaInfoDef().getTagsList().stream())
-				.collect(Collectors.toSet());
+	public Collection<String[]> getContainedTags() {
+		return m_savedModel.getMetaGraphsList().stream()
+				.map(m -> m.getMetaInfoDef().getTagsList().stream().toArray(String[]::new)).collect(Collectors.toSet());
 	}
 
 	/**
-	 * Get a {@link DLTensorFlowMetaGraphDefs} with the {@link MetaGraphDef}s of this SavedModel considering the given
+	 * Get a {@link DLTensorFlowMetaGraphDef} with the {@link MetaGraphDef}s of this SavedModel considering the given
 	 * tags.
 	 *
 	 * @param tags the tags to consider
-	 * @return a {@link DLTensorFlowMetaGraphDefs} with the {@link MetaGraphDef}s of this SavedModel
+	 * @return a {@link DLTensorFlowMetaGraphDef} with the {@link MetaGraphDef}s of this SavedModel
 	 */
-	public DLTensorFlowMetaGraphDefs getMetaGraphDefs(final Collection<String> tags) {
-		return new DLTensorFlowMetaGraphDefs(m_savedModel, tags);
+	public DLTensorFlowMetaGraphDef getMetaGraphDefs(final String[] tags) {
+		return new DLTensorFlowMetaGraphDef(m_savedModel, tags);
 	}
 }
