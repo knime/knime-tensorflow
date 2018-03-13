@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="dltensorflowreader.png" type="Source">
-	<name>DL TensorFlow Network Reader</name>
+	<name>TensorFlow Network Reader</name>
 
 	<shortDescription>
 		Reads a TensorFlow saved model from an input zip file
@@ -10,12 +10,12 @@
 
 	<fullDescription>
 		<intro>
-			This node reads a TensorFlow deep learning network from an directory
+			This node reads a TensorFlow deep learning network from a directory
 			or zip file.
 			<p>
-				If the network should be read from a directory it has to be a
+				If the network should be read from a directory, it has to be a
 				valid SavedModel.
-				If the network should be read from a zip file it
+				If the network should be read from a zip file, it
 				must contain a valid SavedModel.
 			</p>
 			<p>
@@ -40,7 +40,7 @@
 			<option name="Signature">
 				The signature which should be available for
 				executing or training the model. (Use the advanced settings if you
-				want to use a signature which isn't available in the SavedModel)
+				want to use a signature which isn't available in the SavedModel.)
 			</option>
 			<option name="Copy deep learning network into KNIME workflow?">
 				If selected, the TensorFlow network will be
