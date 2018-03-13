@@ -44,88 +44,73 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core.data;
+package org.knime.dl.tensorflow.savedmodel.core.data.convert;
 
 import static org.junit.Assert.*;
-import static org.knime.dl.tensorflow.testing.TFTestUtil.*;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.OptionalLong;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.StringValue;
+import org.knime.core.data.def.StringCell;
 import org.knime.dl.core.DLDefaultFixedTensorShape;
-import org.tensorflow.Tensor;
+import org.knime.dl.core.DLDefaultTensor;
+import org.knime.dl.core.DLTensor;
+import org.knime.dl.core.data.convert.DLDataValueToTensorConverter;
+import org.knime.dl.tensorflow.savedmodel.core.data.DLWritableStringBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorStringBuffer;
+import org.knime.dl.tensorflow.testing.TFTestUtil;
 
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-public class TFTensorStringBufferTest {
-	
-	
+public class DLStringValueToStringTensorConverterFactoryTest {
 
-	@Test
-	public void testGetCapacity() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			assertEquals(10l, buffer.getCapacity());
-		}
+	private static DLStringValueToStringTensorConverterFactory createFactory() {
+		return new DLStringValueToStringTensorConverterFactory();
 	}
 	
 	@Test
-	public void testZeroPad() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			String value = "knime";
-			fillBufferWithValue(buffer, value);
-			assertBufferFilledWithValue(buffer, value);
-			buffer.reset();
-			buffer.zeroPad(buffer.getCapacity());
-			assertBufferFilledWithValue(buffer, "");
-		}
+	public void testGetName() throws Exception {
+		assertEquals("String", createFactory().getName());
 	}
 	
 	@Test
-	public void testPutRead() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			String value = "knime";
-			fillBufferWithValue(buffer, value);
-			assertBufferFilledWithValue(buffer, value);
-		}
+	public void testGetSourceType() throws Exception {
+		assertEquals(StringValue.class, createFactory().getSourceType());
 	}
 	
 	@Test
-	public void testPutAll() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			String value = "knime";
-			String[] values = new String[10];
-			Arrays.fill(values, value);
-			buffer.putAll(values);
-			assertBufferFilledWithValue(buffer, value);
-		}
+	public void testGetBufferType() throws Exception {
+		assertEquals(DLWritableStringBuffer.class, createFactory().getBufferType());
 	}
 	
 	@Test
-	public void testSize() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			assertEquals(0, buffer.size());
-			buffer.put("knime");
-			assertEquals(1, buffer.size());
-			buffer.put("knime");
-			assertEquals(2, buffer.size());
-		}
+	public void testGetDestCount() throws Exception {
+		DataColumnSpec colSpec = null;
+		List<DataColumnSpec> spec = Arrays.asList(colSpec, colSpec);
+		assertEquals(OptionalLong.of(2l), createFactory().getDestCount(spec));
 	}
 	
 	@Test
-	public void testWriteReadTensor() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			String value = "knime";
-			fillBufferWithValue(buffer, value);
-			try (Tensor<String> tensor = buffer.readIntoTensor(10l, new DLDefaultFixedTensorShape(new long[] {1l}))) {
-				buffer.reset();
-				String empty = "";
-				fillBufferWithValue(buffer, empty);
-				assertBufferFilledWithValue(buffer, empty);
-				buffer.writeFromTensor(tensor);
+	public void testCreateConverter() throws Exception {
+		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {1l, 10l});
+		DLTensor<DLWritableStringBuffer> tensor = new DLDefaultTensor<DLWritableStringBuffer>(
+				TFTestUtil.createSpec(new DLDefaultFixedTensorShape(new long[] {10l})),
+				buffer, 10l)) {
+			String[] values = new String[] {"deep", "learning", "in", "knime"};
+			List<StringValue> input = Arrays.stream(values).map(StringCell::new)
+					.collect(Collectors.toList());
+			DLDataValueToTensorConverter<StringValue, DLWritableStringBuffer> converter = createFactory().createConverter();
+			converter.convert(input, tensor);
+			assertEquals(values.length, buffer.size());
+			for (int i = 0; i < buffer.size(); i++) {
+				assertEquals(values[i], buffer.readNext());
 			}
-			buffer.resetRead();
-			assertBufferFilledWithValue(buffer, value);
 		}
 	}
 }

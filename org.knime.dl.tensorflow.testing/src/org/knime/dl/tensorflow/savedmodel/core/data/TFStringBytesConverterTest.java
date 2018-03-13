@@ -54,7 +54,7 @@ import org.junit.Test;
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-public class DLStringBytesConverterTest {
+public class TFStringBytesConverterTest {
 
 	@Test
 	public void testToBytes() throws Exception {

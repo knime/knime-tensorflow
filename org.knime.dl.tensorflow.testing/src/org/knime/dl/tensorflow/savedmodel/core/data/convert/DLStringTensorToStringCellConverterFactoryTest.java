@@ -44,88 +44,74 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core.data;
+package org.knime.dl.tensorflow.savedmodel.core.data.convert;
 
 import static org.junit.Assert.*;
-import static org.knime.dl.tensorflow.testing.TFTestUtil.*;
 
-import java.util.Arrays;
+import java.util.OptionalLong;
 
 import org.junit.Test;
+import org.knime.core.data.DataType;
+import org.knime.core.data.def.StringCell;
 import org.knime.dl.core.DLDefaultFixedTensorShape;
-import org.tensorflow.Tensor;
+import org.knime.dl.core.DLDefaultTensor;
+import org.knime.dl.core.DLTensor;
+import org.knime.dl.core.data.convert.DLTensorToDataCellConverter;
+import org.knime.dl.tensorflow.savedmodel.core.data.DLReadableStringBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorStringBuffer;
+import org.knime.dl.tensorflow.testing.TFTestUtil;
 
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-public class TFTensorStringBufferTest {
-	
-	
+public class DLStringTensorToStringCellConverterFactoryTest {
 
-	@Test
-	public void testGetCapacity() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			assertEquals(10l, buffer.getCapacity());
-		}
+	
+	
+	private static DLStringTensorToStringCellConverterFactory createFactory() {
+		return new DLStringTensorToStringCellConverterFactory();
 	}
 	
 	@Test
-	public void testZeroPad() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			String value = "knime";
-			fillBufferWithValue(buffer, value);
-			assertBufferFilledWithValue(buffer, value);
-			buffer.reset();
-			buffer.zeroPad(buffer.getCapacity());
-			assertBufferFilledWithValue(buffer, "");
-		}
+	public void testGetDestCount() throws Exception {
+		DLStringTensorToStringCellConverterFactory factory = createFactory();
+		assertEquals(OptionalLong.of(10l), factory.getDestCount(
+				TFTestUtil.createSpec(new DLDefaultFixedTensorShape(new long[] {10}))));
 	}
 	
 	@Test
-	public void testPutRead() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			String value = "knime";
-			fillBufferWithValue(buffer, value);
-			assertBufferFilledWithValue(buffer, value);
-		}
+	public void testGetDestType() throws Exception {
+		DLStringTensorToStringCellConverterFactory factory = createFactory();
+		assertEquals(DataType.getType(StringCell.class), factory.getDestType());
 	}
 	
 	@Test
-	public void testPutAll() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			String value = "knime";
-			String[] values = new String[10];
-			Arrays.fill(values, value);
-			buffer.putAll(values);
-			assertBufferFilledWithValue(buffer, value);
-		}
+	public void testGetBufferType() throws Exception {
+		DLStringTensorToStringCellConverterFactory factory = createFactory();
+		assertEquals(DLReadableStringBuffer.class, factory.getBufferType());
 	}
 	
 	@Test
-	public void testSize() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			assertEquals(0, buffer.size());
-			buffer.put("knime");
-			assertEquals(1, buffer.size());
-			buffer.put("knime");
-			assertEquals(2, buffer.size());
-		}
+	public void testGetName() throws Exception {
+		DLStringTensorToStringCellConverterFactory factory = createFactory();
+		assertEquals("String", factory.getName());
 	}
 	
 	@Test
-	public void testWriteReadTensor() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
-			String value = "knime";
-			fillBufferWithValue(buffer, value);
-			try (Tensor<String> tensor = buffer.readIntoTensor(10l, new DLDefaultFixedTensorShape(new long[] {1l}))) {
-				buffer.reset();
-				String empty = "";
-				fillBufferWithValue(buffer, empty);
-				assertBufferFilledWithValue(buffer, empty);
-				buffer.writeFromTensor(tensor);
+	public void testCreateConverter() throws Exception {
+		DLStringTensorToStringCellConverterFactory factory = createFactory();
+		String value = "knime";
+		try(TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {1l, 10l});
+		DLTensor<DLReadableStringBuffer> tensor = new DLDefaultTensor<DLReadableStringBuffer>(
+				TFTestUtil.createSpec(new DLDefaultFixedTensorShape(new long[] {10l})),
+				buffer, 10l)) {
+			TFTestUtil.fillBufferWithValue(buffer, value);
+			DLTensorToDataCellConverter<DLReadableStringBuffer, StringCell> converter = factory.createConverter();
+			StringCell[] output = new StringCell[10];
+			converter.convert(tensor, output, null);
+			for (int i = 0; i < output.length; i++) {
+				assertEquals(value, output[i].getStringValue());
 			}
-			buffer.resetRead();
-			assertBufferFilledWithValue(buffer, value);
 		}
 	}
 }

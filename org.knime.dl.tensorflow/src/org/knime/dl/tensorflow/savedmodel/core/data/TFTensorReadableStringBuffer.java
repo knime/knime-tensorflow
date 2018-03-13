@@ -49,6 +49,6 @@ package org.knime.dl.tensorflow.savedmodel.core.data;
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableStringBuffer extends TFTensorReadableObjectBuffer<String> {
+public interface TFTensorReadableStringBuffer extends TFTensorReadableObjectBuffer<String>, DLReadableStringBuffer {
 
 }
