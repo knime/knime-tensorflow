@@ -75,6 +75,7 @@ import org.tensorflow.framework.SavedModel;
 import org.tensorflow.framework.SignatureDef;
 import org.tensorflow.framework.TensorInfo;
 import org.tensorflow.framework.TensorShapeProto;
+import org.tensorflow.framework.TensorShapeProto.Dim;
 
 /**
  * Wrapper for multiple TensorFlow {@link MetaGraphDef}s. Can extract important information of them. TODO change!
@@ -269,8 +270,8 @@ public class DLTensorFlowMetaGraphDef {
 		// Get the shape and batch size
 		if (shapeProto != null) {
 			final List<Long> shapeList = new ArrayList<>(
-					shapeProto.getDimList().stream().map(d -> d.getSize()).collect(Collectors.toList()));
-			if (shapeList.size() > 0) {
+					shapeProto.getDimList().stream().map(Dim::getSize).collect(Collectors.toList()));
+			if (!shapeList.isEmpty()) {
 				// Get the batch size
 				final long batchSize = shapeList.get(0);
 				shapeList.remove(0);
@@ -312,7 +313,8 @@ public class DLTensorFlowMetaGraphDef {
 
 	private boolean canBeInputOrOutput(final DataType t) {
 		try {
-			return !getClassForType(t).equals(String.class);
+			getClassForType(t);
+			return true;
 		} catch (final DLInvalidTypeException e) {
 			return false;
 		}
@@ -328,6 +330,8 @@ public class DLTensorFlowMetaGraphDef {
 			return int.class;
 		case DT_INT64:
 			return long.class;
+		case DT_STRING:
+			return String.class;
 		default:
 			throw new DLInvalidTypeException("The type " + t + " has no corresponding type in KNIME.");
 		}

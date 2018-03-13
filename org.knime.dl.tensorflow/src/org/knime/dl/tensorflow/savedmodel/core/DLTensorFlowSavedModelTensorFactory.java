@@ -51,12 +51,14 @@ import java.util.function.Supplier;
 import org.knime.dl.core.DLDefaultFixedTensorShape;
 import org.knime.dl.core.DLDefaultTensor;
 import org.knime.dl.core.DLDefaultTensorSpec;
+import org.knime.dl.core.DLFixedTensorShape;
 import org.knime.dl.core.DLTensor;
 import org.knime.dl.core.DLTensorFactory;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.data.DLBuffer;
 import org.knime.dl.core.data.DLReadableBuffer;
 import org.knime.dl.core.data.DLWritableBuffer;
+import org.knime.dl.tensorflow.core.DLTensorFlowUtil;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorDoubleBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorIntBuffer;
@@ -65,10 +67,15 @@ import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableDo
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableIntBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableLongBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableObjectBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableStringBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorStringBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableDoubleBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableIntBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableLongBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableObjectBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableStringBuffer;
 import org.knime.dl.util.DLUtils;
 
 /**
@@ -92,6 +99,8 @@ public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 			return DLTensorFlowTensorWritableIntBuffer.class;
 		} else if (t.equals(long.class)) {
 			return DLTensorFlowTensorWritableLongBuffer.class;
+		} else if (t.equals(String.class)) {
+			return DLTensorFlowTensorWritableStringBuffer.class;
 		} else {
 			throw new IllegalArgumentException("No matching buffer type.");
 		}
@@ -108,6 +117,8 @@ public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 			return DLTensorFlowTensorReadableIntBuffer.class;
 		} else if (t.equals(long.class)) {
 			return DLTensorFlowTensorReadableLongBuffer.class;
+		} else if (t.equals(String.class)) {
+			return DLTensorFlowTensorReadableStringBuffer.class;
 		} else {
 			throw new IllegalArgumentException("No matching buffer type.");
 		}
@@ -152,6 +163,8 @@ public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 			s = () -> (B) new DLTensorFlowTensorIntBuffer(size);
 		} else if (t.equals(long.class)) {
 			s = () -> (B) new DLTensorFlowTensorLongBuffer(size);
+		} else if (t.equals(String.class)) {
+			s = () -> (B) new DLTensorFlowTensorStringBuffer(DLTensorFlowUtil.createTFShape(batchSize, (DLFixedTensorShape) spec.getShape()));
 		} else {
 			throw new IllegalArgumentException("No matching tensor type for tensor spec '" + spec.getName() + "'.");
 		}
