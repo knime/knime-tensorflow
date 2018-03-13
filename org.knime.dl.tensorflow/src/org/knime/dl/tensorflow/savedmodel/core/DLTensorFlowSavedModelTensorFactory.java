@@ -67,15 +67,15 @@ import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableDo
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableIntBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableLongBuffer;
-import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableObjectBuffer;
-import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableStringBuffer;
-import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorStringBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableObjectBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableStringBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorStringBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableDoubleBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableIntBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableLongBuffer;
-import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableObjectBuffer;
-import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableStringBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableObjectBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableStringBuffer;
 import org.knime.dl.util.DLUtils;
 
 /**
@@ -100,7 +100,7 @@ public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 		} else if (t.equals(long.class)) {
 			return DLTensorFlowTensorWritableLongBuffer.class;
 		} else if (t.equals(String.class)) {
-			return DLTensorFlowTensorWritableStringBuffer.class;
+			return TFTensorWritableStringBuffer.class;
 		} else {
 			throw new IllegalArgumentException("No matching buffer type.");
 		}
@@ -118,7 +118,7 @@ public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 		} else if (t.equals(long.class)) {
 			return DLTensorFlowTensorReadableLongBuffer.class;
 		} else if (t.equals(String.class)) {
-			return DLTensorFlowTensorReadableStringBuffer.class;
+			return TFTensorReadableStringBuffer.class;
 		} else {
 			throw new IllegalArgumentException("No matching buffer type.");
 		}
@@ -164,7 +164,7 @@ public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 		} else if (t.equals(long.class)) {
 			s = () -> (B) new DLTensorFlowTensorLongBuffer(size);
 		} else if (t.equals(String.class)) {
-			s = () -> (B) new DLTensorFlowTensorStringBuffer(DLTensorFlowUtil.createTFShape(batchSize, (DLFixedTensorShape) spec.getShape()));
+			s = () -> (B) new TFTensorStringBuffer(DLTensorFlowUtil.createTFShape(batchSize, (DLFixedTensorShape) spec.getShape()));
 		} else {
 			throw new IllegalArgumentException("No matching tensor type for tensor spec '" + spec.getName() + "'.");
 		}

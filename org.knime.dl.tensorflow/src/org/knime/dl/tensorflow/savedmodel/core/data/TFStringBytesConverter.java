@@ -46,9 +46,22 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-public interface DLTensorFlowTensorReadableStringBuffer extends DLTensorFlowTensorReadableObjectBuffer<String> {
+enum TFStringBytesConverter implements DLBytesConverter<String> {
+	INSTANCE;
+
+	@Override
+	public byte[] toBytes(String value) {
+		return value.getBytes(UTF_8);
+	}
+
+	@Override
+	public String fromBytes(byte[] data) {
+		return new String(data, UTF_8);
+	}
 
 }

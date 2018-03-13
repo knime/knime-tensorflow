@@ -46,11 +46,95 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+import org.junit.Test;
+import org.knime.dl.core.DLDefaultFixedTensorShape;
+import org.tensorflow.Tensor;
+
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> the type of objects stored in this buffer
  */
-public interface DLTensorFlowTensorWritableObjectBuffer <T>
-		extends DLWritableObjectBuffer<T>, DLTensorFlowTensorWritableBuffer<String> {
+public class DLTensorFlowTensorStringBufferTest {
+	
+	private static void assertBufferFilledWithValue(TFTensorStringBuffer buffer, String value) {
+		for (int i = 0; i < buffer.getCapacity(); i++) {
+			assertEquals(value, buffer.readNext());
+		}
+	}
+	
+	private static void fillBufferWithValue(TFTensorStringBuffer buffer, String value) {
+		for (int i = 0; i < buffer.getCapacity(); i++) {
+			buffer.put(value);
+		}
+	}
 
+	@Test
+	public void testGetCapacity() throws Exception {
+		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
+			assertEquals(10l, buffer.getCapacity());
+		}
+	}
+	
+	@Test
+	public void testZeroPad() throws Exception {
+		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
+			String value = "knime";
+			fillBufferWithValue(buffer, value);
+			assertBufferFilledWithValue(buffer, value);
+			buffer.reset();
+			buffer.zeroPad(buffer.getCapacity());
+			assertBufferFilledWithValue(buffer, "");
+		}
+	}
+	
+	@Test
+	public void testPutRead() throws Exception {
+		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
+			String value = "knime";
+			fillBufferWithValue(buffer, value);
+			assertBufferFilledWithValue(buffer, value);
+		}
+	}
+	
+	@Test
+	public void testPutAll() throws Exception {
+		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
+			String value = "knime";
+			String[] values = new String[10];
+			Arrays.fill(values, value);
+			buffer.putAll(values);
+			assertBufferFilledWithValue(buffer, value);
+		}
+	}
+	
+	@Test
+	public void testSize() throws Exception {
+		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
+			assertEquals(0, buffer.size());
+			buffer.put("knime");
+			assertEquals(1, buffer.size());
+			buffer.put("knime");
+			assertEquals(2, buffer.size());
+		}
+	}
+	
+	@Test
+	public void testWriteReadTensor() throws Exception {
+		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {10l})) {
+			String value = "knime";
+			fillBufferWithValue(buffer, value);
+			try (Tensor<String> tensor = buffer.readIntoTensor(10l, new DLDefaultFixedTensorShape(new long[] {1l}))) {
+				buffer.reset();
+				String empty = "";
+				fillBufferWithValue(buffer, empty);
+				assertBufferFilledWithValue(buffer, empty);
+				buffer.writeFromTensor(tensor);
+			}
+			buffer.resetRead();
+			assertBufferFilledWithValue(buffer, value);
+		}
+	}
 }

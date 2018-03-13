@@ -46,22 +46,18 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-enum DLStringBytesConverter implements DLBytesConverter<String> {
-	INSTANCE;
+public class TFTensorStringBuffer extends TFAbstractTensorObjectBuffer<String>
+       implements TFTensorReadableStringBuffer, TFTensorWritableStringBuffer {
 
-	@Override
-	public byte[] toBytes(String value) {
-		return value.getBytes(UTF_8);
-	}
-
-	@Override
-	public String fromBytes(byte[] data) {
-		return new String(data, UTF_8);
+	/**
+	 * @param shape
+	 */
+	public TFTensorStringBuffer(long[] shape) {
+		super(TFStringBytesConverter.INSTANCE, shape);
 	}
 
 }

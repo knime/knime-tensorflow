@@ -51,7 +51,7 @@ package org.knime.dl.tensorflow.savedmodel.core.data;
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  * @param <T> The type of objects stored in this buffer
  */
-public interface DLTensorFlowTensorReadableObjectBuffer <T>
+public interface TFTensorReadableObjectBuffer <T>
        extends DLTensorFlowTensorReadableBuffer, DLReadableObjectBuffer<T> {
 	// marker interface
 }

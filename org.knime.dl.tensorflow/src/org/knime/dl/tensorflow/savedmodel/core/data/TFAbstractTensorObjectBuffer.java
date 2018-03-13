@@ -55,8 +55,8 @@ import org.tensorflow.Tensor;
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  * @param <T> The type of objects stored in this buffer.
  */
-public abstract class DLAbstractTensorFlowTensorObjectBuffer <T> 
-implements DLTensorFlowTensorWritableObjectBuffer<T>, DLTensorFlowTensorReadableObjectBuffer<T> {
+public abstract class TFAbstractTensorObjectBuffer <T> 
+implements TFTensorWritableObjectBuffer<T>, TFTensorReadableObjectBuffer<T> {
 	
 	private final DLBytesConverter<T> m_converter;
 	private DLUniversalWrappingObjectBuffer<byte[], ?> m_storage;
@@ -65,7 +65,7 @@ implements DLTensorFlowTensorWritableObjectBuffer<T>, DLTensorFlowTensorReadable
 	 * @param bytesConverter
 	 * @param shape
 	 */
-	public DLAbstractTensorFlowTensorObjectBuffer(DLBytesConverter<T> bytesConverter, long[] shape) {
+	public TFAbstractTensorObjectBuffer(DLBytesConverter<T> bytesConverter, long[] shape) {
 		m_converter = bytesConverter;
 		m_storage = DLBytesBuffers.createBytesBuffer(shape);
 	}

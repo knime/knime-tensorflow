@@ -59,13 +59,13 @@ public class DLStringBytesConverterTest {
 	@Test
 	public void testToBytes() throws Exception {
 		String value = "knime";
-		assertArrayEquals(value.getBytes(UTF_8), DLStringBytesConverter.INSTANCE.toBytes(value));
+		assertArrayEquals(value.getBytes(UTF_8), TFStringBytesConverter.INSTANCE.toBytes(value));
 	}
 	
 	@Test
 	public void testFromBytes() throws Exception {
 		String stringValue = "knime";
 		byte[] bytesValue = stringValue.getBytes(UTF_8);
-		assertEquals(stringValue, DLStringBytesConverter.INSTANCE.fromBytes(bytesValue));
+		assertEquals(stringValue, TFStringBytesConverter.INSTANCE.fromBytes(bytesValue));
 	}
 }

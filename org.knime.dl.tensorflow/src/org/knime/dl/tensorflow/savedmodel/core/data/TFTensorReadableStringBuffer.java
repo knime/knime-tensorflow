@@ -46,18 +46,9 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
-
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-public class DLTensorFlowTensorStringBuffer extends DLAbstractTensorFlowTensorObjectBuffer<String>
-       implements DLTensorFlowTensorReadableStringBuffer, DLTensorFlowTensorWritableStringBuffer {
-
-	/**
-	 * @param shape
-	 */
-	public DLTensorFlowTensorStringBuffer(long[] shape) {
-		super(DLStringBytesConverter.INSTANCE, shape);
-	}
+public interface TFTensorReadableStringBuffer extends TFTensorReadableObjectBuffer<String> {
 
 }
