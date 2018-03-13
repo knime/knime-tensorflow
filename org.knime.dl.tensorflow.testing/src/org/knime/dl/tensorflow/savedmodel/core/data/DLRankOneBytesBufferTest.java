@@ -46,47 +46,78 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-final class DLRankOneBytesBuffer extends DLAbstractBytesBuffer<byte[][]> {
+public class DLRankOneBytesBufferTest {
 
-	/**
-	 * @param shape including the batch dimension
-	 */
-	protected DLRankOneBytesBuffer(long[] shape) {
-		super(shape);
-		if (shape.length != 1) {
-			throw new IllegalArgumentException("Invalid shape. Can't create a DLRankOneBytesBuffer from a rank " 
-					+ shape.length + " shape.");
+	@Test(expected = IllegalArgumentException.class)
+	public void testConstructorFailsOnInvalidShape() throws Exception {
+		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {2l, 4l})) {
+			
 		}
 	}
-
-	@Override
-	protected byte[] retrieveFromStorage(int[] position) {
-		assert position.length == 1;
-		return getStorage()[position[0]];
+	
+	@Test
+	public void testWriteRead() throws Exception {
+		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+			byte[] value = new byte[] {3};
+			buffer.put(value);
+			assertEquals(0l, buffer.getNextReadPosition());
+			assertArrayEquals(value, buffer.readNext());
+			assertEquals(1l, buffer.getNextReadPosition());
+			value[0] = 5;
+			buffer.put(value);
+			assertArrayEquals(value, buffer.readNext());
+			assertEquals(2l, buffer.getNextReadPosition());
+		}
 	}
-
-	@Override
-	protected void placeInStorage(byte[] value, int[] position) {
-		getStorage()[position[0]] = value;
+	
+	@Test
+	public void testMultiWriteRead() throws Exception {
+		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+			byte[][] values = new byte[][] {{3}, {5}};
+			buffer.putAll(values);
+			assertEquals(0l, buffer.getNextReadPosition());
+			assertArrayEquals(values[0], buffer.readNext());
+			assertEquals(1l, buffer.getNextReadPosition());
+			assertArrayEquals(values[1], buffer.readNext());
+			assertEquals(2l, buffer.getNextReadPosition());
+		}
 	}
-
-	@Override
-	protected long getLength(byte[][] storage) {
-		return storage.length;
+	
+	@Test
+	public void testGetLength() throws Exception {
+		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+			byte[][] array = new byte[15][];
+			assertEquals(15, buffer.getLength(array));
+		}
 	}
-
-	@Override
-	protected byte[][] createStorage(int[] shape) {
-		assert shape.length == 1;
-		return new byte[shape[0]][];
+	
+	@Test
+	public void testCreateEmptySubArray() throws Exception {
+		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+			byte[][] expected = new byte[5][];
+			assertArrayEquals(expected, buffer.createEmptySubArray(5));
+		}
 	}
-
-	@Override
-	protected byte[][] createEmptySubArray(int length) {
-		return new byte[length][];
+	
+	@Test
+	public void testZeroPad() throws Exception {
+		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+			byte[][] nonZeroValues = new byte[10][1];
+			for (byte i = 0; i < buffer.getCapacity(); i++) {
+				nonZeroValues[i][0] = (byte) (i + 1);
+			}
+			buffer.putAll(nonZeroValues);
+			assertArrayEquals(nonZeroValues, buffer.getStorageForReading(0, 10));
+			buffer.reset();
+			buffer.zeroPad(10);
+			assertArrayEquals(new byte[10][0], buffer.getStorageForReading(0, 10));
+		}
 	}
-
 }

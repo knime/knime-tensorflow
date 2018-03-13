@@ -73,6 +73,8 @@ implements DLUniversalWrappingObjectBuffer<byte[], S> {
 		try {
 			m_shape = Arrays.stream(shape).mapToInt(Math::toIntExact).toArray();
 		} catch (ArithmeticException e) {
+			// can't happen because super constructor already checks the capacity of
+			// the complete buffer (which is <= a single dimension) but check anyway
 			throw new IllegalArgumentException(
 					"Currently a dimension in a shape may not exceed Integer.MAX_VALUE.");
 		}
@@ -91,7 +93,7 @@ implements DLUniversalWrappingObjectBuffer<byte[], S> {
 	@Override
 	public final S getStorageForTensorCreation(long batchSize) {
 		S storage = getStorageForReading(0, batchSize);
-		if (batchSize == m_capacity) {
+		if (batchSize == m_shape[0]) {
 			return storage;
 		}
 		return createSubArray(storage, (int) batchSize);

@@ -46,47 +46,26 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import static org.junit.Assert.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import org.junit.Test;
+
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-final class DLRankOneBytesBuffer extends DLAbstractBytesBuffer<byte[][]> {
+public class DLStringBytesConverterTest {
 
-	/**
-	 * @param shape including the batch dimension
-	 */
-	protected DLRankOneBytesBuffer(long[] shape) {
-		super(shape);
-		if (shape.length != 1) {
-			throw new IllegalArgumentException("Invalid shape. Can't create a DLRankOneBytesBuffer from a rank " 
-					+ shape.length + " shape.");
-		}
+	@Test
+	public void testToBytes() throws Exception {
+		String value = "knime";
+		assertArrayEquals(value.getBytes(UTF_8), DLStringBytesConverter.INSTANCE.toBytes(value));
 	}
-
-	@Override
-	protected byte[] retrieveFromStorage(int[] position) {
-		assert position.length == 1;
-		return getStorage()[position[0]];
+	
+	@Test
+	public void testFromBytes() throws Exception {
+		String stringValue = "knime";
+		byte[] bytesValue = stringValue.getBytes(UTF_8);
+		assertEquals(stringValue, DLStringBytesConverter.INSTANCE.fromBytes(bytesValue));
 	}
-
-	@Override
-	protected void placeInStorage(byte[] value, int[] position) {
-		getStorage()[position[0]] = value;
-	}
-
-	@Override
-	protected long getLength(byte[][] storage) {
-		return storage.length;
-	}
-
-	@Override
-	protected byte[][] createStorage(int[] shape) {
-		assert shape.length == 1;
-		return new byte[shape[0]][];
-	}
-
-	@Override
-	protected byte[][] createEmptySubArray(int length) {
-		return new byte[length][];
-	}
-
 }

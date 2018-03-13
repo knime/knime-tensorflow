@@ -46,92 +46,95 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import static org.junit.Assert.*;
+
 import java.util.Arrays;
 
-import org.knime.dl.core.DLFixedTensorShape;
+import org.junit.Test;
+import org.knime.dl.core.DLDefaultFixedTensorShape;
 import org.tensorflow.Tensor;
 
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer.
  */
-public abstract class DLAbstractTensorFlowTensorObjectBuffer <T> 
-implements DLTensorFlowTensorWritableObjectBuffer<T>, DLTensorFlowTensorReadableObjectBuffer<T> {
+public class DLTensorFlowTensorStringBufferTest {
 	
-	private final DLBytesConverter<T> m_converter;
-	private DLUniversalWrappingObjectBuffer<byte[], ?> m_storage;
-	
-	/**
-	 * @param bytesConverter
-	 * @param shape
-	 */
-	public DLAbstractTensorFlowTensorObjectBuffer(DLBytesConverter<T> bytesConverter, long[] shape) {
-		m_converter = bytesConverter;
-		m_storage = DLBytesBuffers.createBytesBuffer(shape);
+	private static void assertBufferFilledWithValue(DLTensorFlowTensorStringBuffer buffer, String value) {
+		for (int i = 0; i < buffer.getCapacity(); i++) {
+			assertEquals(value, buffer.readNext());
+		}
 	}
 	
-	@Override
-	public final long getCapacity() {
-		return m_storage.getCapacity();
+	private static void fillBufferWithValue(DLTensorFlowTensorStringBuffer buffer, String value) {
+		for (int i = 0; i < buffer.getCapacity(); i++) {
+			buffer.put(value);
+		}
 	}
 
-	@Override
-	public final void zeroPad(long length) {
-		m_storage.zeroPad(length);
-	}
-
-	@Override
-	public final void resetWrite() {
-		m_storage.resetWrite();
-	}
-
-	@Override
-	public final long size() {
-		return m_storage.size();
-	}
-
-	@Override
-	public final void close() {
-		m_storage.close();
-	}
-
-	@Override
-	public final void put(T value) {
-		byte[] data = m_converter.toBytes(value);
-		m_storage.put(data);
-	}
-
-	@Override
-	public final void putAll(T[] values) {
-		Arrays.stream(values).sequential()
-		.map(m_converter::toBytes)
-		.forEach(m_storage::put);
-	}
-
-	@Override
-	public final void reset() {
-		resetRead();
-		resetWrite();
+	@Test
+	public void testGetCapacity() throws Exception {
+		try (DLTensorFlowTensorStringBuffer buffer = new DLTensorFlowTensorStringBuffer(new long[] {10l})) {
+			assertEquals(10l, buffer.getCapacity());
+		}
 	}
 	
-	@Override
-	public final Tensor<String> readIntoTensor(long batchSize, DLFixedTensorShape shape) {
-		return Tensor.create(m_storage.getStorageForTensorCreation(batchSize), String.class);
+	@Test
+	public void testZeroPad() throws Exception {
+		try (DLTensorFlowTensorStringBuffer buffer = new DLTensorFlowTensorStringBuffer(new long[] {10l})) {
+			String value = "knime";
+			fillBufferWithValue(buffer, value);
+			assertBufferFilledWithValue(buffer, value);
+			buffer.reset();
+			buffer.zeroPad(buffer.getCapacity());
+			assertBufferFilledWithValue(buffer, "");
+		}
 	}
-
-	@Override
-	public final void writeFromTensor(Tensor<?> tensor) {
-		tensor.copyTo(m_storage.getStorageForWriting(0, tensor.numElements()));
+	
+	@Test
+	public void testPutRead() throws Exception {
+		try (DLTensorFlowTensorStringBuffer buffer = new DLTensorFlowTensorStringBuffer(new long[] {10l})) {
+			String value = "knime";
+			fillBufferWithValue(buffer, value);
+			assertBufferFilledWithValue(buffer, value);
+		}
 	}
-
-	@Override
-	public final void resetRead() {
-		m_storage.resetRead();
+	
+	@Test
+	public void testPutAll() throws Exception {
+		try (DLTensorFlowTensorStringBuffer buffer = new DLTensorFlowTensorStringBuffer(new long[] {10l})) {
+			String value = "knime";
+			String[] values = new String[10];
+			Arrays.fill(values, value);
+			buffer.putAll(values);
+			assertBufferFilledWithValue(buffer, value);
+		}
 	}
-
-	@Override
-	public final T readNext() {
-		return m_converter.fromBytes(m_storage.readNext());
+	
+	@Test
+	public void testSize() throws Exception {
+		try (DLTensorFlowTensorStringBuffer buffer = new DLTensorFlowTensorStringBuffer(new long[] {10l})) {
+			assertEquals(0, buffer.size());
+			buffer.put("knime");
+			assertEquals(1, buffer.size());
+			buffer.put("knime");
+			assertEquals(2, buffer.size());
+		}
 	}
-
+	
+	@Test
+	public void testWriteReadTensor() throws Exception {
+		try (DLTensorFlowTensorStringBuffer buffer = new DLTensorFlowTensorStringBuffer(new long[] {10l})) {
+			String value = "knime";
+			fillBufferWithValue(buffer, value);
+			try (Tensor<String> tensor = buffer.readIntoTensor(10l, new DLDefaultFixedTensorShape(new long[] {1l}))) {
+				buffer.reset();
+				String empty = "";
+				fillBufferWithValue(buffer, empty);
+				assertBufferFilledWithValue(buffer, empty);
+				buffer.writeFromTensor(tensor);
+			}
+			buffer.resetRead();
+			assertBufferFilledWithValue(buffer, value);
+		}
+	}
 }
