@@ -49,22 +49,22 @@ package org.knime.dl.tensorflow.savedmodel.core.data;
 import org.knime.dl.core.data.DLWrappingDataBuffer;
 
 /**
- * Combines the interfaces {@link DLReadableObjectBuffer}, {@link DLWritableObjectBuffer} and {@link DLWrappingDataBuffer}
+ * Combines the interfaces {@link DLReadableObjectBuffer}, {@link DLWritableObjectBuffer} and
+ * {@link DLWrappingDataBuffer}
  * 
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  * @param <T> the type of objects stored in this buffer
  * @param <S> the type of storage used in this wrapping buffer
  */
-public interface TFUniversalWrappingObjectBuffer <T, S> extends DLReadableObjectBuffer<T>, DLWritableObjectBuffer<T>,
-DLWrappingDataBuffer<S> {
-	
+public interface TFUniversalWrappingObjectBuffer<T, S>
+		extends DLReadableObjectBuffer<T>, DLWritableObjectBuffer<T>, DLWrappingDataBuffer<S> {
+
 	/**
-	 * TensorFlow does not (yet) allow to create tensors from subarrays.
-	 * This method ensures that a storage containing only the data corresponding to the first <b>batchSize</b> elements is returned.
+	 * TensorFlow does not (yet) allow to create tensors from subarrays. This method ensures that a storage containing
+	 * only the data corresponding to the first <b>batchSize</b> elements is returned.
 	 * 
 	 * @param batchSize the number of elements (from the start of the storage) the returned storage should contain
 	 * @return a storage containing only the first <b>batchSize</b> elements stored in this buffer
-	 * 
 	 */
 	public S getStorageForTensorCreation(long batchSize);
 

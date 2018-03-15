@@ -57,15 +57,15 @@ public class DLRankOneBytesBufferTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testConstructorFailsOnInvalidShape() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {2l, 4l})) {
-			
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 2l, 4l })) {
+
 		}
 	}
-	
+
 	@Test
 	public void testWriteRead() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
-			byte[] value = new byte[] {3};
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
+			byte[] value = new byte[] { 3 };
 			buffer.put(value);
 			assertEquals(0l, buffer.getNextReadPosition());
 			assertArrayEquals(value, buffer.readNext());
@@ -76,11 +76,11 @@ public class DLRankOneBytesBufferTest {
 			assertEquals(2l, buffer.getNextReadPosition());
 		}
 	}
-	
+
 	@Test
 	public void testMultiWriteRead() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
-			byte[][] values = new byte[][] {{3}, {5}};
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
+			byte[][] values = new byte[][] { { 3 }, { 5 } };
 			buffer.putAll(values);
 			assertEquals(0l, buffer.getNextReadPosition());
 			assertArrayEquals(values[0], buffer.readNext());
@@ -89,26 +89,26 @@ public class DLRankOneBytesBufferTest {
 			assertEquals(2l, buffer.getNextReadPosition());
 		}
 	}
-	
+
 	@Test
 	public void testGetLength() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			byte[][] array = new byte[15][];
 			assertEquals(15, buffer.getLength(array));
 		}
 	}
-	
+
 	@Test
 	public void testCreateEmptySubArray() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			byte[][] expected = new byte[5][];
 			assertArrayEquals(expected, buffer.createEmptySubArray(5));
 		}
 	}
-	
+
 	@Test
 	public void testZeroPad() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			byte[][] nonZeroValues = new byte[10][1];
 			for (byte i = 0; i < buffer.getCapacity(); i++) {
 				nonZeroValues[i][0] = (byte) (i + 1);

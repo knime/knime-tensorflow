@@ -57,14 +57,14 @@ import org.knime.dl.util.DLUtils;
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  * @param <S> the type of multi-dimensional storage array
  */
-abstract class DLAbstractBytesBuffer <S> extends DLAbstractWrappingDataBuffer<S> 
-implements TFUniversalWrappingObjectBuffer<byte[], S> {
+abstract class DLAbstractBytesBuffer<S> extends DLAbstractWrappingDataBuffer<S>
+		implements TFUniversalWrappingObjectBuffer<byte[], S> {
 
 	private static final byte[] ZERO_VALUE = new byte[0];
-	
+
 	private final int[] m_shape;
 	private final int[] m_tmpPosition;
-	
+
 	/**
 	 * @param shape
 	 */
@@ -75,12 +75,11 @@ implements TFUniversalWrappingObjectBuffer<byte[], S> {
 		} catch (ArithmeticException e) {
 			// can't happen because super constructor already checks the capacity of
 			// the complete buffer (which is <= a single dimension) but check anyway
-			throw new IllegalArgumentException(
-					"Currently a dimension in a shape may not exceed Integer.MAX_VALUE.");
+			throw new IllegalArgumentException("Currently a dimension in a shape may not exceed Integer.MAX_VALUE.");
 		}
 		m_tmpPosition = new int[m_shape.length];
 	}
-	
+
 	@Override
 	public final void zeroPad(long length) {
 		checkArgument(length > 0);
@@ -89,7 +88,7 @@ implements TFUniversalWrappingObjectBuffer<byte[], S> {
 			putInternal(ZERO_VALUE);
 		}
 	}
-	
+
 	@Override
 	public final S getStorageForTensorCreation(long batchSize) {
 		S storage = getStorageForReading(0, batchSize);
@@ -98,13 +97,13 @@ implements TFUniversalWrappingObjectBuffer<byte[], S> {
 		}
 		return createSubArray(storage, (int) batchSize);
 	}
-	
+
 	private S createSubArray(S storage, int batchSize) {
 		S subArray = createEmptySubArray(batchSize);
 		System.arraycopy(storage, 0, subArray, 0, batchSize);
 		return subArray;
 	}
-	
+
 	@Override
 	public final void setStorage(S storage, long storageSize) {
 		checkArgument(getLength(storage) == m_capacity, "Input storage capacity does not match buffer capacity.");
@@ -112,23 +111,23 @@ implements TFUniversalWrappingObjectBuffer<byte[], S> {
 		m_nextWrite = (int) storageSize;
 		resetRead();
 	}
-	
+
 	@Override
 	protected final S createStorage() {
 		return createStorage(m_shape);
 	}
-	
+
 	@Override
 	public final void put(byte[] value) {
 		checkOverflow(m_nextWrite < m_capacity);
 		putInternal(value);
 	}
-	
+
 	private void putInternal(byte[] value) {
 		int[] position = calculatePositionInStorage(m_nextWrite++);
 		placeInStorage(value, position);
 	}
-	
+
 	@Override
 	public final void putAll(byte[][] values) {
 		checkOverflow(m_nextWrite + values.length <= m_capacity);
@@ -136,43 +135,40 @@ implements TFUniversalWrappingObjectBuffer<byte[], S> {
 			putInternal(value);
 		}
 	}
-	
+
 	@Override
 	public final byte[] readNext() {
 		checkUnderflow(m_nextRead < m_nextWrite);
 		int[] position = calculatePositionInStorage(m_nextRead++);
- 		return retrieveFromStorage(position);
+		return retrieveFromStorage(position);
 	}
-	
+
 	/**
 	 * @param position in multi-dimensional array
 	 * @return value at <b>position</b>
 	 */
 	protected abstract byte[] retrieveFromStorage(int[] position);
-	
+
 	/**
 	 * @param value the value to place at <b>position</b>
-	 * @param position in the multi-dimensional array 
-	 * 
+	 * @param position in the multi-dimensional array
 	 */
 	protected abstract void placeInStorage(byte[] value, int[] position);
-	
+
 	/**
 	 * @param storage to get length of
 	 * @return length of <b>storage</b>
-	 * 
 	 */
 	protected abstract long getLength(S storage);
-	
-	protected abstract S createEmptySubArray(int length);  
-	
+
+	protected abstract S createEmptySubArray(int length);
+
 	/**
 	 * @param shape the shape of the multi-dimensional storage array
 	 * @return multi-dimensional storage array
-	 * 
 	 */
 	protected abstract S createStorage(int[] shape);
-	
+
 	private final int[] calculatePositionInStorage(int flatIdx) {
 		int currentFlatIdx = flatIdx;
 		for (int i = m_shape.length - 1; i >= 0; i--) {
@@ -181,9 +177,9 @@ implements TFUniversalWrappingObjectBuffer<byte[], S> {
 		}
 		return m_tmpPosition;
 	}
-	
+
 	private static int roundUp(int num, int divisor) {
-	    return (num + divisor - 1) / divisor;
+		return (num + divisor - 1) / divisor;
 	}
 
 	@Override
@@ -191,5 +187,5 @@ implements TFUniversalWrappingObjectBuffer<byte[], S> {
 		resetRead();
 		resetWrite();
 	}
-	
+
 }

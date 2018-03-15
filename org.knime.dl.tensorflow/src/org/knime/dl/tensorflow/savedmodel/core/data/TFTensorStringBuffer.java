@@ -46,12 +46,11 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
-
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
 public class TFTensorStringBuffer extends TFAbstractTensorObjectBuffer<String>
-       implements TFTensorReadableStringBuffer, TFTensorWritableStringBuffer {
+		implements TFTensorReadableStringBuffer, TFTensorWritableStringBuffer {
 
 	/**
 	 * @param shape

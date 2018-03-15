@@ -55,12 +55,12 @@ import org.tensorflow.Tensor;
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  * @param <T> The type of objects stored in this buffer.
  */
-public abstract class TFAbstractTensorObjectBuffer <T> 
-implements TFTensorWritableObjectBuffer<T>, TFTensorReadableObjectBuffer<T> {
-	
+public abstract class TFAbstractTensorObjectBuffer<T>
+		implements TFTensorWritableObjectBuffer<T>, TFTensorReadableObjectBuffer<T> {
+
 	private final DLBytesConverter<T> m_converter;
 	private TFUniversalWrappingObjectBuffer<byte[], ?> m_storage;
-	
+
 	/**
 	 * @param bytesConverter
 	 * @param shape
@@ -69,7 +69,7 @@ implements TFTensorWritableObjectBuffer<T>, TFTensorReadableObjectBuffer<T> {
 		m_converter = bytesConverter;
 		m_storage = DLBytesBuffers.createBytesBuffer(shape);
 	}
-	
+
 	@Override
 	public final long getCapacity() {
 		return m_storage.getCapacity();
@@ -103,9 +103,7 @@ implements TFTensorWritableObjectBuffer<T>, TFTensorReadableObjectBuffer<T> {
 
 	@Override
 	public final void putAll(T[] values) {
-		Arrays.stream(values).sequential()
-		.map(m_converter::toBytes)
-		.forEach(m_storage::put);
+		Arrays.stream(values).sequential().map(m_converter::toBytes).forEach(m_storage::put);
 	}
 
 	@Override
@@ -113,7 +111,7 @@ implements TFTensorWritableObjectBuffer<T>, TFTensorReadableObjectBuffer<T> {
 		resetRead();
 		resetWrite();
 	}
-	
+
 	@Override
 	public final Tensor<String> readIntoTensor(long batchSize, DLFixedTensorShape shape) {
 		return Tensor.create(m_storage.getStorageForTensorCreation(batchSize), String.class);

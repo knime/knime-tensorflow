@@ -56,7 +56,7 @@ import org.knime.dl.core.data.DLReadableBuffer;
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  * @param <T> the type of objects stored in this buffer
  */
-public interface DLReadableObjectBuffer <T> extends DLReadableBuffer {
+public interface DLReadableObjectBuffer<T> extends DLReadableBuffer {
 
 	/**
 	 * Reads the next value from the buffer.

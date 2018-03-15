@@ -61,7 +61,7 @@ public class TFStringBytesConverterTest {
 		String value = "knime";
 		assertArrayEquals(value.getBytes(UTF_8), TFStringBytesConverter.INSTANCE.toBytes(value));
 	}
-	
+
 	@Test
 	public void testFromBytes() throws Exception {
 		String stringValue = "knime";

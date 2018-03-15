@@ -73,39 +73,38 @@ public class DLStringValueToStringTensorConverterFactoryTest {
 	private static DLStringValueToStringTensorConverterFactory createFactory() {
 		return new DLStringValueToStringTensorConverterFactory();
 	}
-	
+
 	@Test
 	public void testGetName() throws Exception {
 		assertEquals("String", createFactory().getName());
 	}
-	
+
 	@Test
 	public void testGetSourceType() throws Exception {
 		assertEquals(StringValue.class, createFactory().getSourceType());
 	}
-	
+
 	@Test
 	public void testGetBufferType() throws Exception {
 		assertEquals(DLWritableStringBuffer.class, createFactory().getBufferType());
 	}
-	
+
 	@Test
 	public void testGetDestCount() throws Exception {
 		DataColumnSpec colSpec = null;
 		List<DataColumnSpec> spec = Arrays.asList(colSpec, colSpec);
 		assertEquals(OptionalLong.of(2l), createFactory().getDestCount(spec));
 	}
-	
+
 	@Test
 	public void testCreateConverter() throws Exception {
-		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {1l, 10l});
-		DLTensor<DLWritableStringBuffer> tensor = new DLDefaultTensor<DLWritableStringBuffer>(
-				TFTestUtil.createSpec(new DLDefaultFixedTensorShape(new long[] {10l})),
-				buffer, 10l)) {
-			String[] values = new String[] {"deep", "learning", "in", "knime"};
-			List<StringValue> input = Arrays.stream(values).map(StringCell::new)
-					.collect(Collectors.toList());
-			DLDataValueToTensorConverter<StringValue, DLWritableStringBuffer> converter = createFactory().createConverter();
+		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] { 1l, 10l });
+				DLTensor<DLWritableStringBuffer> tensor = new DLDefaultTensor<DLWritableStringBuffer>(
+						TFTestUtil.createSpec(new DLDefaultFixedTensorShape(new long[] { 10l })), buffer, 10l)) {
+			String[] values = new String[] { "deep", "learning", "in", "knime" };
+			List<StringValue> input = Arrays.stream(values).map(StringCell::new).collect(Collectors.toList());
+			DLDataValueToTensorConverter<StringValue, DLWritableStringBuffer> converter = createFactory()
+					.createConverter();
 			converter.convert(input, tensor);
 			assertEquals(values.length, buffer.size());
 			for (int i = 0; i < buffer.size(); i++) {

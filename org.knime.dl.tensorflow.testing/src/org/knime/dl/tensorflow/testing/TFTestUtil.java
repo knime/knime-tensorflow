@@ -62,21 +62,21 @@ public class TFTestUtil {
 	private TFTestUtil() {
 		// static utility class
 	}
-	
+
 	public static void assertBufferFilledWithValue(TFTensorStringBuffer buffer, String value) {
 		for (int i = 0; i < buffer.getCapacity(); i++) {
 			assertEquals(value, buffer.readNext());
 		}
 	}
-	
+
 	public static void fillBufferWithValue(TFTensorStringBuffer buffer, String value) {
 		for (int i = 0; i < buffer.getCapacity(); i++) {
 			buffer.put(value);
 		}
 	}
-	
+
 	public static DLTensorSpec createSpec(DLTensorShape shape) {
-		return new DLDefaultTensorSpec(new DLDefaultTensorId("spec"), "spec", 1, shape,
-				String.class, DLDefaultDimensionOrder.TDHWC);
+		return new DLDefaultTensorSpec(new DLDefaultTensorId("spec"), "spec", 1, shape, String.class,
+				DLDefaultDimensionOrder.TDHWC);
 	}
 }

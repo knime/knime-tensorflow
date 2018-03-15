@@ -57,8 +57,8 @@ final class DLRankOneBytesBuffer extends DLAbstractBytesBuffer<byte[][]> {
 	protected DLRankOneBytesBuffer(long[] shape) {
 		super(shape);
 		if (shape.length != 1) {
-			throw new IllegalArgumentException("Invalid shape. Can't create a DLRankOneBytesBuffer from a rank " 
-					+ shape.length + " shape.");
+			throw new IllegalArgumentException(
+					"Invalid shape. Can't create a DLRankOneBytesBuffer from a rank " + shape.length + " shape.");
 		}
 	}
 

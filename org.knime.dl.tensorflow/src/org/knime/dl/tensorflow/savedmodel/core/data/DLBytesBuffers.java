@@ -52,13 +52,13 @@ package org.knime.dl.tensorflow.savedmodel.core.data;
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
 final class DLBytesBuffers {
-	
+
 	private static final long[] SCALAR_SHAPE = new long[] { 1l };
 
 	private DLBytesBuffers() {
 		// static factory class
 	}
-	
+
 	public static TFUniversalWrappingObjectBuffer<byte[], ?> createBytesBuffer(long[] shape) {
 		int rank = shape.length;
 		switch (rank) {
@@ -78,8 +78,7 @@ final class DLBytesBuffers {
 		case 6:
 			return new DLRankSixBytesBuffer(shape);
 		default:
-			throw new IllegalArgumentException(
-					"Requested buffer for rank " + rank 
+			throw new IllegalArgumentException("Requested buffer for rank " + rank
 					+ " tensor but currently only buffers up to rank 6 are supported");
 		}
 	}

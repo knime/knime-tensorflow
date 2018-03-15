@@ -60,7 +60,7 @@ import org.knime.dl.util.DLUtils;
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
 public class DLStringTensorToStringCellConverterFactory
-implements DLTensorToDataCellConverterFactory<DLReadableStringBuffer, StringCell> {
+		implements DLTensorToDataCellConverterFactory<DLReadableStringBuffer, StringCell> {
 
 	@Override
 	public String getName() {

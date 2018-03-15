@@ -49,9 +49,9 @@ package org.knime.dl.tensorflow.savedmodel.core.data;
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-interface DLBytesConverter <T> {
-	
+interface DLBytesConverter<T> {
+
 	public byte[] toBytes(T value);
-	
+
 	public T fromBytes(byte[] data);
 }

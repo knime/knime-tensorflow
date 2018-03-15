@@ -56,7 +56,7 @@ import org.knime.dl.core.data.DLWritableBuffer;
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  * @param <T> The type of objects this buffer holds
  */
-public interface DLWritableObjectBuffer <T> extends DLWritableBuffer {
+public interface DLWritableObjectBuffer<T> extends DLWritableBuffer {
 
 	/**
 	 * Writes a value into the buffer.
@@ -65,7 +65,7 @@ public interface DLWritableObjectBuffer <T> extends DLWritableBuffer {
 	 * @throws BufferOverflowException if the buffer's {@link #getCapacity() capacity} is exceeded.
 	 */
 	public void put(T value);
-	
+
 	/**
 	 * Copies an array into the buffer.
 	 *

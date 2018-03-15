@@ -66,45 +66,42 @@ import org.knime.dl.tensorflow.testing.TFTestUtil;
  */
 public class DLStringTensorToStringCellConverterFactoryTest {
 
-	
-	
 	private static DLStringTensorToStringCellConverterFactory createFactory() {
 		return new DLStringTensorToStringCellConverterFactory();
 	}
-	
+
 	@Test
 	public void testGetDestCount() throws Exception {
 		DLStringTensorToStringCellConverterFactory factory = createFactory();
-		assertEquals(OptionalLong.of(10l), factory.getDestCount(
-				TFTestUtil.createSpec(new DLDefaultFixedTensorShape(new long[] {10}))));
+		assertEquals(OptionalLong.of(10l),
+				factory.getDestCount(TFTestUtil.createSpec(new DLDefaultFixedTensorShape(new long[] { 10 }))));
 	}
-	
+
 	@Test
 	public void testGetDestType() throws Exception {
 		DLStringTensorToStringCellConverterFactory factory = createFactory();
 		assertEquals(DataType.getType(StringCell.class), factory.getDestType());
 	}
-	
+
 	@Test
 	public void testGetBufferType() throws Exception {
 		DLStringTensorToStringCellConverterFactory factory = createFactory();
 		assertEquals(DLReadableStringBuffer.class, factory.getBufferType());
 	}
-	
+
 	@Test
 	public void testGetName() throws Exception {
 		DLStringTensorToStringCellConverterFactory factory = createFactory();
 		assertEquals("String", factory.getName());
 	}
-	
+
 	@Test
 	public void testCreateConverter() throws Exception {
 		DLStringTensorToStringCellConverterFactory factory = createFactory();
 		String value = "knime";
-		try(TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] {1l, 10l});
-		DLTensor<DLReadableStringBuffer> tensor = new DLDefaultTensor<DLReadableStringBuffer>(
-				TFTestUtil.createSpec(new DLDefaultFixedTensorShape(new long[] {10l})),
-				buffer, 10l)) {
+		try (TFTensorStringBuffer buffer = new TFTensorStringBuffer(new long[] { 1l, 10l });
+				DLTensor<DLReadableStringBuffer> tensor = new DLDefaultTensor<DLReadableStringBuffer>(
+						TFTestUtil.createSpec(new DLDefaultFixedTensorShape(new long[] { 10l })), buffer, 10l)) {
 			TFTestUtil.fillBufferWithValue(buffer, value);
 			DLTensorToDataCellConverter<DLReadableStringBuffer, StringCell> converter = factory.createConverter();
 			StringCell[] output = new StringCell[10];

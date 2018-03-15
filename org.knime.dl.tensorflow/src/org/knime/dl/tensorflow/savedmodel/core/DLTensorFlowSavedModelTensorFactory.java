@@ -67,19 +67,18 @@ import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableDo
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableIntBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorReadableLongBuffer;
-import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableObjectBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableStringBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorStringBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableDoubleBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableIntBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.DLTensorFlowTensorWritableLongBuffer;
-import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableObjectBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableStringBuffer;
 import org.knime.dl.util.DLUtils;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
+ * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 
@@ -164,7 +163,8 @@ public class DLTensorFlowSavedModelTensorFactory implements DLTensorFactory {
 		} else if (t.equals(long.class)) {
 			s = () -> (B) new DLTensorFlowTensorLongBuffer(size);
 		} else if (t.equals(String.class)) {
-			s = () -> (B) new TFTensorStringBuffer(DLTensorFlowUtil.createTFShape(batchSize, (DLFixedTensorShape) spec.getShape()));
+			s = () -> (B) new TFTensorStringBuffer(
+					DLTensorFlowUtil.createTFShape(batchSize, (DLFixedTensorShape) spec.getShape()));
 		} else {
 			throw new IllegalArgumentException("No matching tensor type for tensor spec '" + spec.getName() + "'.");
 		}

@@ -49,7 +49,6 @@ package org.knime.dl.tensorflow.savedmodel.core.data;
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorWritableStringBuffer extends TFTensorWritableObjectBuffer<String>,
-DLWritableStringBuffer {
+public interface TFTensorWritableStringBuffer extends TFTensorWritableObjectBuffer<String>, DLWritableStringBuffer {
 
 }

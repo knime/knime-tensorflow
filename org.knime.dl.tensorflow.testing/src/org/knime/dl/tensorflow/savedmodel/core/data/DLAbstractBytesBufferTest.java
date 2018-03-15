@@ -58,7 +58,7 @@ import org.junit.Test;
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
 public class DLAbstractBytesBufferTest {
-	
+
 	private static byte[][] createRange(int length) {
 		byte[][] expected = new byte[length][1];
 		for (byte i = 0; i < length; i++) {
@@ -69,7 +69,7 @@ public class DLAbstractBytesBufferTest {
 
 	@Test
 	public void testGetStorageForTensorCreation() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			byte[][] expected = createRange(10);
 			buffer.putAll(expected);
 			assertArrayEquals(expected, buffer.getStorageForTensorCreation(10l));
@@ -77,63 +77,63 @@ public class DLAbstractBytesBufferTest {
 			assertArrayEquals(Arrays.copyOf(expected, 5), buffer.getStorageForTensorCreation(5l));
 		}
 	}
-	
+
 	@Test
 	public void testSetStorage() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			byte[][] storage = createRange(10);
 			buffer.setStorage(storage, 10l);
 			assertArrayEquals(storage, buffer.getStorageForReading(0, 10));
 		}
 	}
-	
-	@Test (expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void testSetStorageFailsOnIncompatibleCapacity() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			byte[][] storage = createRange(5);
 			buffer.setStorage(storage, 10l);
 		}
 	}
-	
-	@Test (expected=BufferOverflowException.class)
+
+	@Test(expected = BufferOverflowException.class)
 	public void testPutFailsOnOverflow() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {1l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 1l })) {
 			buffer.put(new byte[1]);
 			buffer.put(new byte[1]);
 		}
 	}
-	
-	@Test (expected=BufferOverflowException.class)
+
+	@Test(expected = BufferOverflowException.class)
 	public void testPutAllFailsOnOverflow() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			byte[][] tooLargeArray = createRange(11);
 			buffer.putAll(tooLargeArray);
 		}
 	}
-	
-	@Test (expected=BufferUnderflowException.class)
+
+	@Test(expected = BufferUnderflowException.class)
 	public void testReadNextFailsOnUnderflow() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			buffer.readNext();
 		}
 	}
-	
-	@Test (expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void testConstructorFailsOnTooLargeDimension() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {Long.MAX_VALUE})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { Long.MAX_VALUE })) {
 		}
 	}
-	
-	@Test (expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void testZeroPadFailsOnLengthSmallerOne() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			buffer.zeroPad(0);
 		}
 	}
-	
-	@Test (expected=BufferOverflowException.class)
+
+	@Test(expected = BufferOverflowException.class)
 	public void testZeroPadFailsOnOverflow() throws Exception {
-		try(DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] {10l})) {
+		try (DLRankOneBytesBuffer buffer = new DLRankOneBytesBuffer(new long[] { 10l })) {
 			buffer.zeroPad(11);
 		}
 	}
