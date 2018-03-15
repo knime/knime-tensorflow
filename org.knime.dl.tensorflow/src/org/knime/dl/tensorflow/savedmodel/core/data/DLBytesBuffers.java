@@ -59,7 +59,7 @@ final class DLBytesBuffers {
 		// static factory class
 	}
 	
-	public static DLUniversalWrappingObjectBuffer<byte[], ?> createBytesBuffer(long[] shape) {
+	public static TFUniversalWrappingObjectBuffer<byte[], ?> createBytesBuffer(long[] shape) {
 		int rank = shape.length;
 		switch (rank) {
 		case 0:

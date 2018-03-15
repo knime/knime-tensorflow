@@ -58,7 +58,7 @@ import org.knime.dl.util.DLUtils;
  * @param <S> the type of multi-dimensional storage array
  */
 abstract class DLAbstractBytesBuffer <S> extends DLAbstractWrappingDataBuffer<S> 
-implements DLUniversalWrappingObjectBuffer<byte[], S> {
+implements TFUniversalWrappingObjectBuffer<byte[], S> {
 
 	private static final byte[] ZERO_VALUE = new byte[0];
 	

@@ -59,7 +59,7 @@ public abstract class TFAbstractTensorObjectBuffer <T>
 implements TFTensorWritableObjectBuffer<T>, TFTensorReadableObjectBuffer<T> {
 	
 	private final DLBytesConverter<T> m_converter;
-	private DLUniversalWrappingObjectBuffer<byte[], ?> m_storage;
+	private TFUniversalWrappingObjectBuffer<byte[], ?> m_storage;
 	
 	/**
 	 * @param bytesConverter
