@@ -56,21 +56,17 @@ final class DLRankOneBytesBuffer extends DLAbstractBytesBuffer<byte[][]> {
 	 */
 	protected DLRankOneBytesBuffer(long[] shape) {
 		super(shape);
-		if (shape.length != 1) {
-			throw new IllegalArgumentException(
-					"Invalid shape. Can't create a DLRankOneBytesBuffer from a rank " + shape.length + " shape.");
-		}
 	}
 
 	@Override
 	protected byte[] retrieveFromStorage(int[] position) {
 		assert position.length == 1;
-		return getStorage()[position[0]];
+		return m_storage[position[0]];
 	}
 
 	@Override
 	protected void placeInStorage(byte[] value, int[] position) {
-		getStorage()[position[0]] = value;
+		m_storage[position[0]] = value;
 	}
 
 	@Override
@@ -80,7 +76,10 @@ final class DLRankOneBytesBuffer extends DLAbstractBytesBuffer<byte[][]> {
 
 	@Override
 	protected byte[][] createStorage(int[] shape) {
-		assert shape.length == 1;
+		if (shape.length != 1) {
+			throw new IllegalArgumentException(
+					"Invalid shape. Can't create a DLRankOneBytesBuffer from a rank " + shape.length + " shape.");
+		}
 		return new byte[shape[0]][];
 	}
 

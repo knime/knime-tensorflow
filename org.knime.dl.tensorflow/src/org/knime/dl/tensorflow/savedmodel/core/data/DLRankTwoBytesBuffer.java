@@ -60,20 +60,23 @@ final class DLRankTwoBytesBuffer extends DLAbstractBytesBuffer<byte[][][]> {
 
 	@Override
 	protected byte[][][] createStorage(int[] shape) {
-		assert shape.length == 2;
+		if (shape.length != 2) {
+			throw new IllegalArgumentException(
+					"Invalid shape. Can't create a DLRankTwoBytesBuffer from a rank " + shape.length + " shape.");
+		}
 		return new byte[shape[0]][shape[1]][];
 	}
 
 	@Override
 	protected byte[] retrieveFromStorage(int[] position) {
 		assert position.length == 2;
-		return getStorage()[position[0]][position[1]];
+		return m_storage[position[0]][position[1]];
 	}
 
 	@Override
 	protected void placeInStorage(byte[] value, int[] position) {
 		assert position.length == 2;
-		getStorage()[position[0]][position[1]] = value;
+		m_storage[position[0]][position[1]] = value;
 	}
 
 	@Override

@@ -61,13 +61,13 @@ final class DLRankSixBytesBuffer extends DLAbstractBytesBuffer<byte[][][][][][][
 	@Override
 	protected byte[] retrieveFromStorage(int[] position) {
 		assert position.length == 6;
-		return getStorage()[position[0]][position[1]][position[2]][position[3]][position[4]][position[5]];
+		return m_storage[position[0]][position[1]][position[2]][position[3]][position[4]][position[5]];
 	}
 
 	@Override
 	protected void placeInStorage(byte[] value, int[] position) {
 		assert position.length == 6;
-		getStorage()[position[0]][position[1]][position[2]][position[3]][position[4]][position[5]] = value;
+		m_storage[position[0]][position[1]][position[2]][position[3]][position[4]][position[5]] = value;
 	}
 
 	@Override
@@ -88,7 +88,10 @@ final class DLRankSixBytesBuffer extends DLAbstractBytesBuffer<byte[][][][][][][
 
 	@Override
 	protected byte[][][][][][][] createStorage(int[] shape) {
-		assert shape.length == 6;
+		if (shape.length != 6) {
+			throw new IllegalArgumentException(
+					"Invalid shape. Can't create a DLRankSixBytesBuffer from a rank " + shape.length + " shape.");
+		}
 		return new byte[shape[0]][shape[1]][shape[2]][shape[3]][shape[4]][shape[5]][];
 	}
 

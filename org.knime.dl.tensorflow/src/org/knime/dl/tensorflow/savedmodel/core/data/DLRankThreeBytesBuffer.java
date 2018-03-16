@@ -61,13 +61,13 @@ final class DLRankThreeBytesBuffer extends DLAbstractBytesBuffer<byte[][][][]> {
 	@Override
 	protected byte[] retrieveFromStorage(int[] position) {
 		assert position.length == 3;
-		return getStorage()[position[0]][position[1]][position[2]];
+		return m_storage[position[0]][position[1]][position[2]];
 	}
 
 	@Override
 	protected void placeInStorage(byte[] value, int[] position) {
 		assert position.length == 3;
-		getStorage()[position[0]][position[1]][position[2]] = value;
+		m_storage[position[0]][position[1]][position[2]] = value;
 	}
 
 	@Override
@@ -85,7 +85,10 @@ final class DLRankThreeBytesBuffer extends DLAbstractBytesBuffer<byte[][][][]> {
 
 	@Override
 	protected byte[][][][] createStorage(int[] shape) {
-		assert shape.length == 3;
+		if (shape.length != 3) {
+			throw new IllegalArgumentException(
+					"Invalid shape. Can't create a DLRankThreeBytesBuffer from a rank " + shape.length + " shape.");
+		}
 		return new byte[shape[0]][shape[1]][shape[2]][];
 	}
 

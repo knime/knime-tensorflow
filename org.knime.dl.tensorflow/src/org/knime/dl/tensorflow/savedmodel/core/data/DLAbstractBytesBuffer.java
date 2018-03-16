@@ -77,6 +77,7 @@ abstract class DLAbstractBytesBuffer<S> extends DLAbstractWrappingDataBuffer<S>
 			// the complete buffer (which is <= a single dimension) but check anyway
 			throw new IllegalArgumentException("Currently a dimension in a shape may not exceed Integer.MAX_VALUE.");
 		}
+		m_storage = createStorage();
 		m_tmpPosition = new int[m_shape.length];
 	}
 
@@ -107,7 +108,7 @@ abstract class DLAbstractBytesBuffer<S> extends DLAbstractWrappingDataBuffer<S>
 	@Override
 	public final void setStorage(S storage, long storageSize) {
 		checkArgument(getLength(storage) == m_capacity, "Input storage capacity does not match buffer capacity.");
-		setStorage(storage);
+		m_storage = storage;
 		m_nextWrite = (int) storageSize;
 		resetRead();
 	}

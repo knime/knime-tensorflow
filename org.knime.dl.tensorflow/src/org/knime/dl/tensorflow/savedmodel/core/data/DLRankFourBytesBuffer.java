@@ -61,13 +61,13 @@ final class DLRankFourBytesBuffer extends DLAbstractBytesBuffer<byte[][][][][]> 
 	@Override
 	protected byte[] retrieveFromStorage(int[] position) {
 		assert position.length == 4;
-		return getStorage()[position[0]][position[1]][position[2]][position[3]];
+		return m_storage[position[0]][position[1]][position[2]][position[3]];
 	}
 
 	@Override
 	protected void placeInStorage(byte[] value, int[] position) {
 		assert position.length == 4;
-		getStorage()[position[0]][position[1]][position[2]][position[3]] = value;
+		m_storage[position[0]][position[1]][position[2]][position[3]] = value;
 	}
 
 	@Override
@@ -86,7 +86,10 @@ final class DLRankFourBytesBuffer extends DLAbstractBytesBuffer<byte[][][][][]> 
 
 	@Override
 	protected byte[][][][][] createStorage(int[] shape) {
-		assert shape.length == 4;
+		if (shape.length != 4) {
+			throw new IllegalArgumentException(
+					"Invalid shape. Can't create a DLRankFourBytesBuffer from a rank " + shape.length + " shape.");
+		}
 		return new byte[shape[0]][shape[1]][shape[2]][shape[3]][];
 	}
 
