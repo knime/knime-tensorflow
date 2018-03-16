@@ -46,10 +46,20 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import org.knime.dl.core.DLInvalidNetworkOutputException;
+import org.knime.dl.core.data.DLReadableBuffer;
+import org.tensorflow.Tensor;
+
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public interface TFTensorReadableBuffer extends DLReadableBuffer {
+
+	/**
+	 * Writes the data of the tensor into the buffer.
+	 *
+	 * @param tensor the tensor
+	 * @throws DLInvalidNetworkOutputException if the data of the tensor could not be read into the buffer
+	 */
+	void writeFromTensor(Tensor<?> tensor) throws DLInvalidNetworkOutputException;
 }

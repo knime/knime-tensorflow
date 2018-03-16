@@ -44,12 +44,15 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core.data;
+package org.knime.dl.tensorflow.testing;
+
+import org.knime.testing.core.AbstractTestcaseCollector;
 
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * @author Marcel Wiedenmann, KNIME, Konstanz, Germany
+ * @author Christian Dietz, KNIME, Konstanz, Germany
+ * @author Benjamin Willhelm, KNIME, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public class TFTestCaseCollector extends AbstractTestcaseCollector {
+	// registered at extension point, nothing to do here
 }

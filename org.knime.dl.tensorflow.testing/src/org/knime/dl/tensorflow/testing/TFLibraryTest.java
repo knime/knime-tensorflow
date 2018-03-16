@@ -44,12 +44,45 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core.data;
+package org.knime.dl.tensorflow.testing;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+import org.tensorflow.Graph;
+import org.tensorflow.Session;
+import org.tensorflow.Tensor;
+import org.tensorflow.TensorFlow;
 
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public class TFLibraryTest {
+
+	/**
+	 * Test if the TensorFlow library is loaded correctly. Code copied from:
+	 * https://www.tensorflow.org/install/install_java
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void test() throws Exception {
+		final Graph g = new Graph();
+		final String value = "Hello from " + TensorFlow.version();
+
+		// Construct the computation graph with a single operation, a
+		// constant named "MyConst" with a value "value".
+		try (final Tensor<?> t = Tensor.create(value.getBytes("UTF-8"))) {
+			// The Java API doesn't yet include convenience functions for
+			// adding operations.
+			g.opBuilder("Const", "MyConst").setAttr("dtype", t.dataType()).setAttr("value", t).build();
+
+			// Execute the "MyConst" operation in a Session.
+			try (final Session s = new Session(g)) {
+				try (Tensor<?> output = s.runner().fetch("MyConst").run().get(0)) {
+					assertEquals("Hello from 1.4.0", new String(output.bytesValue(), "UTF-8"));
+				}
+			}
+		}
+	}
 }

@@ -46,10 +46,27 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import org.knime.dl.core.DLFixedTensorShape;
+import org.knime.dl.core.DLInvalidNetworkInputException;
+import org.knime.dl.core.data.DLWritableBuffer;
+import org.tensorflow.Tensor;
+
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * @param <T> Type of the TensorFlow {@link Tensor}.
+ * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public interface TFTensorWritableBuffer<T> extends DLWritableBuffer {
+
+	/**
+	 * Reads the content of the buffer and creates a new tensor containing the data.
+	 * <p>
+	 * <b>WARNING:</b> The Tensor object <b>must</b> be explicitly freed by invoking the
+	 * {@link #close()} method when the object is no longer needed.
+	 *
+	 * @param batchSize the batch size which will be the size of the first dimension of the tensor
+	 * @param shape the shape of the tensor
+	 * @return a tensor with the content of the buffer.
+	 * @throws DLInvalidNetworkInputException if no tensor could be created from this buffer
+	 */
+	Tensor<T> readIntoTensor(long batchSize, DLFixedTensorShape shape) throws DLInvalidNetworkInputException;
 }

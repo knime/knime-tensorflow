@@ -51,6 +51,6 @@ package org.knime.dl.tensorflow.savedmodel.core.data;
  * @param <T> the type of objects stored in this buffer
  */
 public interface TFTensorWritableObjectBuffer<T>
-		extends DLWritableObjectBuffer<T>, DLTensorFlowTensorWritableBuffer<String> {
+		extends DLWritableObjectBuffer<T>, TFTensorWritableBuffer<String> {
 
 }

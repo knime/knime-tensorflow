@@ -44,12 +44,30 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core.data;
+package org.knime.dl.tensorflow.core;
+
+import java.io.IOException;
+
+import org.knime.core.data.filestore.FileStore;
+import org.knime.dl.python.core.DLPythonNetwork;
 
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * A TensorFlow deep learning network.
+ *
+ * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public interface TFNetwork extends DLPythonNetwork {
+
+	@Override
+	TFNetworkSpec getSpec();
+
+	/**
+	 * Copy the files of the network from the source to the given file store for saving it with the workflow.
+	 * The implementation can be limited to only include files which are known to be important for reading
+	 * the model.
+	 *
+	 * @param destination the file store
+	 * @throws IOException if copying the file store failed
+	 */
+	void copyFilesToFileStore(FileStore destination) throws IOException;
 }

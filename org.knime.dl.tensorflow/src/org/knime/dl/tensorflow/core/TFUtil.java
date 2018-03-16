@@ -44,12 +44,37 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core.data;
+package org.knime.dl.tensorflow.core;
+
+import org.knime.dl.core.DLDefaultDimensionOrder;
+import org.knime.dl.core.DLDimensionOrder;
+import org.knime.dl.core.DLFixedTensorShape;
+import org.tensorflow.Tensor;
 
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public class TFUtil {
+
+	private TFUtil() {
+		// Utility class
+	}
+
+	/** The default dimension order of TensorFlow */
+	public static final DLDimensionOrder DEFAULT_DIMENSION_ORDER = DLDefaultDimensionOrder.TDHWC;
+
+	/**
+	 * Creates a shape array which can be used to create a {@link Tensor} from a batch size and a
+	 * {@link DLFixedTensorShape}.
+	 *
+	 * @param batchSize the batch size of the tensor
+	 * @param dlShape the shape of the tensor (without batch size)
+	 * @return the shape of the tensor including the batch size in the first dimension
+	 */
+	public static long[] createTFShape(final long batchSize, final DLFixedTensorShape dlShape) {
+		final long[] tfShape = new long[dlShape.getNumDimensions() + 1];
+		tfShape[0] = batchSize;
+		System.arraycopy(dlShape.getShape(), 0, tfShape, 1, dlShape.getNumDimensions());
+		return tfShape;
+	}
 }

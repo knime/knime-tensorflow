@@ -5,7 +5,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             category="org.knime.workbench.ui.preferences"
-            class="org.knime.tensorflow.libs.prefs.DLTensorFlowPreferencePage"
+            class="org.knime.tensorflow.libs.prefs.TFPreferencePage"
             id="org.knime.tensorflow.libs.PreferencePage"
             name="TensorFlow">
       </page>

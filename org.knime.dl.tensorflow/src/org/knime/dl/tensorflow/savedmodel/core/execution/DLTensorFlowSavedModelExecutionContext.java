@@ -52,15 +52,15 @@ import org.knime.dl.core.DLNetworkInputPreparer;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
-import org.knime.dl.tensorflow.core.execution.DLTensorFlowAbstractExecutionContext;
-import org.knime.dl.tensorflow.core.execution.DLTensorFlowNetworkExecutionSession;
-import org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelNetwork;
+import org.knime.dl.tensorflow.core.execution.TFAbstractExecutionContext;
+import org.knime.dl.tensorflow.core.execution.TFNetworkExecutionSession;
+import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class DLTensorFlowSavedModelExecutionContext
-	extends DLTensorFlowAbstractExecutionContext<DLTensorFlowSavedModelNetwork> {
+	extends TFAbstractExecutionContext<TFSavedModelNetwork> {
 
 	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow (Java)";
 
@@ -68,14 +68,14 @@ public class DLTensorFlowSavedModelExecutionContext
 	 * Creates a new execution context for TensorFlow SavedModels.
 	 */
 	public DLTensorFlowSavedModelExecutionContext() {
-		super(DLTensorFlowSavedModelNetwork.class, EXECUTION_CONTEXT_NAME);
+		super(TFSavedModelNetwork.class, EXECUTION_CONTEXT_NAME);
 	}
 
 	@Override
-	public DLTensorFlowNetworkExecutionSession createExecutionSession(final DLTensorFlowSavedModelNetwork network,
+	public TFNetworkExecutionSession createExecutionSession(final TFSavedModelNetwork network,
 			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
 			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer) {
-		return new DLTensorFlowSavedModelNetworkExecutionSession(network, executionInputSpecs, requestedOutputs,
+		return new TFSavedModelNetworkExecutionSession(network, executionInputSpecs, requestedOutputs,
 				inputPreparer, outputConsumer, getTensorFactory());
 	}
 }

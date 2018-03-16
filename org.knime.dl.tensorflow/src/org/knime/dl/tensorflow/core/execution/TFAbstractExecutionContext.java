@@ -44,12 +44,53 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core.data;
+package org.knime.dl.tensorflow.core.execution;
+
+import org.knime.dl.core.DLTensorFactory;
+import org.knime.dl.core.DLTensorRegistry;
+import org.knime.dl.tensorflow.core.TFNetwork;
 
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * Abstract class for TensorFlow execution contexts.
+ *
+ * @param <N> the specific {@link TFNetwork} of this execution context
+ * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public abstract class TFAbstractExecutionContext<N extends TFNetwork>
+		implements TFExecutionContext<N> {
+
+	private final Class<N> m_networkType;
+
+	private final String m_name;
+
+	private final DLTensorFactory m_tensorFactory;
+
+	/**
+	 * Creates a new execution context for TensorFlow networks.
+	 *
+	 * @param networkType the class of the networks
+	 * @param name the name of the execution context
+	 */
+	protected TFAbstractExecutionContext(final Class<N> networkType, final String name) {
+		m_networkType = networkType;
+		m_name = name;
+		m_tensorFactory = DLTensorRegistry.getInstance().getTensorFactory(m_networkType)
+				.orElseThrow(() -> new IllegalStateException("Deep learning network type '" + m_networkType
+						+ "' is not supported. No tensor factory found."));
+	}
+
+	@Override
+	public Class<N> getNetworkType() {
+		return m_networkType;
+	}
+
+	@Override
+	public String getName() {
+		return m_name;
+	}
+
+	@Override
+	public DLTensorFactory getTensorFactory() {
+		return m_tensorFactory;
+	}
 }

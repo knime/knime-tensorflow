@@ -44,12 +44,27 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core.data;
+package org.knime.dl.tensorflow.core;
+
+import java.net.URL;
+
+import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLNetwork;
+import org.knime.dl.core.DLNetworkSpec;
 
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * The spec of a {@link TFNetwork TensorFlow deep learning network}.
+ *
+ * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public interface TFNetworkSpec extends DLNetworkSpec {
+
+	/**
+	 * Creates a network which {@link DLNetwork#getSpec()} returns this spec.
+	 *
+	 * @param source URL to the location where the deep learning model is saved
+	 * @return a new {@link TFNetwork}
+	 * @throws DLInvalidSourceException if reading the model failed
+	 */
+	TFNetwork create(URL source) throws DLInvalidSourceException;
 }

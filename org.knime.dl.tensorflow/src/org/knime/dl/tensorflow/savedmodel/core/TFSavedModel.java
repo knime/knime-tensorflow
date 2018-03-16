@@ -44,12 +44,56 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core.data;
+package org.knime.dl.tensorflow.savedmodel.core;
+
+import java.net.URL;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+import org.knime.dl.core.DLInvalidSourceException;
+import org.tensorflow.framework.MetaGraphDef;
+import org.tensorflow.framework.SavedModel;
 
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * Wrapper for TensorFlow {@link SavedModel}. Can read them from a file or directory and extract important information.
+ *
+ * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public class TFSavedModel {
+
+	private final SavedModel m_savedModel;
+
+	/**
+	 * Wraps a SavedModel at the given location to an {@link TFSavedModel}.
+	 *
+	 * @param source URL to the SavedModel directory or zip file. The directory must be a valid SavedModel as defined
+	 *            <a href=
+	 *            "https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">here</a>.
+	 *            A zip file must contain such a SavedModel directory.
+	 * @throws DLInvalidSourceException if the SavedModel coudln't be read
+	 */
+	public TFSavedModel(final URL source) throws DLInvalidSourceException {
+		m_savedModel = TFSavedModelUtil.readSavedModelProtoBuf(source);
+	}
+
+	/**
+	 * Extracts one list of tags per MetaGraph.
+	 *
+	 * @return a collection containing arrays of tags
+	 */
+	public Collection<String[]> getContainedTags() {
+		return m_savedModel.getMetaGraphsList().stream()
+				.map(m -> m.getMetaInfoDef().getTagsList().stream().toArray(String[]::new)).collect(Collectors.toSet());
+	}
+
+	/**
+	 * Get a {@link TFMetaGraphDef} with the {@link MetaGraphDef}s of this SavedModel considering the given
+	 * tags.
+	 *
+	 * @param tags the tags to consider
+	 * @return a {@link TFMetaGraphDef} with the {@link MetaGraphDef}s of this SavedModel
+	 */
+	public TFMetaGraphDef getMetaGraphDefs(final String[] tags) {
+		return new TFMetaGraphDef(m_savedModel, tags);
+	}
 }

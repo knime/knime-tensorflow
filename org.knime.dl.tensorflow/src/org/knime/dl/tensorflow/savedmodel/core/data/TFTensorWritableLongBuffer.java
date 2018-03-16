@@ -46,10 +46,11 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import org.knime.dl.core.data.DLWritableLongBuffer;
+
 /**
- * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
- * @param <T> The type of objects stored in this buffer
+ * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFTensorReadableObjectBuffer<T> extends TFTensorReadableBuffer, DLReadableObjectBuffer<T> {
-	// marker interface
+public interface TFTensorWritableLongBuffer extends TFTensorWritableBuffer<Long>, DLWritableLongBuffer {
+
 }

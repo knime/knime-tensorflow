@@ -7,10 +7,10 @@
             color="#8fb3c2"
             hidden="false"
             name="TensorFlow Deep Learning Network"
-            objectClass="org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObject"
-            objectSerializer="org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObject$Serializer"
-            specClass="org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObjectSpec"
-            specSerializer="org.knime.dl.tensorflow.base.portobjects.DLTensorFlowNetworkPortObjectSpec$Serializer">
+            objectClass="org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject"
+            objectSerializer="org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject$Serializer"
+            specClass="org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec"
+            specSerializer="org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec$Serializer">
       </portType>
    </extension>
    <extension
@@ -40,7 +40,7 @@
    <extension
          point="org.knime.dl.DLTensorFactory">
       <DLTensorFactory
-            DLTensorFactory="org.knime.dl.tensorflow.savedmodel.core.DLTensorFlowSavedModelTensorFactory">
+            DLTensorFactory="org.knime.dl.tensorflow.savedmodel.core.TFSavedModelTensorFactory">
       </DLTensorFactory>
    </extension>
    <extension

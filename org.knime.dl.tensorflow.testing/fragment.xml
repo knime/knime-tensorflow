@@ -3,7 +3,7 @@
 <fragment>
 	<extension point="org.knime.testing.TestcaseCollector">
 		<TestcaseCollector
-			TestcaseCollector="org.knime.dl.tensorflow.testing.DLTensorFlowTestCaseCollector">
+			TestcaseCollector="org.knime.dl.tensorflow.testing.TFTestCaseCollector">
 		</TestcaseCollector>
 	</extension>
 </fragment>
