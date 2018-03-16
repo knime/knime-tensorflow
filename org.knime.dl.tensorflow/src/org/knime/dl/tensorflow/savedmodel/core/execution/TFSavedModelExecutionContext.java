@@ -59,7 +59,7 @@ import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class DLTensorFlowSavedModelExecutionContext
+public class TFSavedModelExecutionContext
 	extends TFAbstractExecutionContext<TFSavedModelNetwork> {
 
 	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow (Java)";
@@ -67,7 +67,7 @@ public class DLTensorFlowSavedModelExecutionContext
 	/**
 	 * Creates a new execution context for TensorFlow SavedModels.
 	 */
-	public DLTensorFlowSavedModelExecutionContext() {
+	public TFSavedModelExecutionContext() {
 		super(TFSavedModelNetwork.class, EXECUTION_CONTEXT_NAME);
 	}
 
