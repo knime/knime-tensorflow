@@ -53,7 +53,7 @@ import org.knime.core.node.NodeView;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class DLTensorFlowReaderNodeFactory extends NodeFactory<TFReaderNodeModel> {
+public class TFReaderNodeFactory extends NodeFactory<TFReaderNodeModel> {
 
 	@Override
 	public TFReaderNodeModel createNodeModel() {

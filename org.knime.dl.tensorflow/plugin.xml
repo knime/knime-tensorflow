@@ -28,7 +28,7 @@
       <node
             category-path="/labs/deeplearning/tensorflow"
             deprecated="false"
-            factory-class="org.knime.dl.tensorflow.base.nodes.reader.DLTensorFlowReaderNodeFactory">
+            factory-class="org.knime.dl.tensorflow.base.nodes.reader.TFReaderNodeFactory">
       </node>
   </extension>
    <extension
