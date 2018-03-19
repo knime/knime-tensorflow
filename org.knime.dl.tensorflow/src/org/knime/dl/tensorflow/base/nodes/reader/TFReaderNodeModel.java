@@ -113,6 +113,8 @@ public class TFReaderNodeModel extends NodeModel {
 
 	private final SettingsModelStringArray m_outputs = createOutputsSettingsModel();
 
+	private TFSavedModelNetworkSpec m_networkSpec;
+
 	static SettingsModelString createFilePathSettingsModel() {
 		return new SettingsModelString(CFG_KEY_FILE_PATH, "");
 	}
@@ -156,18 +158,19 @@ public class TFReaderNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		final URL url = createURL();
-		final TFSavedModelNetworkSpec networkSpec = createNetworkSpec(url);
-		return new PortObjectSpec[] { new TFNetworkPortObjectSpec(networkSpec, TFSavedModelNetwork.class) };
-
+		m_networkSpec = createNetworkSpec(url);
+		return new PortObjectSpec[] { new TFNetworkPortObjectSpec(m_networkSpec, TFSavedModelNetwork.class) };
 	}
 
 	@Override
 	protected PortObject[] execute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
 		// Create network spec
 		final URL url = createURL();
-		final TFSavedModelNetworkSpec networkSpec = createNetworkSpec(url);
+		if (!createNetworkSpec(url).equals(m_networkSpec)) {
+			throw new DLInvalidSourceException("The model changed. Please reconfigure the node.");
+		}
 		// Create the network object
-		final TFNetwork network = networkSpec.create(url);
+		final TFNetwork network = m_networkSpec.create(url);
 		TFNetworkPortObject portObject;
 		if (m_copyNetwork.getBooleanValue()) {
 			final FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
@@ -258,6 +261,6 @@ public class TFReaderNodeModel extends NodeModel {
 
 	@Override
 	protected void reset() {
-		// nothing to do
+		m_networkSpec = null;
 	}
 }
