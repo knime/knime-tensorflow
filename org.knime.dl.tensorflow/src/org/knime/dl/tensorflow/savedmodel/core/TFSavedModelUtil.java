@@ -50,11 +50,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLInvalidSourceException;
@@ -82,12 +81,18 @@ public class TFSavedModelUtil {
 	 * @throws DLInvalidSourceException if the SavedModel coudln't be read
 	 */
 	public static SavedModel readSavedModelProtoBuf(final URL source) throws DLInvalidSourceException {
-		final File file = FileUtil.getFileFromURL(source);
-		if (file.isDirectory()) {
+		File file = null;
+		try {
+			file = FileUtil.getFileFromURL(source);
+		} catch (final IllegalArgumentException e) {
+			// It is probably a remote file
+		}
+		if (file != null && file.isDirectory()) {
 			return readSavedModelFromDir(file);
 		} else {
-			return readSavedModelFromZip(file);
+			return readSavedModelFromZip(source);
 		}
+
 	}
 
 	private static SavedModel readSavedModelFromDir(final File file) throws DLInvalidSourceException {
@@ -111,21 +116,19 @@ public class TFSavedModelUtil {
 		}
 	}
 
-	private static SavedModel readSavedModelFromZip(final File file) throws DLInvalidSourceException {
-		try (ZipFile savedModelZip = new ZipFile(file)) {
-			final Enumeration<? extends ZipEntry> entries = savedModelZip.entries();
-			ZipEntry entry = null;
-			boolean hasPBTXT = false;
-			while (entries.hasMoreElements()) {
-				final ZipEntry zipEntry = entries.nextElement();
-				if (zipEntry.getName().endsWith("saved_model.pb")) {
-					entry = zipEntry;
-				} else if (zipEntry.getName().endsWith("saved_model.pbtxt")) {
-					// Remember that there is a pbtxt to warn the user (but maybe we will still find an pb)
-					hasPBTXT = true;
+	private static SavedModel readSavedModelFromZip(final URL url) throws DLInvalidSourceException {
+		try (final InputStream fileStream = FileUtil.openStreamWithTimeout(url)) {
+			try (final ZipInputStream zipStream = new ZipInputStream(fileStream)) {
+				boolean hasPBTXT = false;
+				ZipEntry entry;
+				while ((entry = zipStream.getNextEntry()) != null) {
+					if (entry.getName().endsWith("saved_model.pb")) {
+						return SavedModel.parseFrom(zipStream);
+					} else if (entry.getName().endsWith("saved_model.pbtxt")) {
+						// Remember that there is a pbtxt to warn the user (but maybe we will still find an pb)
+						hasPBTXT = true;
+					}
 				}
-			}
-			if (entry == null) {
 				if (hasPBTXT) {
 					throw new DLInvalidSourceException(
 							"The SavedModel is stored in the non supported pbtxt format. Please save your model with a saved_model.pb");
@@ -133,9 +136,6 @@ public class TFSavedModelUtil {
 					throw new DLInvalidSourceException("The zip file doesn't contain a saved_model.pb");
 				}
 			}
-			return SavedModel.parseFrom(savedModelZip.getInputStream(entry));
-		} catch (final ZipException e) {
-			throw new DLInvalidSourceException("This SavedModel zip file isn't a valid zip file.", e);
 		} catch (final IOException e) {
 			throw new DLInvalidSourceException("The SavedModel file could not be read.", e);
 		}
