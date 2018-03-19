@@ -52,9 +52,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.knime.core.data.filestore.FileStore;
 import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.tensorflow.framework.SavedModel;
@@ -65,6 +70,9 @@ import org.tensorflow.framework.SavedModel;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class TFSavedModelUtil {
+
+	private static final String SAVED_MODEL_REGEX = "^.*saved_model.pb$" + "|^.*variables(/.*|\\.*)?$"
+			+ "|^.*assets(/.*|\\.*)?$";
 
 	private TFSavedModelUtil() {
 		// Utility class
@@ -92,7 +100,28 @@ public class TFSavedModelUtil {
 		} else {
 			return readSavedModelFromZip(source);
 		}
+	}
 
+	public static void copySavedModelToFileStore(final URL source, final FileStore destination) throws IOException {
+		final File sourceFile = FileUtil.getFileFromURL(source);
+		final File destinationFile = destination.getFile();
+		if (sourceFile.isDirectory()) {
+			copyDirToFile(sourceFile, destinationFile);
+		} else {
+			extractZipToFile(sourceFile, destinationFile);
+		}
+	}
+
+	public static File getSavedModelInDir(final URL source) throws IOException {
+		final File sourceFile = FileUtil.getFileFromURL(source);
+		if (sourceFile.isDirectory()) {
+			return sourceFile;
+		} else {
+			// TODO remember extracted directories
+			final File extractedDir = FileUtil.createTempDir("SavedModel");
+			extractZipToFile(sourceFile, extractedDir);
+			return extractedDir;
+		}
 	}
 
 	private static SavedModel readSavedModelFromDir(final File file) throws DLInvalidSourceException {
@@ -139,5 +168,77 @@ public class TFSavedModelUtil {
 		} catch (final IOException e) {
 			throw new DLInvalidSourceException("The SavedModel file could not be read.", e);
 		}
+	}
+
+	/**
+	 * Copies the relevant files of a SavedModel to another directory. Assumes that the source is a directory and
+	 * exists.
+	 *
+	 * @param source the source directory
+	 * @param destination the destination directory
+	 * @throws IOException if copying failed
+	 */
+	private static void copyDirToFile(final File source, final File destination) throws IOException {
+		if (!destination.equals(source)) {
+			// Create the target directory if it doesn't exist yet
+			createDirs(destination);
+			final String[] sourceList = source.list();
+			if (sourceList == null) {
+				throw new IOException(
+						"Can't copy SavedModel directory \"" + source.getAbsolutePath() + "\", no read permissions.");
+			}
+			for (final String child : sourceList) {
+				// Only copy the child if it is part of the SavedModel
+				// definition
+				if (child.matches(SAVED_MODEL_REGEX)) {
+					FileUtil.copyDir(new File(source, child), new File(destination, child));
+				}
+			}
+		}
+	}
+
+	private static void extractZipToFile(final File source, final File destination) throws IOException {
+		createDirs(destination);
+		try (final ZipFile zip = new ZipFile(source)) {
+			final String prefix = getZipPrefix(zip);
+
+			final Enumeration<? extends ZipEntry> entries = zip.entries();
+			while (entries.hasMoreElements()) {
+				final ZipEntry e = entries.nextElement();
+
+				// Check if the entry is a relevant file in the SavedModel we
+				// extract
+				final String name = e.getName();
+				if (!name.matches(SAVED_MODEL_REGEX) || !name.startsWith(prefix)) {
+					continue;
+				}
+
+				// Extract this entry
+				final File destFile = new File(destination, name.substring(prefix.length()));
+				if (e.isDirectory()) {
+					createDirs(destFile);
+				} else {
+					createDirs(destFile.getParentFile());
+					final InputStream inputStream = zip.getInputStream(e);
+					FileUtils.copyInputStreamToFile(inputStream, destFile);
+				}
+			}
+		}
+	}
+
+	private static void createDirs(final File dir) throws IOException {
+		if (!dir.isDirectory() && !dir.mkdirs()) {
+			throw new IOException(
+					"Cannot create destination directory \"" + dir.getAbsolutePath() + "\" for the SavedModel.");
+		}
+	}
+
+	private static String getZipPrefix(final ZipFile zip) throws IOException {
+		final Enumeration<? extends ZipEntry> entries = zip.entries();
+		final ZipEntry savedModelZip = Collections.list(entries).stream()
+				.filter(e -> e.getName().matches("^.*saved_model.pb?$")).findFirst()
+				.orElseThrow(() -> new IOException("The zip file is not a valid SavedModel"));
+		final int prefixLength = savedModelZip.getName().lastIndexOf("saved_model.pb");
+		return savedModelZip.getName().substring(0, prefixLength);
 	}
 }
