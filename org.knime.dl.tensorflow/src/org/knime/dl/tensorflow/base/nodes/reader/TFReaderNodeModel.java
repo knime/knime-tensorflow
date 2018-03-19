@@ -113,10 +113,6 @@ public class TFReaderNodeModel extends NodeModel {
 
 	private final SettingsModelStringArray m_outputs = createOutputsSettingsModel();
 
-	private TFSavedModelNetworkSpec m_networkSpec;
-
-	private URL m_url;
-
 	static SettingsModelString createFilePathSettingsModel() {
 		return new SettingsModelString(CFG_KEY_FILE_PATH, "");
 	}
@@ -159,45 +155,19 @@ public class TFReaderNodeModel extends NodeModel {
 
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		try {
-			m_url = FileUtil.toURL(m_filePath.getStringValue());
-		} catch (InvalidPathException | MalformedURLException e) {
-			throw new InvalidSettingsException("The file path is not valid.", e);
-		}
-		final TFSavedModel savedModel;
-		try {
-			savedModel = new TFSavedModel(m_url);
-		} catch (final DLInvalidSourceException e) {
-			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
-		}
-		final String[] tags = m_tags.getStringArrayValue();
-		final TFMetaGraphDef metaGraphDefs = savedModel.getMetaGraphDefs(tags);
-		// Create the NetworkSpec
-		if (!m_advanced.getBooleanValue()) {
-			final String signature = m_signatures.getStringValue();
-			m_networkSpec = metaGraphDefs.createSpecs(signature);
-		} else {
-			final List<String> inputs = Arrays.asList(m_inputs.getStringArrayValue());
-			final List<String> outputs = Arrays.asList(m_outputs.getStringArrayValue());
-			final DLTensorSpec[] inputSpecs = metaGraphDefs.getPossibleInputTensors().stream()
-					.filter(t -> inputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
-			final DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
-			final DLTensorSpec[] outputSpecs = metaGraphDefs.getPossibleOutputTensors().stream()
-					.filter(t -> outputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
-			m_networkSpec = new TFSavedModelNetworkSpec(tags, inputSpecs, hiddenSpecs, outputSpecs);
-		}
-		return new PortObjectSpec[] {
-				new TFNetworkPortObjectSpec(m_networkSpec, TFSavedModelNetwork.class) };
+		final URL url = createURL();
+		final TFSavedModelNetworkSpec networkSpec = createNetworkSpec(url);
+		return new PortObjectSpec[] { new TFNetworkPortObjectSpec(networkSpec, TFSavedModelNetwork.class) };
 
 	}
 
 	@Override
 	protected PortObject[] execute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
-		if (m_url == null || m_networkSpec == null) {
-			throw new RuntimeException("Please run configure first.");
-		}
+		// Create network spec
+		final URL url = createURL();
+		final TFSavedModelNetworkSpec networkSpec = createNetworkSpec(url);
 		// Create the network object
-		final TFNetwork network = m_networkSpec.create(m_url);
+		final TFNetwork network = networkSpec.create(url);
 		TFNetworkPortObject portObject;
 		if (m_copyNetwork.getBooleanValue()) {
 			final FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
@@ -206,6 +176,39 @@ public class TFReaderNodeModel extends NodeModel {
 			portObject = new TFNetworkPortObject(network);
 		}
 		return new PortObject[] { portObject };
+	}
+
+	private TFSavedModelNetworkSpec createNetworkSpec(final URL url) throws InvalidSettingsException {
+		final TFSavedModel savedModel;
+		try {
+			savedModel = new TFSavedModel(url);
+		} catch (final DLInvalidSourceException e) {
+			throw new InvalidSettingsException("The file is not a valid SavedModel.", e);
+		}
+		final String[] tags = m_tags.getStringArrayValue();
+		final TFMetaGraphDef metaGraphDefs = savedModel.getMetaGraphDefs(tags);
+		// Create the NetworkSpec
+		if (!m_advanced.getBooleanValue()) {
+			final String signature = m_signatures.getStringValue();
+			return metaGraphDefs.createSpecs(signature);
+		} else {
+			final List<String> inputs = Arrays.asList(m_inputs.getStringArrayValue());
+			final List<String> outputs = Arrays.asList(m_outputs.getStringArrayValue());
+			final DLTensorSpec[] inputSpecs = metaGraphDefs.getPossibleInputTensors().stream()
+					.filter(t -> inputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
+			final DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
+			final DLTensorSpec[] outputSpecs = metaGraphDefs.getPossibleOutputTensors().stream()
+					.filter(t -> outputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
+			return new TFSavedModelNetworkSpec(tags, inputSpecs, hiddenSpecs, outputSpecs);
+		}
+	}
+
+	private URL createURL() throws InvalidSettingsException {
+		try {
+			return FileUtil.toURL(m_filePath.getStringValue());
+		} catch (final InvalidPathException | MalformedURLException e) {
+			throw new InvalidSettingsException("The file path is not valid.", e);
+		}
 	}
 
 	@Override
@@ -255,7 +258,6 @@ public class TFReaderNodeModel extends NodeModel {
 
 	@Override
 	protected void reset() {
-		m_url = null;
-		m_networkSpec = null;
+		// nothing to do
 	}
 }
