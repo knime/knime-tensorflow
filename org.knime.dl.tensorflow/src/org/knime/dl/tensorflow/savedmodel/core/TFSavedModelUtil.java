@@ -101,7 +101,9 @@ public class TFSavedModelUtil {
 					throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb");
 				}
 			}
-			return SavedModel.parseFrom(new FileInputStream(savedModelPb[0]));
+			try (final FileInputStream inStream = new FileInputStream(savedModelPb[0])) {
+				return SavedModel.parseFrom(inStream);
+			}
 		} catch (FileNotFoundException e) {
 			throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb");
 		} catch (IOException e) {
