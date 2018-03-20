@@ -55,6 +55,7 @@ import java.util.Collections;
 import javax.swing.JFileChooser;
 
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
@@ -77,6 +78,8 @@ import org.knime.dl.tensorflow.savedmodel.core.TFSavedModel;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
+
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFReaderNodeDialog.class);
 
 	private static final Collection<String> EMPTY_STRING_COLLECTION = Collections.singleton("                        ");
 
@@ -186,9 +189,11 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 			}
 			return;
 		} catch (final DLInvalidSourceException e) {
+			LOGGER.warn(e, e);
 			m_errorReading = true;
 			m_dcErrorLabel.setText(e.getMessage());
 		} catch (InvalidPathException | MalformedURLException e) {
+			LOGGER.warn(e, e);
 			m_errorReading = true;
 			m_dcErrorLabel.setText("The filepath is not valid.");
 		}
@@ -207,7 +212,7 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 				m_dcErrorLabel.setText("The SavedModel doesn't contain tags.");
 			}
 			m_dcTags.replaceListItems(newTagList, null);
-		} else if (m_errorReading){
+		} else if (m_errorReading) {
 			m_dcTags.replaceListItems(EMPTY_STRING_ARRAY_COLLECTION, null);
 		}
 	}
