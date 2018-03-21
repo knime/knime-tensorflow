@@ -76,8 +76,8 @@ public class TFSavedModelUtil {
 	private static final String SAVED_MODEL_REGEX = "^.*saved_model.pb$" + "|^.*variables(/.*|\\.*)?$"
 			+ "|^.*assets(/.*|\\.*)?$";
 
-	/** Map saving which files already have been extracted to a folder. TODO maybe rename? */
-	private static final Map<URL, File> CACHED_FILES = new HashMap<>();
+	/** Map saving which files already have been extracted to a folder. */
+	private static final Map<URL, File> CACHED_MODELS = new HashMap<>();
 
 	private TFSavedModelUtil() {
 		// Utility class
@@ -94,9 +94,9 @@ public class TFSavedModelUtil {
 	 * @param source a URL pointing to the model source
 	 */
 	public static void deleteTempIfLocal(final URL source) {
-		if (CACHED_FILES.containsKey(source) && getSavedModelType(source).equals(SavedModelType.LOCAL_ZIP)) {
-			final File tmp = CACHED_FILES.get(source);
-			CACHED_FILES.remove(source);
+		if (CACHED_MODELS.containsKey(source) && getSavedModelType(source).equals(SavedModelType.LOCAL_ZIP)) {
+			final File tmp = CACHED_MODELS.get(source);
+			CACHED_MODELS.remove(source);
 			FileUtil.deleteRecursively(tmp);
 		}
 	}
@@ -105,7 +105,8 @@ public class TFSavedModelUtil {
 	 * Reads the {@link SavedModel} inside the given zip file or directory. The directory must be a valid SavedModel as
 	 * defined
 	 * <a href= "https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">here</a>.
-	 * A zip file must contain such a SavedModel directory. TODO describe caching...
+	 * A zip file must contain such a SavedModel directory. For remote models the file gets downloaded and extracted
+	 * only if this is the first time accessing this model.
 	 *
 	 * @param source URL to the SavedModel directory or zip file
 	 * @return the SavedModel
@@ -150,7 +151,6 @@ public class TFSavedModelUtil {
 			break;
 
 		case LOCAL_ZIP:
-			// TODO check if we can implement it faster or merge with remote zip
 			extractZipToFile(source, destinationFile);
 			break;
 
@@ -163,7 +163,7 @@ public class TFSavedModelUtil {
 	/**
 	 * Gives a directory where the SavedModel at the given source can be read from. If the source points to a local
 	 * directory this function will only return this directory. If it points to a zip file (local or remote) it will
-	 * extract the file to a directory. TODO explain caching.
+	 * extract the file to a directory. If the ZIP file has been extracted before the same directory is returned.
 	 *
 	 * @param source a URL pointing to the SavedModel
 	 * @return a file pointing to a directory containing the SavedModel
@@ -175,18 +175,17 @@ public class TFSavedModelUtil {
 			return FileUtil.getFileFromURL(source);
 
 		case LOCAL_ZIP:
-			// TODO check if it is faster to extract using ZipFile
 		case REMOTE_ZIP:
 			// Check if the zip file already has been extracted
-			if (CACHED_FILES.containsKey(source)) {
-				return CACHED_FILES.get(source);
+			if (CACHED_MODELS.containsKey(source)) {
+				return CACHED_MODELS.get(source);
 			}
 			// Extract the zip file and remember
 			// TODO the KNIME API description is wrong here:
 			// final File extracted = FileUtil.createTempDir("SavedModel");
 			final File extracted = FileUtil.createTempDir("SavedModel", FileUtils.getTempDirectory());
 			extractZipToFile(source, extracted);
-			CACHED_FILES.put(source, extracted);
+			CACHED_MODELS.put(source, extracted);
 			return extracted;
 
 		default:
@@ -202,16 +201,13 @@ public class TFSavedModelUtil {
 	 * @return true if the URL points to a local directory
 	 */
 	private static SavedModelType getSavedModelType(final URL source) {
-		// TODO can we check if it is a remote file without catching an exception?
-		// Exceptions should not be used like that
-		try {
-			final File file = FileUtil.getFileFromURL(source);
-			if (file.isDirectory()) {
+		if (source.getProtocol().equalsIgnoreCase("file") || source.getProtocol().equalsIgnoreCase("knime")) {
+			if (FileUtil.getFileFromURL(source).isDirectory()) {
 				return SavedModelType.LOCAL_DIR;
 			} else {
 				return SavedModelType.LOCAL_ZIP;
 			}
-		} catch (final IllegalArgumentException e) {
+		} else {
 			return SavedModelType.REMOTE_ZIP;
 		}
 	}
