@@ -79,6 +79,7 @@ import org.knime.dl.tensorflow.savedmodel.core.TFMetaGraphDef;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModel;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetworkSpec;
+import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelUtil;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -166,6 +167,9 @@ public class TFReaderNodeModel extends NodeModel {
 	protected PortObject[] execute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
 		// Create network spec
 		final URL url = createURL();
+		// Make sure that we read it again when it is used the next time
+		TFSavedModelUtil.deleteTempIfLocal(url);
+		// Check if the specs changed since configure was called
 		if (!createNetworkSpec(url).equals(m_networkSpec)) {
 			throw new DLInvalidSourceException("The model changed. Please reconfigure the node.");
 		}

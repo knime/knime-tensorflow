@@ -88,6 +88,20 @@ public class TFSavedModelUtil {
 	}
 
 	/**
+	 * Deletes the temporary directory for the given source if it points to a local zip file which has been extracted
+	 * before.
+	 *
+	 * @param source a URL pointing to the model source
+	 */
+	public static void deleteTempIfLocal(final URL source) {
+		if (CACHED_FILES.containsKey(source) && getSavedModelType(source).equals(SavedModelType.LOCAL_ZIP)) {
+			final File tmp = CACHED_FILES.get(source);
+			CACHED_FILES.remove(source);
+			FileUtil.deleteRecursively(tmp);
+		}
+	}
+
+	/**
 	 * Reads the {@link SavedModel} inside the given zip file or directory. The directory must be a valid SavedModel as
 	 * defined
 	 * <a href= "https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">here</a>.
