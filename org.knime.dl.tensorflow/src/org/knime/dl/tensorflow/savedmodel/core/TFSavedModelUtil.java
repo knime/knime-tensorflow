@@ -52,9 +52,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FileUtils;
@@ -80,6 +83,10 @@ public class TFSavedModelUtil {
 		// Utility class
 	}
 
+	private static enum SavedModelType {
+		LOCAL_DIR, LOCAL_ZIP, REMOTE_ZIP;
+	}
+
 	/**
 	 * Reads the {@link SavedModel} inside the given zip file or directory. The directory must be a valid SavedModel as
 	 * defined
@@ -91,13 +98,26 @@ public class TFSavedModelUtil {
 	 * @throws DLInvalidSourceException if the SavedModel coudln't be read
 	 */
 	public static SavedModel readSavedModelProtoBuf(final URL source) throws DLInvalidSourceException {
-		final File directory;
 		try {
-			directory = getSavedModelInDir(source);
-		} catch (IOException e) {
+			switch (getSavedModelType(source)) {
+			case LOCAL_DIR:
+			case REMOTE_ZIP:
+				// Let's get a directory with the SavedModel and read it from there
+				return readSavedModelFromDir(getSavedModelInDir(source));
+
+			case LOCAL_ZIP:
+				// We can read it more efficiently than remote files using ZipFile
+				return readSavedModelFromLocalZip(FileUtil.getFileFromURL(source));
+
+			default:
+				// We know that we handled all cases
+				return null;
+			}
+		} catch (final ZipException e) {
+			throw new DLInvalidSourceException("Could not read the SavedModel ZIP file.", e);
+		} catch (final IOException e) {
 			throw new DLInvalidSourceException("Could not read the SavedModel.", e);
 		}
-		return readSavedModelFromDir(directory);
 	}
 
 	/**
@@ -109,16 +129,20 @@ public class TFSavedModelUtil {
 	 */
 	public static void copySavedModelToFileStore(final URL source, final FileStore destination) throws IOException {
 		final File destinationFile = destination.getFile();
-		if (isLocalDirectory(source)) {
+
+		switch (getSavedModelType(source)) {
+		case LOCAL_DIR:
 			copyDirToFile(FileUtil.getFileFromURL(source), destinationFile);
-		} else {
-			if (CACHED_FILES.containsKey(source)) {
-				copyDirToFile(CACHED_FILES.get(source), destinationFile);
-			} else {
-				// Extract the zip file directly to the FileStore (but do not remember it, because we don't know what
-				// will happen with the FileStore)
-				extractZipToFile(source, destinationFile);
-			}
+			break;
+
+		case LOCAL_ZIP:
+			// TODO check if we can implement it faster or merge with remote zip
+			extractZipToFile(source, destinationFile);
+			break;
+
+		case REMOTE_ZIP:
+			extractZipToFile(source, destinationFile);
+			break;
 		}
 	}
 
@@ -132,10 +156,13 @@ public class TFSavedModelUtil {
 	 * @throws IOException if reading the SavedModel failed
 	 */
 	public static File getSavedModelInDir(final URL source) throws IOException {
-		if (isLocalDirectory(source)) {
-			// A local directory is perfect. Just use it for reading the model.
+		switch (getSavedModelType(source)) {
+		case LOCAL_DIR:
 			return FileUtil.getFileFromURL(source);
-		} else {
+
+		case LOCAL_ZIP:
+			// TODO check if it is faster to extract using ZipFile
+		case REMOTE_ZIP:
 			// Check if the zip file already has been extracted
 			if (CACHED_FILES.containsKey(source)) {
 				return CACHED_FILES.get(source);
@@ -147,6 +174,10 @@ public class TFSavedModelUtil {
 			extractZipToFile(source, extracted);
 			CACHED_FILES.put(source, extracted);
 			return extracted;
+
+		default:
+			// We know that we handled all cases
+			return null;
 		}
 	}
 
@@ -156,14 +187,18 @@ public class TFSavedModelUtil {
 	 * @param source URL to check
 	 * @return true if the URL points to a local directory
 	 */
-	private static boolean isLocalDirectory(final URL source) {
+	private static SavedModelType getSavedModelType(final URL source) {
 		// TODO can we check if it is a remote file without catching an exception?
 		// Exceptions should not be used like that
 		try {
 			final File file = FileUtil.getFileFromURL(source);
-			return file.isDirectory();
+			if (file.isDirectory()) {
+				return SavedModelType.LOCAL_DIR;
+			} else {
+				return SavedModelType.LOCAL_ZIP;
+			}
 		} catch (final IllegalArgumentException e) {
-			return false;
+			return SavedModelType.REMOTE_ZIP;
 		}
 	}
 
@@ -172,7 +207,6 @@ public class TFSavedModelUtil {
 	 *
 	 * @param source the source URL (Every URL where KNIME can open an InputStream on)
 	 * @param destination the destination file
-	 * @throws TODO
 	 */
 	private static void extractZipToFile(final URL source, final File destination) throws IOException {
 		createDirs(destination);
@@ -281,6 +315,39 @@ public class TFSavedModelUtil {
 			throw new DLInvalidSourceException("The directory doesn't contain a saved_model.pb");
 		} catch (IOException e) {
 			throw new DLInvalidSourceException("The SavedModel could not be parsed.", e);
+		}
+	}
+
+	/**
+	 * Reads a SavedModel from a local file.
+	 *
+	 * @param file the local zip file
+	 * @return the SavedModel
+	 */
+	private static SavedModel readSavedModelFromLocalZip(final File file)
+			throws ZipException, IOException, DLInvalidSourceException {
+		try (ZipFile savedModelZip = new ZipFile(file)) {
+			final Enumeration<? extends ZipEntry> entries = savedModelZip.entries();
+			ZipEntry entry = null;
+			boolean hasPBTXT = false;
+			while (entries.hasMoreElements()) {
+				final ZipEntry zipEntry = entries.nextElement();
+				if (zipEntry.getName().endsWith("saved_model.pb")) {
+					entry = zipEntry;
+				} else if (zipEntry.getName().endsWith("saved_model.pbtxt")) {
+					// Remember that there is a pbtxt to warn the user (but maybe we will still find an pb)
+					hasPBTXT = true;
+				}
+			}
+			if (entry == null) {
+				if (hasPBTXT) {
+					throw new DLInvalidSourceException(
+							"The SavedModel is stored in the non supported pbtxt format. Please save your model with a saved_model.pb");
+				} else {
+					throw new DLInvalidSourceException("The zip file doesn't contain a saved_model.pb");
+				}
+			}
+			return SavedModel.parseFrom(savedModelZip.getInputStream(entry));
 		}
 	}
 }
