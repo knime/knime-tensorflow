@@ -245,14 +245,16 @@ public class TFSavedModelUtil {
 
 		// Move the SavedModel to the root of the FileStore
 		final File savedModelDir = new File(destination, prefix);
-		for (final File f : savedModelDir.listFiles()) {
-			FileUtils.moveToDirectory(f, destination, false);
-		}
+		if (!savedModelDir.equals(destination)) {
+			for (final File f : savedModelDir.listFiles()) {
+				FileUtils.moveToDirectory(f, destination, false);
+			}
 
-		// Delete everything else
-		for (final File f : destination.listFiles()) {
-			if (!f.getName().matches(SAVED_MODEL_REGEX)) {
-				FileUtil.deleteRecursively(f);
+			// Delete everything else
+			for (final File f : destination.listFiles()) {
+				if (!f.getName().matches(SAVED_MODEL_REGEX)) {
+					FileUtil.deleteRecursively(f);
+				}
 			}
 		}
 	}
