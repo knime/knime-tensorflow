@@ -227,7 +227,7 @@ public class TFSavedModelNetworkExecutionSession extends
 		}
 
 		public void fetch(final DLTensorId id) {
-			m_runner.fetch(id.getIdentifierString(), m_outputIds.size());
+			m_runner.fetch(id.getIdentifierString(), 0);
 			m_outputIds.add(id);
 		}
 
