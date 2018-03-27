@@ -187,6 +187,11 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 		m_smSignature.setEnabled(!advanced);
 		m_smInputs.setEnabled(advanced);
 		m_smOutputs.setEnabled(advanced);
+		if (advanced) {
+			m_dcSignature.setToolTipText("Advanced settings are enabled.");
+		} else {
+			m_dcSignature.setToolTipText("");
+		}
 	}
 
 	private void readSavedModel() {
