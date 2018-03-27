@@ -53,6 +53,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
@@ -134,10 +135,12 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 				".zip");
 		m_dcCopyNetwork = new DialogComponentBoolean(m_smCopyNetwork,
 				"Copy deep learning network into KNIME workflow?");
+		// We can't change the size of this component. Therefore we use it as a reference width.
+		final int componentWidth = m_dcCopyNetwork.getComponentPanel().getComponent(0).getPreferredSize().width;
 		m_dcTags = new DialogComponentObjectSelection<>(m_smTags, t -> String.join(" ,", t),
 				(t, sm) -> sm.setStringArrayValue(t), sm -> sm.getStringArrayValue(), "Tags");
 		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_STRING_COLLECTION);
-		m_dcErrorLabel = new DialogComponentColoredLabel("", Color.RED);
+		m_dcErrorLabel = new DialogComponentColoredLabel("", Color.RED, componentWidth);
 		m_dcAdvanced = new DialogComponentBoolean(m_smAdvanced, "Use advanced settings");
 		m_dcInputs = new DialogComponentTensorSelection(m_smInputs, "Inputs", Collections.emptySet(),
 				t -> TFReaderNodeModel.getIdentifier(t));
@@ -166,6 +169,13 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 		});
 		m_smTags.addChangeListener(e -> updateSignatures());
 		m_smAdvanced.addChangeListener(e -> updateAdvanced());
+
+		// Set the width of the comboboxes
+		final int signatureTextWidth = new JLabel("Signature").getPreferredSize().width;
+		final int comboBoxWidth = componentWidth - signatureTextWidth;
+		m_dcTags.setSizeComboBox(comboBoxWidth, 24);
+		m_dcTags.setSizeLabel(signatureTextWidth, 24);
+		m_dcSignature.setSizeComponents(componentWidth - signatureTextWidth, 24);
 
 		// Switch advanced on and off to update which components are enabled
 		m_smAdvanced.setBooleanValue(!m_smAdvanced.getBooleanValue());

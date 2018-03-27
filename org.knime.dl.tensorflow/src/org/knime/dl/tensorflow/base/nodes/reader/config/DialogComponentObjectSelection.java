@@ -50,6 +50,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -215,6 +216,26 @@ public class DialogComponentObjectSelection<T extends SettingsModel, R> extends 
 	@Override
 	protected void setEnabledComponents(final boolean enabled) {
 		m_combobox.setEnabled(enabled);
+	}
+
+	/**
+	 * Sets the preferred size of the internal {@link JComboBox}.
+	 *
+	 * @param width The width
+	 * @param height The height
+	 */
+	public void setSizeComboBox(final int width, final int height) {
+		m_combobox.setPreferredSize(new Dimension(width, height));
+	}
+
+	/**
+	 * Sets the prefered size of the internal label.
+	 *
+	 * @param width The width
+	 * @param height The height
+	 */
+	public void setSizeLabel(final int width, final int height) {
+		m_label.setPreferredSize(new Dimension(width, height));
 	}
 
 	@Override
