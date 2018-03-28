@@ -116,9 +116,19 @@ public class TFSavedModelUtil {
 		try {
 			switch (getSavedModelType(source)) {
 			case LOCAL_DIR:
+				return readSavedModelFromDir(getSavedModelInDir(source));
+
 			case REMOTE_ZIP:
 				// Let's get a directory with the SavedModel and read it from there
-				return readSavedModelFromDir(getSavedModelInDir(source));
+				final File tmp = getSavedModelInDir(source);
+				try {
+					return readSavedModelFromDir(tmp);
+				} catch (final DLInvalidSourceException e) {
+					// Delete the temp directory
+					CACHED_MODELS.remove(source);
+					FileUtil.deleteRecursively(tmp);
+					throw e;
+				}
 
 			case LOCAL_ZIP:
 				// We can read it more efficiently than remote files using ZipFile
@@ -184,7 +194,14 @@ public class TFSavedModelUtil {
 			// TODO the KNIME API description is wrong here:
 			// final File extracted = FileUtil.createTempDir("SavedModel");
 			final File extracted = FileUtil.createTempDir("SavedModel", FileUtils.getTempDirectory());
-			extractZipToFile(source, extracted);
+			try {
+				extractZipToFile(source, extracted);
+			} catch (final IOException e) {
+				// Delete the temp directory
+				CACHED_MODELS.remove(source);
+				FileUtil.deleteRecursively(extracted);
+				throw e;
+			}
 			CACHED_MODELS.put(source, extracted);
 			return extracted;
 
