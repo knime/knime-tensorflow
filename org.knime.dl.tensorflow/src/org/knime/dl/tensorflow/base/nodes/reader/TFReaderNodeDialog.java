@@ -282,14 +282,14 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 			m_statusLabel.setText("");
 			if (savedModel != null) {
 				m_savedModel = savedModel;
-				updateTags();
-				updateAdvanced();
 			} else {
 				m_savedModel = null;
 				m_errorReading = true;
 				LOGGER.warn(exception, exception);
 				showError(errorMessage);
 			}
+			updateTags();
+			updateAdvanced();
 		}
 	}
 
