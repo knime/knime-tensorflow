@@ -123,7 +123,7 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 
 	private final DialogComponentStringSelection m_dcSignature;
 
-	private final JLabel m_errorLabel;
+	private final JLabel m_statusLabel;
 
 	private final DialogComponentBoolean m_dcAdvanced;
 
@@ -153,8 +153,7 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 		m_dcTags = new DialogComponentObjectSelection<>(m_smTags, t -> String.join(" ,", t),
 				(t, sm) -> sm.setStringArrayValue(t), sm -> sm.getStringArrayValue(), "Tags");
 		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_STRING_COLLECTION);
-		m_errorLabel = new JLabel();
-		m_errorLabel.setForeground(Color.RED);
+		m_statusLabel = new JLabel();
 		m_dcAdvanced = new DialogComponentBoolean(m_smAdvanced, "Use advanced settings");
 		m_dcInputs = new DialogComponentTensorSelection(m_smInputs, "Inputs", Collections.emptySet(),
 				t -> TFReaderNodeModel.getIdentifier(t));
@@ -182,7 +181,9 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 		inputPanel.add(m_dcCopyNetwork.getComponentPanel(), inputPanelConstr);
 		inputPanelConstr.gridy++;
 		inputPanelConstr.anchor = GridBagConstraints.SOUTHWEST;
-		inputPanel.add(m_errorLabel, inputPanelConstr);
+		inputPanel.add(m_statusLabel, inputPanelConstr);
+		inputPanelConstr.gridy++;
+		inputPanel.add(m_statusLabel, inputPanelConstr);
 		inputPanelConstr.gridy++;
 
 		addTab("Options", inputPanel);
@@ -241,8 +242,8 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 	private void readSavedModel() {
 		final int id = m_lastReaderID.incrementAndGet();
 
-		// TODO start loading icon
-		m_errorLabel.setText("");
+		m_statusLabel.setForeground(Color.BLACK);
+		m_statusLabel.setText("Reading SavedModel...");
 		m_errorReading = false;
 
 		// Interrupt the previous reader (may not have started jet)
@@ -278,6 +279,7 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 	private synchronized void updateSavedModel(final TFSavedModel savedModel, final Exception exception,
 			final String errorMessage, final int readerId) {
 		if (readerId == m_lastReaderID.get()) {
+			m_statusLabel.setText("");
 			if (savedModel != null) {
 				m_savedModel = savedModel;
 				updateTags();
@@ -286,9 +288,14 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 				m_savedModel = null;
 				m_errorReading = true;
 				LOGGER.warn(exception, exception);
-				m_errorLabel.setText(errorMessage);
+				showError(errorMessage);
 			}
 		}
+	}
+
+	private void showError(final String error) {
+		m_statusLabel.setForeground(Color.RED);
+		m_statusLabel.setText(error);
 	}
 
 	/**
@@ -300,7 +307,7 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 			Collection<String[]> newTagList = m_savedModel.getContainedTags();
 			if (newTagList.isEmpty()) {
 				newTagList = EMPTY_STRING_ARRAY_COLLECTION;
-				m_errorLabel.setText("The SavedModel doesn't contain tags.");
+				showError("The SavedModel doesn't contain tags.");
 			}
 			m_dcTags.replaceListItems(newTagList, null);
 		} else if (m_errorReading) {
@@ -329,8 +336,7 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 		if (newSignatureList.isEmpty()) {
 			// If there are no signatures activate the advanced settings
 			m_smAdvanced.setBooleanValue(true);
-			m_errorLabel.setText(
-					"The SavedModel doesn't contain signatures with the selected tag. " + "Use the advanced settings.");
+			showError("The SavedModel doesn't contain signatures with the selected tag. Use the advanced settings.");
 			m_dcSignature.replaceListItems(EMPTY_STRING_COLLECTION, null);
 		} else {
 			// Else set the signatures
