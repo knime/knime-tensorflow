@@ -47,6 +47,9 @@
 package org.knime.dl.tensorflow.base.nodes.reader;
 
 import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.util.Collection;
@@ -56,11 +59,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeLogger;
+import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
@@ -69,7 +76,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.util.FileUtil;
 import org.knime.core.util.ThreadPool;
 import org.knime.dl.core.DLInvalidSourceException;
-import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentColoredLabel;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentFileOrDirChooser;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentObjectSelection;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentTensorSelection;
@@ -81,7 +87,7 @@ import org.knime.dl.tensorflow.savedmodel.core.TFSavedModel;
  *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
+public class TFReaderNodeDialog extends NodeDialogPane {
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFReaderNodeDialog.class);
 
@@ -117,7 +123,7 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private final DialogComponentStringSelection m_dcSignature;
 
-	private final DialogComponentColoredLabel m_dcErrorLabel;
+	private final JLabel m_errorLabel;
 
 	private final DialogComponentBoolean m_dcAdvanced;
 
@@ -147,7 +153,8 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 		m_dcTags = new DialogComponentObjectSelection<>(m_smTags, t -> String.join(" ,", t),
 				(t, sm) -> sm.setStringArrayValue(t), sm -> sm.getStringArrayValue(), "Tags");
 		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_STRING_COLLECTION);
-		m_dcErrorLabel = new DialogComponentColoredLabel("", Color.RED, componentWidth);
+		m_errorLabel = new JLabel();
+		m_errorLabel.setForeground(Color.RED);
 		m_dcAdvanced = new DialogComponentBoolean(m_smAdvanced, "Use advanced settings");
 		m_dcInputs = new DialogComponentTensorSelection(m_smInputs, "Inputs", Collections.emptySet(),
 				t -> TFReaderNodeModel.getIdentifier(t));
@@ -155,18 +162,51 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 				t -> TFReaderNodeModel.getIdentifier(t));
 
 		// Add the dialog components
-		createNewGroup("Input Location");
-		addDialogComponent(m_dcFiles);
-		addDialogComponent(m_dcTags);
-		addDialogComponent(m_dcSignature);
-		addDialogComponent(m_dcCopyNetwork);
-		addDialogComponent(m_dcErrorLabel);
-		closeCurrentGroup();
+		final JPanel inputPanel = new JPanel(new GridBagLayout());
+		final GridBagConstraints inputPanelConstr = new GridBagConstraints();
+		inputPanelConstr.gridx = 0;
+		inputPanelConstr.gridy = 0;
+		inputPanelConstr.weightx = 1;
+		inputPanelConstr.weighty = 0;
+		inputPanelConstr.insets = new Insets(4, 4, 4, 4);
+		inputPanelConstr.anchor = GridBagConstraints.NORTHWEST;
+		inputPanelConstr.fill = GridBagConstraints.VERTICAL;
 
-		createNewTab("Advanced Settings");
-		addDialogComponent(m_dcAdvanced);
-		addDialogComponent(m_dcInputs);
-		addDialogComponent(m_dcOutputs);
+		inputPanel.add(m_dcFiles.getComponentPanel(), inputPanelConstr);
+		inputPanelConstr.gridy++;
+		inputPanel.add(m_dcTags.getComponentPanel(), inputPanelConstr);
+		inputPanelConstr.gridy++;
+		inputPanel.add(m_dcSignature.getComponentPanel(), inputPanelConstr);
+		inputPanelConstr.gridy++;
+		inputPanelConstr.weighty = 1;
+		inputPanel.add(m_dcCopyNetwork.getComponentPanel(), inputPanelConstr);
+		inputPanelConstr.gridy++;
+		inputPanelConstr.anchor = GridBagConstraints.SOUTHWEST;
+		inputPanel.add(m_errorLabel, inputPanelConstr);
+		inputPanelConstr.gridy++;
+
+		addTab("Options", inputPanel);
+
+		final JPanel advancedPanel = new JPanel(new GridBagLayout());
+		final GridBagConstraints advancedPanelConstr = new GridBagConstraints();
+		advancedPanelConstr.gridx = 0;
+		advancedPanelConstr.gridy = 0;
+		advancedPanelConstr.weightx = 1;
+		advancedPanelConstr.weighty = 0;
+		advancedPanelConstr.insets = new Insets(4, 4, 4, 4);
+		advancedPanelConstr.anchor = GridBagConstraints.NORTHWEST;
+		advancedPanelConstr.fill = GridBagConstraints.VERTICAL;
+
+		advancedPanel.add(m_dcAdvanced.getComponentPanel(), advancedPanelConstr);
+		advancedPanelConstr.gridy++;
+		advancedPanelConstr.fill = GridBagConstraints.HORIZONTAL;
+		advancedPanel.add(m_dcInputs.getComponentPanel(), advancedPanelConstr);
+		advancedPanelConstr.gridy++;
+		advancedPanelConstr.weighty = 1;
+		advancedPanel.add(m_dcOutputs.getComponentPanel(), advancedPanelConstr);
+		advancedPanelConstr.gridy++;
+
+		addTab("Advanced Settings", advancedPanel);
 
 		// Add change listeners
 		m_smFilePath.addChangeListener(e -> readSavedModel());
@@ -202,7 +242,7 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 		final int id = m_lastReaderID.incrementAndGet();
 
 		// TODO start loading icon
-		m_dcErrorLabel.setText("");
+		m_errorLabel.setText("");
 		m_errorReading = false;
 
 		// Interrupt the previous reader (may not have started jet)
@@ -246,7 +286,7 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 				m_savedModel = null;
 				m_errorReading = true;
 				LOGGER.warn(exception, exception);
-				m_dcErrorLabel.setText(errorMessage);
+				m_errorLabel.setText(errorMessage);
 			}
 		}
 	}
@@ -260,7 +300,7 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 			Collection<String[]> newTagList = m_savedModel.getContainedTags();
 			if (newTagList.isEmpty()) {
 				newTagList = EMPTY_STRING_ARRAY_COLLECTION;
-				m_dcErrorLabel.setText("The SavedModel doesn't contain tags.");
+				m_errorLabel.setText("The SavedModel doesn't contain tags.");
 			}
 			m_dcTags.replaceListItems(newTagList, null);
 		} else if (m_errorReading) {
@@ -289,7 +329,7 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 		if (newSignatureList.isEmpty()) {
 			// If there are no signatures activate the advanced settings
 			m_smAdvanced.setBooleanValue(true);
-			m_dcErrorLabel.setText(
+			m_errorLabel.setText(
 					"The SavedModel doesn't contain signatures with the selected tag. " + "Use the advanced settings.");
 			m_dcSignature.replaceListItems(EMPTY_STRING_COLLECTION, null);
 		} else {
@@ -303,7 +343,26 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 	}
 
 	@Override
-	public void saveAdditionalSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
+		m_dcFiles.loadSettingsFrom(settings, specs);
+		m_dcCopyNetwork.loadSettingsFrom(settings, specs);
+		m_dcTags.loadSettingsFrom(settings, specs);
+		m_dcSignature.loadSettingsFrom(settings, specs);
+		m_dcAdvanced.loadSettingsFrom(settings, specs);
+		m_dcInputs.loadSettingsFrom(settings, specs);
+		m_dcOutputs.loadSettingsFrom(settings, specs);
+	}
+
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+		m_dcFiles.saveSettingsTo(settings);
+		m_dcCopyNetwork.saveSettingsTo(settings);
+		m_dcTags.saveSettingsTo(settings);
+		m_dcSignature.saveSettingsTo(settings);
+		m_dcAdvanced.saveSettingsTo(settings);
+		m_dcInputs.saveSettingsTo(settings);
+		m_dcOutputs.saveSettingsTo(settings);
+
 		validateSelection();
 	}
 
