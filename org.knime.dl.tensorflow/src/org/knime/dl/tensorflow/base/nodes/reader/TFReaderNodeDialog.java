@@ -51,6 +51,8 @@ import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -65,6 +67,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.util.FileUtil;
+import org.knime.core.util.ThreadPool;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentColoredLabel;
 import org.knime.dl.tensorflow.base.nodes.reader.config.DialogComponentFileOrDirChooser;
@@ -87,6 +90,10 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 	private static final Collection<String[]> EMPTY_STRING_ARRAY_COLLECTION = Collections.singleton(new String[] {});
 
 	private static final String FILE_HISTORY_ID = "org.knime.dl.tensorflow.base.nodes.reader";
+
+	private final ThreadPool m_threadPool = new ThreadPool(100);
+
+	private final AtomicInteger m_lastReaderID = new AtomicInteger(0);
 
 	private final SettingsModelString m_smFilePath = TFReaderNodeModel.createFilePathSettingsModel();
 
@@ -122,7 +129,7 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 
 	private boolean m_errorReading = false;
 
-	private String m_previousFilePath;
+	private Future<?> m_lastReader;
 
 	/**
 	 * Creates a new dialog for the TensorFlow Network Reader settings.
@@ -162,11 +169,7 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 		addDialogComponent(m_dcOutputs);
 
 		// Add change listeners
-		m_smFilePath.addChangeListener(e -> {
-			readSavedModel();
-			updateTags();
-			updateAdvanced();
-		});
+		m_smFilePath.addChangeListener(e -> readSavedModel());
 		m_smTags.addChangeListener(e -> updateSignatures());
 		m_smAdvanced.addChangeListener(e -> updateAdvanced());
 
@@ -188,31 +191,64 @@ public class TFReaderNodeDialog extends DefaultNodeSettingsPane {
 		m_smInputs.setEnabled(advanced);
 		m_smOutputs.setEnabled(advanced);
 		if (advanced) {
-			m_dcSignature.setToolTipText("Advanced settings are enabled.");
+			m_dcSignature.setToolTipText(
+					"Advanced settings are enabled. Configure the signature in the 'Advanced Settings' tab.");
 		} else {
 			m_dcSignature.setToolTipText("");
 		}
 	}
 
 	private void readSavedModel() {
+		final int id = m_lastReaderID.incrementAndGet();
+
+		// TODO start loading icon
 		m_dcErrorLabel.setText("");
 		m_errorReading = false;
-		try {
-			final String filePath = m_smFilePath.getStringValue();
-			if (!filePath.equals(m_previousFilePath)) {
-				m_savedModel = new TFSavedModel(FileUtil.toURL(filePath));
-			}
-			return;
-		} catch (final DLInvalidSourceException e) {
-			LOGGER.warn(e, e);
-			m_errorReading = true;
-			m_dcErrorLabel.setText(e.getMessage());
-		} catch (InvalidPathException | MalformedURLException e) {
-			LOGGER.warn(e, e);
-			m_errorReading = true;
-			m_dcErrorLabel.setText("The filepath is not valid.");
+
+		// Interrupt the previous reader (may not have started jet)
+		if (m_lastReader != null && !m_lastReader.isDone()) {
+			m_lastReader.cancel(true);
 		}
-		m_savedModel = null;
+		try {
+			m_lastReader = m_threadPool.submit(() -> {
+				TFSavedModel savedModel = null;
+				Exception exception = null;
+				String errorMessage = null;
+
+				// Try to read the saved model
+				try {
+					final String filePath = m_smFilePath.getStringValue();
+					savedModel = new TFSavedModel(FileUtil.toURL(filePath));
+				} catch (final DLInvalidSourceException e) {
+					exception = e;
+					errorMessage = e.getMessage();
+				} catch (InvalidPathException | MalformedURLException e) {
+					exception = e;
+					errorMessage = "The filepath is not valid.";
+				}
+
+				// Update the UI if this is the current thread
+				updateSavedModel(savedModel, exception, errorMessage, id);
+			});
+		} catch (InterruptedException e) {
+			updateSavedModel(null, e, "Reading the SavedModel has been interrupted.", id);
+		}
+	}
+
+	private synchronized void updateSavedModel(final TFSavedModel savedModel, final Exception exception,
+			final String errorMessage, final int readerId) {
+		if (readerId == m_lastReaderID.get()) {
+			if (savedModel != null) {
+				m_savedModel = savedModel;
+				updateTags();
+				updateAdvanced();
+			} else {
+				m_savedModel = null;
+				m_errorReading = true;
+				LOGGER.warn(exception, exception);
+				m_dcErrorLabel.setText(errorMessage);
+			}
+		}
 	}
 
 	/**
