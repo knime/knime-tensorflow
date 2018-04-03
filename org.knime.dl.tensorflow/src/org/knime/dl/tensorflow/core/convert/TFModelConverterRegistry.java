@@ -46,30 +46,62 @@
  */
 package org.knime.dl.tensorflow.core.convert;
 
-import org.knime.core.data.filestore.FileStore;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.knime.core.util.Pair;
+import org.knime.dl.core.DLAbstractExtensionPointRegistry;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.core.TFNetwork;
-import org.knime.dl.tensorflow.core.TFNetworkSpec;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFModelConverter<N extends DLNetwork, S extends DLNetworkSpec, T extends TFNetwork> {
+public class TFModelConverterRegistry extends DLAbstractExtensionPointRegistry {
 
-	default String getIdentifier() {
-		return getClass().getCanonicalName();
+	private static final String EXT_POINT_ID = "org.knime.dl.tensorflow.TFModelConverter";
+
+	private static final String EXT_POINT_ATTR_CLASS = "TFModelConverter";
+
+	private static TFModelConverterRegistry instance;
+
+	public static synchronized TFModelConverterRegistry getInstance() {
+		if (instance == null) {
+			instance = new TFModelConverterRegistry();
+		}
+		return instance;
 	}
 
-	String getName();
+	private final Map<Pair<Class<? extends DLNetwork>, Class<? extends DLNetworkSpec>>, TFModelConverter> m_converters = new HashMap<>();
 
-	Class<S> getNetworkSpecType();
+	private TFModelConverterRegistry() {
+		super(EXT_POINT_ID, EXT_POINT_ATTR_CLASS);
+		register();
+	}
 
-	Class<N> getNetworkType();
+	public <N extends DLNetwork, S extends DLNetworkSpec> TFModelConverter<N, S, ? extends TFNetwork> getConverter(
+			final Class<N> networkType, final Class<S> specType) {
+		// TODO change to allow super classes
+		return m_converters.get(new Pair(networkType, specType));
+	}
 
-	Class<T> getOutputNetworkType();
+	@Override
+	protected void registerInternal(final IConfigurationElement elem, final Map<String, String> attrs)
+			throws Throwable {
+		registerConverterInternal((TFModelConverter<?, ?, ?>) elem.createExecutableExtension(EXT_POINT_ATTR_CLASS));
+	}
 
-	TFNetworkSpec convertSpec(S spec);
-
-	T convertNetwork(N network, FileStore fileStore);
+	private synchronized void registerConverterInternal(final TFModelConverter<?, ?, ?> converter) {
+		final Class<? extends DLNetwork> networkType = converter.getNetworkType();
+		if (networkType == null) {
+			throw new IllegalArgumentException("The converter's associated network type must not be null.");
+		}
+		final Class<? extends DLNetworkSpec> specType = converter.getNetworkSpecType();
+		if (specType == null) {
+			throw new IllegalArgumentException("The converter's associated network spec type must not be null.");
+		}
+		m_converters.put(new Pair<>(networkType, specType), converter);
+	}
 }

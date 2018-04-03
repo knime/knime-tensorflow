@@ -49,6 +49,7 @@ package org.knime.dl.tensorflow.base.nodes.converter;
 import java.io.File;
 import java.io.IOException;
 
+import org.knime.core.data.filestore.FileStore;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
@@ -60,12 +61,23 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.dl.base.portobjects.DLNetworkPortObject;
+import org.knime.dl.base.portobjects.DLNetworkPortObjectSpec;
+import org.knime.dl.core.DLNetwork;
+import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
+import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec;
+import org.knime.dl.tensorflow.core.TFNetwork;
+import org.knime.dl.tensorflow.core.convert.TFModelConverter;
+import org.knime.dl.tensorflow.core.convert.TFModelConverterRegistry;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFConverterNodeModel extends NodeModel {
+public class TFConverterNodeModel<N extends DLNetwork, S extends DLNetworkSpec> extends NodeModel {
+
+	private static final TFModelConverterRegistry CONVERTER_REGISTRY = TFModelConverterRegistry.getInstance();
+
+	private TFModelConverter<N, S, ? extends TFNetwork> m_converter;
 
 	/**
 	 * Creates a new {@link NodeModel} for the TensorFlow Network Converter.
@@ -76,14 +88,28 @@ public class TFConverterNodeModel extends NodeModel {
 
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		// TODO
-		return new PortObjectSpec[] { null };
+		// TODO check casts or remove generics
+		DLNetworkPortObjectSpec spec = (DLNetworkPortObjectSpec) inSpecs[0];
+		Class<N> networkType = (Class<N>) spec.getNetworkType();
+		S networkSpec = (S) spec.getNetworkSpec();
+
+		// Get the correct converter
+		m_converter = CONVERTER_REGISTRY.getConverter(networkType, (Class<S>) networkSpec.getClass());
+		// TODO handle if no converter is available
+
+		return new PortObjectSpec[] {
+				new TFNetworkPortObjectSpec(m_converter.convertSpec(networkSpec), m_converter.getOutputNetworkType()) };
 	}
 
 	@Override
 	protected PortObject[] execute(final PortObject[] inObjects, final ExecutionContext exec) throws Exception {
-		// TODO
-		return new PortObject[] { null };
+		DLNetworkPortObject in = (DLNetworkPortObject) inObjects[0];
+
+		// Convert the network
+		final FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
+		final TFNetwork tfNetwork = m_converter.convertNetwork((N) in.getNetwork(), fileStore);
+
+		return new PortObject[] { new TFNetworkPortObject(tfNetwork, fileStore) };
 	}
 
 	@Override
