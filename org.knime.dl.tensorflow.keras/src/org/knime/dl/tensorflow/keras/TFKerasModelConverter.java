@@ -44,33 +44,50 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.core.convert;
+package org.knime.dl.tensorflow.keras;
 
 import org.knime.core.data.filestore.FileStore;
-import org.knime.dl.core.DLNetwork;
-import org.knime.dl.core.DLNetworkSpec;
-import org.knime.dl.tensorflow.core.TFNetwork;
+import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetwork;
+import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetworkSpec;
 import org.knime.dl.tensorflow.core.TFNetworkSpec;
+import org.knime.dl.tensorflow.core.convert.TFModelConverter;
+import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFModelConverter<N extends DLNetwork, S extends DLNetworkSpec, T extends TFNetwork> {
+public class TFKerasModelConverter implements TFModelConverter<DLKerasTensorFlowNetwork, DLKerasTensorFlowNetworkSpec, TFSavedModelNetwork> {
 
-	default String getIdentifier() {
-		return getClass().getCanonicalName();
+	@Override
+	public String getName() {
+		return "Keras to TensorFlow Converter";
 	}
 
-	// TODO remove?
-	String getName();
+	@Override
+	public Class<DLKerasTensorFlowNetworkSpec> getNetworkSpecType() {
+		return DLKerasTensorFlowNetworkSpec.class;
+	}
 
-	Class<S> getNetworkSpecType();
+	@Override
+	public Class<DLKerasTensorFlowNetwork> getNetworkType() {
+		return DLKerasTensorFlowNetwork.class;
+	}
 
-	Class<N> getNetworkType();
+	@Override
+	public Class<TFSavedModelNetwork> getOutputNetworkType() {
+		return TFSavedModelNetwork.class;
+	}
 
-	Class<T> getOutputNetworkType();
+	@Override
+	public TFNetworkSpec convertSpec(DLKerasTensorFlowNetworkSpec spec) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-	TFNetworkSpec convertSpec(S spec);
-
-	T convertNetwork(N network, FileStore fileStore);
+	@Override
+	public TFSavedModelNetwork convertNetwork(DLKerasTensorFlowNetwork network, FileStore fileStore) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }
