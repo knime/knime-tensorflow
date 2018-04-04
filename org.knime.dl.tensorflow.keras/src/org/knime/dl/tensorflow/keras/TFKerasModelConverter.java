@@ -46,17 +46,38 @@
  */
 package org.knime.dl.tensorflow.keras;
 
+import java.io.IOException;
+import java.net.URL;
+
 import org.knime.core.data.filestore.FileStore;
+import org.knime.dl.core.DLInvalidEnvironmentException;
+import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLMissingExtensionException;
 import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetwork;
 import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetworkSpec;
+import org.knime.dl.python.core.DLPythonContext;
+import org.knime.dl.python.core.DLPythonDefaultContext;
+import org.knime.dl.python.core.DLPythonNetworkHandle;
+import org.knime.dl.python.core.DLPythonNetworkLoaderRegistry;
+import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
+import org.knime.dl.python.util.DLPythonUtils;
+import org.knime.dl.tensorflow.core.TFNetwork;
 import org.knime.dl.tensorflow.core.TFNetworkSpec;
 import org.knime.dl.tensorflow.core.convert.TFModelConverter;
+import org.knime.dl.tensorflow.savedmodel.core.TFMetaGraphDef;
+import org.knime.dl.tensorflow.savedmodel.core.TFSavedModel;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
+import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetworkSpec;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFKerasModelConverter implements TFModelConverter<DLKerasTensorFlowNetwork, DLKerasTensorFlowNetworkSpec, TFSavedModelNetwork> {
+public class TFKerasModelConverter
+		implements TFModelConverter<DLKerasTensorFlowNetwork, DLKerasTensorFlowNetworkSpec, TFNetwork> {
+
+	private static final String SAVE_TAG = "knime";
+
+	private static final String SIGNATURE_KEY = "serve";
 
 	@Override
 	public String getName() {
@@ -79,15 +100,54 @@ public class TFKerasModelConverter implements TFModelConverter<DLKerasTensorFlow
 	}
 
 	@Override
-	public TFNetworkSpec convertSpec(DLKerasTensorFlowNetworkSpec spec) {
-		// TODO Auto-generated method stub
-		return null;
+	public TFNetworkSpec convertSpec(final DLKerasTensorFlowNetworkSpec spec) {
+		// TODO check if we need a python kernel to find out the specs
+		return new TFSavedModelNetworkSpec(new String[] { SAVE_TAG }, spec.getInputSpecs(), spec.getHiddenOutputSpecs(),
+				spec.getOutputSpecs());
 	}
 
 	@Override
-	public TFSavedModelNetwork convertNetwork(DLKerasTensorFlowNetwork network, FileStore fileStore) {
-		// TODO Auto-generated method stub
+	public TFNetwork convertNetwork(final DLKerasTensorFlowNetwork network, final FileStore fileStore) {
+		try {
+			final URL saveURL = fileStore.getFile().toURI().toURL();
+			final String savePath = fileStore.getFile().getAbsolutePath();
+
+			final DLPythonContext pythonContext = new DLPythonDefaultContext();
+
+			// Save the keras model as a SavedModel using python
+			final DLPythonNetworkHandle networkHandle = DLPythonNetworkLoaderRegistry.getInstance()
+					.getNetworkLoader(network.getClass())
+					.orElseThrow(() -> new DLMissingExtensionException(
+							"Python back end '" + network.getClass().getCanonicalName()
+									+ "' could not be found. Are you missing a KNIME Deep Learning extension?"))
+					.load(network.getSource(), pythonContext, false);
+			final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
+					.a("import DLPythonNetwork") //
+					.n("import keras.backend as K") //
+					.n("from tensorflow import saved_model") //
+					.n("model = DLPythonNetwork.get_network(").as(networkHandle.getIdentifier()).a(").model") //
+					.n("print(model)") //
+					.n("builder = saved_model.builder.SavedModelBuilder(").as(savePath).a(")") //
+					.n("signature = saved_model.signature_def_utils.predict_signature_def(") //
+					.n().t().a("inputs={").as("input").a(": model.input},") // TODO multiple inputs and outputs
+					.n().t().a("outputs={").as("output").a(": model.output})") //
+					.n("signature_def_map = { ").as(SIGNATURE_KEY).a(": signature }") //
+					.n("builder.add_meta_graph_and_variables(K.get_session(), [").as(SAVE_TAG)
+					.a("], signature_def_map=signature_def_map)") //
+					.n("builder.save()");
+			pythonContext.executeInKernel(b.toString());
+
+			// Create a TFSavedModelNetwork
+			final TFSavedModel savedModel = new TFSavedModel(saveURL);
+			TFMetaGraphDef metaGraphDefs = savedModel.getMetaGraphDefs(new String[] { SAVE_TAG });
+			TFSavedModelNetworkSpec specs = metaGraphDefs.createSpecs(SIGNATURE_KEY);
+
+			return specs.create(saveURL);
+		} catch (DLInvalidSourceException | DLInvalidEnvironmentException | DLMissingExtensionException
+				| IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
 	}
-	
 }

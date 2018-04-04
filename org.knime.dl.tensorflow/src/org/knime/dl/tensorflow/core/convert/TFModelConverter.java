@@ -68,7 +68,7 @@ public interface TFModelConverter<N extends DLNetwork, S extends DLNetworkSpec, 
 
 	Class<N> getNetworkType();
 
-	Class<T> getOutputNetworkType();
+	Class<? extends T> getOutputNetworkType();
 
 	TFNetworkSpec convertSpec(S spec);
 
