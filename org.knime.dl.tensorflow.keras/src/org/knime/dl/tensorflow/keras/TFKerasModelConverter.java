@@ -63,7 +63,7 @@ import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
 import org.knime.dl.python.util.DLPythonUtils;
 import org.knime.dl.tensorflow.core.TFNetwork;
 import org.knime.dl.tensorflow.core.TFNetworkSpec;
-import org.knime.dl.tensorflow.core.convert.TFModelConverter;
+import org.knime.dl.tensorflow.core.convert.TFAbstractModelConverter;
 import org.knime.dl.tensorflow.savedmodel.core.TFMetaGraphDef;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModel;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
@@ -73,41 +73,26 @@ import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetworkSpec;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class TFKerasModelConverter
-		implements TFModelConverter<DLKerasTensorFlowNetwork, DLKerasTensorFlowNetworkSpec, TFNetwork> {
+		extends TFAbstractModelConverter<DLKerasTensorFlowNetwork, DLKerasTensorFlowNetworkSpec> {
 
 	private static final String SAVE_TAG = "knime";
 
 	private static final String SIGNATURE_KEY = "serve";
 
-	@Override
-	public String getName() {
-		return "Keras to TensorFlow Converter";
+	public TFKerasModelConverter() {
+		super(DLKerasTensorFlowNetwork.class, DLKerasTensorFlowNetworkSpec.class, TFSavedModelNetwork.class);
 	}
 
 	@Override
-	public Class<DLKerasTensorFlowNetworkSpec> getNetworkSpecType() {
-		return DLKerasTensorFlowNetworkSpec.class;
+	public TFNetworkSpec convertSpecInternal(final DLKerasTensorFlowNetworkSpec spec) {
+		// NB: We return null because we don't know the spec yet.
+		// TODO document it in the API
+		// TODO check if we can create the specs without starting python
+		return null;
 	}
 
 	@Override
-	public Class<DLKerasTensorFlowNetwork> getNetworkType() {
-		return DLKerasTensorFlowNetwork.class;
-	}
-
-	@Override
-	public Class<TFSavedModelNetwork> getOutputNetworkType() {
-		return TFSavedModelNetwork.class;
-	}
-
-	@Override
-	public TFNetworkSpec convertSpec(final DLKerasTensorFlowNetworkSpec spec) {
-		// TODO check if we need a python kernel to find out the specs
-		return new TFSavedModelNetworkSpec(new String[] { SAVE_TAG }, spec.getInputSpecs(), spec.getHiddenOutputSpecs(),
-				spec.getOutputSpecs());
-	}
-
-	@Override
-	public TFNetwork convertNetwork(final DLKerasTensorFlowNetwork network, final FileStore fileStore) {
+	public TFNetwork convertNetworkInternal(final DLKerasTensorFlowNetwork network, final FileStore fileStore) {
 		try {
 			final URL saveURL = fileStore.getFile().toURI().toURL();
 			final String savePath = fileStore.getFile().getAbsolutePath();

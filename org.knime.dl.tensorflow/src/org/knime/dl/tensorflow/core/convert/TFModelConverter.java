@@ -55,22 +55,19 @@ import org.knime.dl.tensorflow.core.TFNetworkSpec;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFModelConverter<N extends DLNetwork, S extends DLNetworkSpec, T extends TFNetwork> {
+public interface TFModelConverter {
 
 	default String getIdentifier() {
 		return getClass().getCanonicalName();
 	}
 
-	// TODO remove?
-	String getName();
+	Class<? extends DLNetworkSpec> getNetworkSpecType();
 
-	Class<S> getNetworkSpecType();
+	Class<? extends DLNetwork> getNetworkType();
 
-	Class<N> getNetworkType();
+	Class<? extends TFNetwork> getOutputNetworkType();
 
-	Class<? extends T> getOutputNetworkType();
+	TFNetworkSpec convertSpec(DLNetworkSpec spec);
 
-	TFNetworkSpec convertSpec(S spec);
-
-	T convertNetwork(N network, FileStore fileStore);
+	TFNetwork convertNetwork(DLNetwork network, FileStore fileStore);
 }

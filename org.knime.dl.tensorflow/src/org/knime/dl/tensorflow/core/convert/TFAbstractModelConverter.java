@@ -46,61 +46,67 @@
  */
 package org.knime.dl.tensorflow.core.convert;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.knime.core.util.Pair;
-import org.knime.dl.core.DLAbstractExtensionPointRegistry;
+import org.knime.core.data.filestore.FileStore;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkSpec;
+import org.knime.dl.tensorflow.core.TFNetwork;
+import org.knime.dl.tensorflow.core.TFNetworkSpec;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFModelConverterRegistry extends DLAbstractExtensionPointRegistry {
+public abstract class TFAbstractModelConverter<N extends DLNetwork, S extends DLNetworkSpec>
+		implements TFModelConverter {
 
-	private static final String EXT_POINT_ID = "org.knime.dl.tensorflow.TFModelConverter";
+	private final Class<N> m_networkType;
 
-	private static final String EXT_POINT_ATTR_CLASS = "TFModelConverter";
+	private final Class<S> m_specType;
 
-	private static TFModelConverterRegistry instance;
+	private final Class<? extends TFNetwork> m_tfNetworkType;
 
-	public static synchronized TFModelConverterRegistry getInstance() {
-		if (instance == null) {
-			instance = new TFModelConverterRegistry();
-		}
-		return instance;
-	}
-
-	private final Map<Pair<Class<? extends DLNetwork>, Class<? extends DLNetworkSpec>>, TFModelConverter> m_converters = new HashMap<>();
-
-	private TFModelConverterRegistry() {
-		super(EXT_POINT_ID, EXT_POINT_ATTR_CLASS);
-		register();
-	}
-
-	public TFModelConverter getConverter(final Class<? extends DLNetworkSpec> specType,
-			final Class<? extends DLNetwork> networkType) {
-		// TODO change to allow super classes
-		return m_converters.get(new Pair(networkType, specType));
+	public TFAbstractModelConverter(final Class<N> networkType, final Class<S> specType,
+			final Class<? extends TFNetwork> tfNetworkType) {
+		m_networkType = networkType;
+		m_specType = specType;
+		m_tfNetworkType = tfNetworkType;
 	}
 
 	@Override
-	protected void registerInternal(final IConfigurationElement elem, final Map<String, String> attrs)
-			throws Throwable {
-		registerConverterInternal((TFModelConverter) elem.createExecutableExtension(EXT_POINT_ATTR_CLASS));
+	public Class<S> getNetworkSpecType() {
+		return m_specType;
 	}
 
-	private synchronized void registerConverterInternal(final TFModelConverter converter) {
-		final Class<? extends DLNetwork> networkType = converter.getNetworkType();
-		if (networkType == null) {
-			throw new IllegalArgumentException("The converter's associated network type must not be null.");
-		}
-		final Class<? extends DLNetworkSpec> specType = converter.getNetworkSpecType();
-		if (specType == null) {
-			throw new IllegalArgumentException("The converter's associated network spec type must not be null.");
-		}
-		m_converters.put(new Pair<>(networkType, specType), converter);
+	@Override
+	public Class<N> getNetworkType() {
+		return m_networkType;
 	}
+
+	@Override
+	public Class<? extends TFNetwork> getOutputNetworkType() {
+		return m_tfNetworkType;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public TFNetworkSpec convertSpec(final DLNetworkSpec spec) {
+		if (!m_specType.isAssignableFrom(spec.getClass())) {
+			throw new IllegalArgumentException("This converter is not applicable for specs of type \"" + spec.getClass()
+					+ "\". Expected type: \"" + m_specType + "\".");
+		}
+		return convertSpecInternal((S) spec);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public TFNetwork convertNetwork(final DLNetwork network, final FileStore fileStore) {
+		if (!m_networkType.isAssignableFrom(network.getClass())) {
+			throw new IllegalArgumentException("This converter is not applicable for networks of type \"" + network.getClass()
+					+ "\". Expected type: \"" + m_networkType + "\".");
+		}
+		return convertNetworkInternal((N) network, fileStore);
+	}
+
+	protected abstract TFNetworkSpec convertSpecInternal(S spec);
+
+	protected abstract TFNetwork convertNetworkInternal(N network, FileStore fileStore);
 }
