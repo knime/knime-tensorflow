@@ -95,7 +95,9 @@ public class TFConverterNodeModel extends NodeModel {
 
 		// Get the correct converter
 		m_converter = CONVERTER_REGISTRY.getConverter(networkSpec.getClass(), networkType);
-		// TODO handle if no converter is available
+		if (m_converter == null) {
+			throw new InvalidSettingsException("No converter for the given network type \"" + networkType + "\" found.");
+		}
 
 		final TFNetworkSpec tfSpec = m_converter.convertSpec(networkSpec);
 		if (tfSpec == null) {
