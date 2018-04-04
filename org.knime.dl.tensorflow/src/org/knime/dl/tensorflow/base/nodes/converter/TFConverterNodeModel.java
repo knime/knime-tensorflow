@@ -132,17 +132,17 @@ public class TFConverterNodeModel extends NodeModel {
 
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		// TODO
+		// nothing to do
 	}
 
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-		// TODO
+		// nothing to do
 	}
 
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
-		// TODO
+		// nothing to do
 	}
 
 	@Override

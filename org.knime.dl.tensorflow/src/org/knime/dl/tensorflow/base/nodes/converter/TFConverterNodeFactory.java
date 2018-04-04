@@ -72,12 +72,11 @@ public class TFConverterNodeFactory extends NodeFactory<TFConverterNodeModel> {
 
 	@Override
 	protected boolean hasDialog() {
-		return true;
+		return false;
 	}
 
 	@Override
 	protected NodeDialogPane createNodeDialogPane() {
-		return new TFConverterNodeDialog();
+		return null;
 	}
-
 }
