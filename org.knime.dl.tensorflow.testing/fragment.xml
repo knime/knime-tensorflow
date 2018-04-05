@@ -6,4 +6,10 @@
 			TestcaseCollector="org.knime.dl.tensorflow.testing.TFTestCaseCollector">
 		</TestcaseCollector>
 	</extension>
+ <extension
+       point="org.knime.dl.tensorflow.TFNetworkConverter">
+    <TFNetworkConverter
+          TFNetworkConverter="org.knime.dl.tensorflow.core.convert.TFNetworkConverterRegistryTest$DummyNetworkConverter">
+    </TFNetworkConverter>
+ </extension>
 </fragment>
