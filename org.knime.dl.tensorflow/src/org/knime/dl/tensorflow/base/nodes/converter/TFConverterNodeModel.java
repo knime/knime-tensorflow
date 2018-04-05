@@ -54,6 +54,7 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -67,6 +68,8 @@ import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec;
 import org.knime.dl.tensorflow.core.TFNetwork;
+import org.knime.dl.tensorflow.core.TFNetworkSpec;
+import org.knime.dl.tensorflow.core.convert.DLNetworkConversionException;
 import org.knime.dl.tensorflow.core.convert.TFNetworkConverter;
 import org.knime.dl.tensorflow.core.convert.TFNetworkConverterRegistry;
 
@@ -74,6 +77,8 @@ import org.knime.dl.tensorflow.core.convert.TFNetworkConverterRegistry;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class TFConverterNodeModel extends NodeModel {
+
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFConverterNodeModel.class);
 
 	private static final TFNetworkConverterRegistry CONVERTER_REGISTRY = TFNetworkConverterRegistry.getInstance();
 
@@ -99,9 +104,18 @@ public class TFConverterNodeModel extends NodeModel {
 					"No converter for the given network type \"" + networkType + "\" found.");
 		}
 
+		// Try to convert the specs
+		TFNetworkSpec tfSpec = null;
 		if (m_converter.canConvertSpec(networkSpec.getClass())) {
-			return new PortObjectSpec[] { new TFNetworkPortObjectSpec(m_converter.convertSpec(networkSpec),
-					m_converter.getOutputNetworkType()) };
+			try {
+				tfSpec = m_converter.convertSpec(networkSpec);
+			} catch (final DLNetworkConversionException e) {
+				LOGGER.warn("Could not convert network spec.", e);
+			}
+		}
+
+		if (tfSpec != null) {
+			return new PortObjectSpec[] { new TFNetworkPortObjectSpec(tfSpec, m_converter.getOutputNetworkType()) };
 		} else {
 			return new PortObjectSpec[] { null };
 		}

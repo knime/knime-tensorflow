@@ -82,13 +82,13 @@ public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements
 	}
 
 	@Override
-	public TFNetworkSpec convertSpec(final DLNetworkSpec spec) {
+	public TFNetworkSpec convertSpec(final DLNetworkSpec spec) throws DLNetworkConversionException {
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public TFNetwork convertNetwork(final DLNetwork network, final FileStore fileStore) {
+	public TFNetwork convertNetwork(final DLNetwork network, final FileStore fileStore) throws DLNetworkConversionException{
 		if (!m_networkType.isAssignableFrom(network.getClass())) {
 			throw new IllegalArgumentException("This converter is not applicable for networks of type \""
 					+ network.getClass() + "\". Expected type: \"" + m_networkType + "\".");
@@ -96,5 +96,5 @@ public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements
 		return convertNetworkInternal((N) network, fileStore);
 	}
 
-	protected abstract TFNetwork convertNetworkInternal(N network, FileStore fileStore);
+	protected abstract TFNetwork convertNetworkInternal(N network, FileStore fileStore) throws DLNetworkConversionException;
 }

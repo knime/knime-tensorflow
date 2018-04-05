@@ -61,6 +61,7 @@ import org.knime.dl.python.core.DLPythonNetworkLoaderRegistry;
 import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
 import org.knime.dl.python.util.DLPythonUtils;
 import org.knime.dl.tensorflow.core.TFNetwork;
+import org.knime.dl.tensorflow.core.convert.DLNetworkConversionException;
 import org.knime.dl.tensorflow.core.convert.TFAbstractNetworkConverter;
 import org.knime.dl.tensorflow.savedmodel.core.TFMetaGraphDef;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModel;
@@ -81,13 +82,14 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 	}
 
 	@Override
-	public TFNetwork convertNetworkInternal(final DLKerasTensorFlowNetwork network, final FileStore fileStore) {
+	public TFNetwork convertNetworkInternal(final DLKerasTensorFlowNetwork network, final FileStore fileStore)
+			throws DLNetworkConversionException {
 		try {
 			final URL saveURL = fileStore.getFile().toURI().toURL();
 			final String savePath = fileStore.getFile().getAbsolutePath();
 
+			// Save the keras model as a SavedModel using python
 			try (final DLPythonContext pythonContext = new DLPythonDefaultContext()) {
-				// Save the keras model as a SavedModel using python
 				final DLPythonNetworkHandle networkHandle = DLPythonNetworkLoaderRegistry.getInstance()
 						.getNetworkLoader(network.getClass())
 						.orElseThrow(() -> new DLMissingExtensionException(
@@ -113,15 +115,12 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 
 			// Create a TFSavedModelNetwork
 			final TFSavedModel savedModel = new TFSavedModel(saveURL);
-			TFMetaGraphDef metaGraphDefs = savedModel.getMetaGraphDefs(new String[] { SAVE_TAG });
-			TFSavedModelNetworkSpec specs = metaGraphDefs.createSpecs(SIGNATURE_KEY);
-
+			final TFMetaGraphDef metaGraphDefs = savedModel.getMetaGraphDefs(new String[] { SAVE_TAG });
+			final TFSavedModelNetworkSpec specs = metaGraphDefs.createSpecs(SIGNATURE_KEY);
 			return specs.create(saveURL);
 		} catch (DLInvalidSourceException | DLInvalidEnvironmentException | DLMissingExtensionException
 				| IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DLNetworkConversionException("Could not convert network.", e);
 		}
-		return null;
 	}
 }

@@ -76,7 +76,7 @@ public abstract class TFAbstractNetworkAndSpecConverter<N extends DLNetwork, S e
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public TFNetworkSpec convertSpec(final DLNetworkSpec spec) {
+	public TFNetworkSpec convertSpec(final DLNetworkSpec spec) throws DLNetworkConversionException {
 		if (!canConvertSpec(spec.getClass())) {
 			throw new IllegalArgumentException("This converter is not applicable for specs of type \"" + spec.getClass()
 					+ "\". Expected type: \"" + m_specType + "\".");
@@ -84,5 +84,5 @@ public abstract class TFAbstractNetworkAndSpecConverter<N extends DLNetwork, S e
 		return convertSpecInternal((S) spec);
 	}
 
-	protected abstract TFNetworkSpec convertSpecInternal(S spec);
+	protected abstract TFNetworkSpec convertSpecInternal(S spec) throws DLNetworkConversionException;
 }

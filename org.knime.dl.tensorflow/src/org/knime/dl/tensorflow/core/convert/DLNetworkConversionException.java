@@ -46,28 +46,39 @@
  */
 package org.knime.dl.tensorflow.core.convert;
 
-import org.knime.core.data.filestore.FileStore;
-import org.knime.dl.core.DLNetwork;
-import org.knime.dl.core.DLNetworkSpec;
-import org.knime.dl.tensorflow.core.TFNetwork;
-import org.knime.dl.tensorflow.core.TFNetworkSpec;
+import org.knime.dl.core.DLCheckedException;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFNetworkConverter {
+public class DLNetworkConversionException extends DLCheckedException {
 
-	default String getIdentifier() {
-		return getClass().getCanonicalName();
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * @param message must be neither null nor empty
+	 */
+	public DLNetworkConversionException(String message) {
+		super(message);
 	}
 
-	Class<? extends DLNetwork> getNetworkType();
+	/**
+	 * @param message must be neither null nor empty
+	 * @param cause see {@link Throwable#Throwable(String, Throwable)}
+	 */
+	public DLNetworkConversionException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-	Class<? extends TFNetwork> getOutputNetworkType();
+	/**
+	 * @param message must be neither null nor empty
+	 * @param cause see {@link Throwable#Throwable(String, Throwable, boolean, boolean)}
+	 * @param enableSuppression see {@link Throwable#Throwable(String, Throwable, boolean, boolean)}
+	 * @param writableStackTrace see {@link Throwable#Throwable(String, Throwable, boolean, boolean)}
+	 */
+	public DLNetworkConversionException(String message, Throwable cause, boolean enableSuppression,
+			boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
 
-	boolean canConvertSpec(Class<? extends DLNetworkSpec> specType);
-
-	TFNetworkSpec convertSpec(DLNetworkSpec spec) throws DLNetworkConversionException;
-
-	TFNetwork convertNetwork(DLNetwork network, FileStore fileStore) throws DLNetworkConversionException;
 }
