@@ -86,30 +86,30 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 			final URL saveURL = fileStore.getFile().toURI().toURL();
 			final String savePath = fileStore.getFile().getAbsolutePath();
 
-			final DLPythonContext pythonContext = new DLPythonDefaultContext();
-
-			// Save the keras model as a SavedModel using python
-			final DLPythonNetworkHandle networkHandle = DLPythonNetworkLoaderRegistry.getInstance()
-					.getNetworkLoader(network.getClass())
-					.orElseThrow(() -> new DLMissingExtensionException(
-							"Python back end '" + network.getClass().getCanonicalName()
-									+ "' could not be found. Are you missing a KNIME Deep Learning extension?"))
-					.load(network.getSource(), pythonContext, false);
-			final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
-					.a("import DLPythonNetwork") //
-					.n("import keras.backend as K") //
-					.n("from tensorflow import saved_model") //
-					.n("model = DLPythonNetwork.get_network(").as(networkHandle.getIdentifier()).a(").model") //
-					.n("print(model)") //
-					.n("builder = saved_model.builder.SavedModelBuilder(").as(savePath).a(")") //
-					.n("signature = saved_model.signature_def_utils.predict_signature_def(") //
-					.n().t().a("inputs={").as("input").a(": model.input},") // TODO multiple inputs and outputs
-					.n().t().a("outputs={").as("output").a(": model.output})") //
-					.n("signature_def_map = { ").as(SIGNATURE_KEY).a(": signature }") //
-					.n("builder.add_meta_graph_and_variables(K.get_session(), [").as(SAVE_TAG)
-					.a("], signature_def_map=signature_def_map)") //
-					.n("builder.save()");
-			pythonContext.executeInKernel(b.toString());
+			try (final DLPythonContext pythonContext = new DLPythonDefaultContext()) {
+				// Save the keras model as a SavedModel using python
+				final DLPythonNetworkHandle networkHandle = DLPythonNetworkLoaderRegistry.getInstance()
+						.getNetworkLoader(network.getClass())
+						.orElseThrow(() -> new DLMissingExtensionException(
+								"Python back end '" + network.getClass().getCanonicalName()
+										+ "' could not be found. Are you missing a KNIME Deep Learning extension?"))
+						.load(network.getSource(), pythonContext, false);
+				final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
+						.a("import DLPythonNetwork") //
+						.n("import keras.backend as K") //
+						.n("from tensorflow import saved_model") //
+						.n("model = DLPythonNetwork.get_network(").as(networkHandle.getIdentifier()).a(").model") //
+						.n("inp, oup = model.input, model.output") //
+						.n("builder = saved_model.builder.SavedModelBuilder(").as(savePath).a(")") //
+						.n("signature = saved_model.signature_def_utils.predict_signature_def(") //
+						.n().t().a("inputs = dict([ (t.name,t) for t in (inp if type(inp) is list else [inp]) ]),") //
+						.n().t().a("outputs = dict([ (t.name,t) for t in (oup if type(oup) is list else [oup]) ]))") //
+						.n("signature_def_map = { ").as(SIGNATURE_KEY).a(": signature }") //
+						.n("builder.add_meta_graph_and_variables(K.get_session(), [").as(SAVE_TAG)
+						.a("], signature_def_map=signature_def_map)") //
+						.n("builder.save()");
+				pythonContext.executeInKernel(b.toString());
+			}
 
 			// Create a TFSavedModelNetwork
 			final TFSavedModel savedModel = new TFSavedModel(saveURL);
