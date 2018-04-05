@@ -61,7 +61,7 @@ import org.knime.dl.python.core.DLPythonNetworkLoaderRegistry;
 import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
 import org.knime.dl.python.util.DLPythonUtils;
 import org.knime.dl.tensorflow.core.TFNetwork;
-import org.knime.dl.tensorflow.core.convert.TFAbstractModelConverter;
+import org.knime.dl.tensorflow.core.convert.TFAbstractNetworkConverter;
 import org.knime.dl.tensorflow.savedmodel.core.TFMetaGraphDef;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModel;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
@@ -70,13 +70,13 @@ import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetworkSpec;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFKerasModelConverter extends TFAbstractModelConverter<DLKerasTensorFlowNetwork> {
+public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasTensorFlowNetwork> {
 
 	private static final String SAVE_TAG = "knime";
 
 	private static final String SIGNATURE_KEY = "serve";
 
-	public TFKerasModelConverter() {
+	public TFKerasNetworkConverter() {
 		super(DLKerasTensorFlowNetwork.class, TFSavedModelNetwork.class);
 	}
 

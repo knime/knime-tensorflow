@@ -67,17 +67,17 @@ import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec;
 import org.knime.dl.tensorflow.core.TFNetwork;
-import org.knime.dl.tensorflow.core.convert.TFModelConverter;
-import org.knime.dl.tensorflow.core.convert.TFModelConverterRegistry;
+import org.knime.dl.tensorflow.core.convert.TFNetworkConverter;
+import org.knime.dl.tensorflow.core.convert.TFNetworkConverterRegistry;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class TFConverterNodeModel extends NodeModel {
 
-	private static final TFModelConverterRegistry CONVERTER_REGISTRY = TFModelConverterRegistry.getInstance();
+	private static final TFNetworkConverterRegistry CONVERTER_REGISTRY = TFNetworkConverterRegistry.getInstance();
 
-	private TFModelConverter m_converter;
+	private TFNetworkConverter m_converter;
 
 	/**
 	 * Creates a new {@link NodeModel} for the TensorFlow Network Converter.
@@ -103,7 +103,7 @@ public class TFConverterNodeModel extends NodeModel {
 			return new PortObjectSpec[] { new TFNetworkPortObjectSpec(m_converter.convertSpec(networkSpec),
 					m_converter.getOutputNetworkType()) };
 		} else {
-			return new PortObjectSpec[] {};
+			return new PortObjectSpec[] { null };
 		}
 	}
 

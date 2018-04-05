@@ -46,7 +46,6 @@
  */
 package org.knime.dl.tensorflow.core.convert;
 
-import org.knime.core.data.filestore.FileStore;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.core.TFNetwork;
@@ -55,19 +54,35 @@ import org.knime.dl.tensorflow.core.TFNetworkSpec;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFModelConverter {
+public abstract class TFAbstractNetworkAndSpecConverter<N extends DLNetwork, S extends DLNetworkSpec>
+	extends TFAbstractNetworkConverter<N> {
 
-	default String getIdentifier() {
-		return getClass().getCanonicalName();
+	private final Class<S> m_specType;
+
+	public TFAbstractNetworkAndSpecConverter(final Class<N> networkType, final Class<? extends TFNetwork> tfNetworkType,
+			final Class<S> specType) {
+		super(networkType, tfNetworkType);
+		m_specType = specType;
 	}
 
-	Class<? extends DLNetwork> getNetworkType();
+	@Override
+	public boolean canConvertSpec(final Class<? extends DLNetworkSpec> specType) {
+		if (m_specType.isAssignableFrom(specType)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-	Class<? extends TFNetwork> getOutputNetworkType();
+	@SuppressWarnings("unchecked")
+	@Override
+	public TFNetworkSpec convertSpec(final DLNetworkSpec spec) {
+		if (!canConvertSpec(spec.getClass())) {
+			throw new IllegalArgumentException("This converter is not applicable for specs of type \"" + spec.getClass()
+					+ "\". Expected type: \"" + m_specType + "\".");
+		}
+		return convertSpecInternal((S) spec);
+	}
 
-	boolean canConvertSpec(Class<? extends DLNetworkSpec> specType);
-
-	TFNetworkSpec convertSpec(DLNetworkSpec spec);
-
-	TFNetwork convertNetwork(DLNetwork network, FileStore fileStore);
+	protected abstract TFNetworkSpec convertSpecInternal(S spec);
 }

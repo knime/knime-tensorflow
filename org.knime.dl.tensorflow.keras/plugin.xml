@@ -2,9 +2,9 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension
-         point="org.knime.dl.tensorflow.TFModelConverter">
-      <TFModelConverter
-            TFModelConverter="org.knime.dl.tensorflow.keras.TFKerasModelConverter">
-      </TFModelConverter>
+         point="org.knime.dl.tensorflow.TFNetworkConverter">
+      <TFNetworkConverter
+            TFNetworkConverter="org.knime.dl.tensorflow.keras.TFKerasNetworkConverter">
+      </TFNetworkConverter>
    </extension>
 </plugin>

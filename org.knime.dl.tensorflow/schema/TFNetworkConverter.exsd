@@ -3,10 +3,10 @@
 <schema targetNamespace="org.knime.dl.tensorflow" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.knime.dl.tensorflow" id="TFModelConverter" name="TFModelConverter"/>
+         <meta.schema plugin="org.knime.dl.tensorflow" id="TFNetworkConverter" name="TFNetworkConverter"/>
       </appInfo>
       <documentation>
-         Extension point for deep learning model converters that allow conversion of deep learning models to TensorFlow models.
+         Extension point for deep learning network converters that allow conversion of deep learning network to TensorFlow models.
       </documentation>
    </annotation>
 
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="TFModelConverter"/>
+            <element ref="TFNetworkConverter"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,15 +47,15 @@
       </complexType>
    </element>
 
-   <element name="TFModelConverter">
+   <element name="TFNetworkConverter">
       <complexType>
-         <attribute name="TFModelConverter" type="string" use="required">
+         <attribute name="TFNetworkConverter" type="string" use="required">
             <annotation>
                <documentation>
-                  The converter class that implements the DLModelConverter interface. Must provide an empty public constructor.
+                  The converter class that implements the TFNetworkConverter interface. Must provide an empty public constructor.
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.knime.dl.tensorflow.core.convert.TFModelConverter"/>
+                  <meta.attribute kind="java" basedOn=":org.knime.dl.tensorflow.core.convert.TFNetworkConverter"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -77,7 +77,7 @@
          <meta.section type="apiinfo"/>
       </appInfo>
       <documentation>
-         Converter classes must implement the TFModelConverter interface and provide an empty public constructor.
+         Converter classes must implement the TFNetworkConverter interface and provide an empty public constructor.
       </documentation>
    </annotation>
 
