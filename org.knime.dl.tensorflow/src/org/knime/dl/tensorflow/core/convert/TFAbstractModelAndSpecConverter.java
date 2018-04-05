@@ -46,7 +46,6 @@
  */
 package org.knime.dl.tensorflow.core.convert;
 
-import org.knime.core.data.filestore.FileStore;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.core.TFNetwork;
@@ -55,46 +54,35 @@ import org.knime.dl.tensorflow.core.TFNetworkSpec;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public abstract class TFAbstractModelConverter<N extends DLNetwork> implements TFModelConverter {
+public abstract class TFAbstractModelAndSpecConverter<N extends DLNetwork, S extends DLNetworkSpec>
+	extends TFAbstractModelConverter<N> {
 
-	private final Class<N> m_networkType;
+	private final Class<S> m_specType;
 
-	private final Class<? extends TFNetwork> m_tfNetworkType;
-
-	public TFAbstractModelConverter(final Class<N> networkType, final Class<? extends TFNetwork> tfNetworkType) {
-		m_networkType = networkType;
-		m_tfNetworkType = tfNetworkType;
-	}
-
-	@Override
-	public Class<N> getNetworkType() {
-		return m_networkType;
-	}
-
-	@Override
-	public Class<? extends TFNetwork> getOutputNetworkType() {
-		return m_tfNetworkType;
+	public TFAbstractModelAndSpecConverter(final Class<N> networkType, final Class<? extends TFNetwork> tfNetworkType,
+			final Class<S> specType) {
+		super(networkType, tfNetworkType);
+		m_specType = specType;
 	}
 
 	@Override
 	public boolean canConvertSpec(final Class<? extends DLNetworkSpec> specType) {
-		return false;
-	}
-
-	@Override
-	public TFNetworkSpec convertSpec(final DLNetworkSpec spec) {
-		return null;
+		if (m_specType.isAssignableFrom(specType)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public TFNetwork convertNetwork(final DLNetwork network, final FileStore fileStore) {
-		if (!m_networkType.isAssignableFrom(network.getClass())) {
-			throw new IllegalArgumentException("This converter is not applicable for networks of type \""
-					+ network.getClass() + "\". Expected type: \"" + m_networkType + "\".");
+	public TFNetworkSpec convertSpec(final DLNetworkSpec spec) {
+		if (!canConvertSpec(spec.getClass())) {
+			throw new IllegalArgumentException("This converter is not applicable for specs of type \"" + spec.getClass()
+					+ "\". Expected type: \"" + m_specType + "\".");
 		}
-		return convertNetworkInternal((N) network, fileStore);
+		return convertSpecInternal((S) spec);
 	}
 
-	protected abstract TFNetwork convertNetworkInternal(N network, FileStore fileStore);
+	protected abstract TFNetworkSpec convertSpecInternal(S spec);
 }

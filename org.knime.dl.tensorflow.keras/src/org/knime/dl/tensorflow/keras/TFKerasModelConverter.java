@@ -54,7 +54,6 @@ import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLMissingExtensionException;
 import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetwork;
-import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetworkSpec;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonDefaultContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
@@ -62,7 +61,6 @@ import org.knime.dl.python.core.DLPythonNetworkLoaderRegistry;
 import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
 import org.knime.dl.python.util.DLPythonUtils;
 import org.knime.dl.tensorflow.core.TFNetwork;
-import org.knime.dl.tensorflow.core.TFNetworkSpec;
 import org.knime.dl.tensorflow.core.convert.TFAbstractModelConverter;
 import org.knime.dl.tensorflow.savedmodel.core.TFMetaGraphDef;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModel;
@@ -72,23 +70,14 @@ import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetworkSpec;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFKerasModelConverter
-		extends TFAbstractModelConverter<DLKerasTensorFlowNetwork, DLKerasTensorFlowNetworkSpec> {
+public class TFKerasModelConverter extends TFAbstractModelConverter<DLKerasTensorFlowNetwork> {
 
 	private static final String SAVE_TAG = "knime";
 
 	private static final String SIGNATURE_KEY = "serve";
 
 	public TFKerasModelConverter() {
-		super(DLKerasTensorFlowNetwork.class, DLKerasTensorFlowNetworkSpec.class, TFSavedModelNetwork.class);
-	}
-
-	@Override
-	public TFNetworkSpec convertSpecInternal(final DLKerasTensorFlowNetworkSpec spec) {
-		// NB: We return null because we don't know the spec yet.
-		// TODO document it in the API
-		// TODO check if we can create the specs without starting python
-		return null;
+		super(DLKerasTensorFlowNetwork.class, TFSavedModelNetwork.class);
 	}
 
 	@Override

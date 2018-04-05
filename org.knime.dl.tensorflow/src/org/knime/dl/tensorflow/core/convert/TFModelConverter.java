@@ -61,11 +61,11 @@ public interface TFModelConverter {
 		return getClass().getCanonicalName();
 	}
 
-	Class<? extends DLNetworkSpec> getNetworkSpecType();
-
 	Class<? extends DLNetwork> getNetworkType();
 
 	Class<? extends TFNetwork> getOutputNetworkType();
+
+	boolean canConvertSpec(Class<? extends DLNetworkSpec> specType);
 
 	TFNetworkSpec convertSpec(DLNetworkSpec spec);
 

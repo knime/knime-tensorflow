@@ -67,7 +67,6 @@ import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec;
 import org.knime.dl.tensorflow.core.TFNetwork;
-import org.knime.dl.tensorflow.core.TFNetworkSpec;
 import org.knime.dl.tensorflow.core.convert.TFModelConverter;
 import org.knime.dl.tensorflow.core.convert.TFModelConverterRegistry;
 
@@ -94,16 +93,17 @@ public class TFConverterNodeModel extends NodeModel {
 		final DLNetworkSpec networkSpec = spec.getNetworkSpec();
 
 		// Get the correct converter
-		m_converter = CONVERTER_REGISTRY.getConverter(networkSpec.getClass(), networkType);
+		m_converter = CONVERTER_REGISTRY.getConverter(networkType);
 		if (m_converter == null) {
-			throw new InvalidSettingsException("No converter for the given network type \"" + networkType + "\" found.");
+			throw new InvalidSettingsException(
+					"No converter for the given network type \"" + networkType + "\" found.");
 		}
 
-		final TFNetworkSpec tfSpec = m_converter.convertSpec(networkSpec);
-		if (tfSpec == null) {
-			return new PortObjectSpec[] {};
+		if (m_converter.canConvertSpec(networkSpec.getClass())) {
+			return new PortObjectSpec[] { new TFNetworkPortObjectSpec(m_converter.convertSpec(networkSpec),
+					m_converter.getOutputNetworkType()) };
 		} else {
-			return new PortObjectSpec[] { new TFNetworkPortObjectSpec(tfSpec, m_converter.getOutputNetworkType()) };
+			return new PortObjectSpec[] {};
 		}
 	}
 

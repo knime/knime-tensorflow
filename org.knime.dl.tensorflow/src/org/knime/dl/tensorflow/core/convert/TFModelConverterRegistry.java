@@ -50,10 +50,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.knime.core.util.Pair;
 import org.knime.dl.core.DLAbstractExtensionPointRegistry;
 import org.knime.dl.core.DLNetwork;
-import org.knime.dl.core.DLNetworkSpec;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -73,17 +71,16 @@ public class TFModelConverterRegistry extends DLAbstractExtensionPointRegistry {
 		return instance;
 	}
 
-	private final Map<Pair<Class<? extends DLNetwork>, Class<? extends DLNetworkSpec>>, TFModelConverter> m_converters = new HashMap<>();
+	private final Map<Class<? extends DLNetwork>, TFModelConverter> m_converters = new HashMap<>();
 
 	private TFModelConverterRegistry() {
 		super(EXT_POINT_ID, EXT_POINT_ATTR_CLASS);
 		register();
 	}
 
-	public TFModelConverter getConverter(final Class<? extends DLNetworkSpec> specType,
-			final Class<? extends DLNetwork> networkType) {
+	public TFModelConverter getConverter(final Class<? extends DLNetwork> networkType) {
 		// TODO change to allow super classes
-		return m_converters.get(new Pair(networkType, specType));
+		return m_converters.get(networkType);
 	}
 
 	@Override
@@ -97,10 +94,6 @@ public class TFModelConverterRegistry extends DLAbstractExtensionPointRegistry {
 		if (networkType == null) {
 			throw new IllegalArgumentException("The converter's associated network type must not be null.");
 		}
-		final Class<? extends DLNetworkSpec> specType = converter.getNetworkSpecType();
-		if (specType == null) {
-			throw new IllegalArgumentException("The converter's associated network spec type must not be null.");
-		}
-		m_converters.put(new Pair<>(networkType, specType), converter);
+		m_converters.put(networkType, converter);
 	}
 }
