@@ -53,12 +53,21 @@ import org.knime.dl.tensorflow.core.TFNetworkSpec;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
+ * @param <N> type of the deep-learning networks that can be converted
+ * @param <S> type of the deep-learning network specs that can be converted
  */
 public abstract class TFAbstractNetworkAndSpecConverter<N extends DLNetwork, S extends DLNetworkSpec>
 	extends TFAbstractNetworkConverter<N> {
 
 	private final Class<S> m_specType;
 
+	/**
+	 * Creates a new instance of this network converter.
+	 *
+	 * @param networkType type of the deep-learning networks that can be converted
+	 * @param tfNetworkType type of the TensorFlow network this converter creates
+	 * @param specType type of the deep-learning network spec that can be converted
+	 */
 	public TFAbstractNetworkAndSpecConverter(final Class<N> networkType, final Class<? extends TFNetwork> tfNetworkType,
 			final Class<S> specType) {
 		super(networkType, tfNetworkType);
@@ -84,5 +93,12 @@ public abstract class TFAbstractNetworkAndSpecConverter<N extends DLNetwork, S e
 		return convertSpecInternal((S) spec);
 	}
 
+	/**
+	 * Internally convert the network spec of a deep-learning network.
+	 *
+	 * @param spec the deep-learning network spec
+	 * @return the appropriate TensorFlow deep-learning network spec
+	 * @throws DLNetworkConversionException if converting the specs failed
+	 */
 	protected abstract TFNetworkSpec convertSpecInternal(S spec) throws DLNetworkConversionException;
 }

@@ -57,17 +57,39 @@ import org.knime.dl.tensorflow.core.TFNetworkSpec;
  */
 public interface TFNetworkConverter {
 
-	default String getIdentifier() {
-		return getClass().getCanonicalName();
-	}
-
+	/**
+	 * @return Type of the deep-learning network this converter can handle
+	 */
 	Class<? extends DLNetwork> getNetworkType();
 
+	/**
+	 * @return Type of the TensorFlow network this converter creates.
+	 */
 	Class<? extends TFNetwork> getOutputNetworkType();
 
+	/**
+	 * @param specType type of the network specs
+	 * @return true if the converter can convert this type of network spec
+	 */
 	boolean canConvertSpec(Class<? extends DLNetworkSpec> specType);
 
+	/**
+	 * Converts the network spec of a deep-learning network if converting specs is supported. Call
+	 * {@link #canConvertSpec(Class)} to find out if converting network specs is supported.
+	 *
+	 * @param spec the deep-learning network spec
+	 * @return the appropriate TensorFlow deep-learning network spec
+	 * @throws DLNetworkConversionException if converting the specs failed
+	 */
 	TFNetworkSpec convertSpec(DLNetworkSpec spec) throws DLNetworkConversionException;
 
+	/**
+	 * Converts the deep-learning network to a TensorFlow deep-learning network.
+	 *
+	 * @param network the deep-learning network
+	 * @param fileStore a file store to store the TensorFlow deep-learning network in
+	 * @return the converted TensorFlow deep-learning network.
+	 * @throws DLNetworkConversionException if converting the network failed.
+	 */
 	TFNetwork convertNetwork(DLNetwork network, FileStore fileStore) throws DLNetworkConversionException;
 }

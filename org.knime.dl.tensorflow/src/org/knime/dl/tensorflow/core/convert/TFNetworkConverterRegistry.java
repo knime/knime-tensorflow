@@ -64,6 +64,9 @@ public class TFNetworkConverterRegistry extends DLAbstractExtensionPointRegistry
 
 	private static TFNetworkConverterRegistry instance;
 
+	/**
+	 * @return singleton instance of the {@link TFNetworkConverterRegistry}
+	 */
 	public static synchronized TFNetworkConverterRegistry getInstance() {
 		if (instance == null) {
 			instance = new TFNetworkConverterRegistry();
@@ -78,8 +81,14 @@ public class TFNetworkConverterRegistry extends DLAbstractExtensionPointRegistry
 		register();
 	}
 
+	/**
+	 * Finds the appropriate converter for the given network type.
+	 *
+	 * @param networkType the deep-learning network type
+	 * @return the converter
+	 */
 	public TFNetworkConverter getConverter(final Class<? extends DLNetwork> networkType) {
-		// TODO change to allow super classes
+		// TODO should we allow super classes?
 		return m_converters.get(networkType);
 	}
 

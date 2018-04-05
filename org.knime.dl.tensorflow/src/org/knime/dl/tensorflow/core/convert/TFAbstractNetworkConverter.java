@@ -54,6 +54,7 @@ import org.knime.dl.tensorflow.core.TFNetworkSpec;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
+ * @param <N> type of the deep-learning networks that can be converted
  */
 public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements TFNetworkConverter {
 
@@ -61,6 +62,12 @@ public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements
 
 	private final Class<? extends TFNetwork> m_tfNetworkType;
 
+	/**
+	 * Creates a new instance of this network converter.
+	 *
+	 * @param networkType type of the deep-learning networks that can be converted
+	 * @param tfNetworkType type of the TensorFlow network this converter creates
+	 */
 	public TFAbstractNetworkConverter(final Class<N> networkType, final Class<? extends TFNetwork> tfNetworkType) {
 		m_networkType = networkType;
 		m_tfNetworkType = tfNetworkType;
@@ -88,7 +95,8 @@ public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public TFNetwork convertNetwork(final DLNetwork network, final FileStore fileStore) throws DLNetworkConversionException{
+	public TFNetwork convertNetwork(final DLNetwork network, final FileStore fileStore)
+			throws DLNetworkConversionException {
 		if (!m_networkType.isAssignableFrom(network.getClass())) {
 			throw new IllegalArgumentException("This converter is not applicable for networks of type \""
 					+ network.getClass() + "\". Expected type: \"" + m_networkType + "\".");
@@ -96,5 +104,14 @@ public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements
 		return convertNetworkInternal((N) network, fileStore);
 	}
 
-	protected abstract TFNetwork convertNetworkInternal(N network, FileStore fileStore) throws DLNetworkConversionException;
+	/**
+	 * Internally convert the deep-learning network to a TensorFlow deep-learning network.
+	 *
+	 * @param network the deep-learning network
+	 * @param fileStore a file store to store the TensorFlow deep-learning network in
+	 * @return the converted TensorFlow deep-learning network.
+	 * @throws DLNetworkConversionException if converting the network failed.
+	 */
+	protected abstract TFNetwork convertNetworkInternal(N network, FileStore fileStore)
+			throws DLNetworkConversionException;
 }
