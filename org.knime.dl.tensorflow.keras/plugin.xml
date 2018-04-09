@@ -8,11 +8,9 @@
       </TFNetworkConverter>
    </extension>
    <extension
-         point="org.knime.workbench.repository.nodes">
-      <node
-            category-path="/labs/deeplearning/tensorflow"
-            deprecated="false"
-            factory-class="org.knime.dl.tensorflow.keras.base.nodes.converter.TFKerasConverterNodeFactory">
-      </node>
+         point="org.knime.workbench.repository.nodesets">
+      <nodeset
+         factory-class="org.knime.dl.tensorflow.keras.base.nodes.TFConverterNodeSetFactory">
+      </nodeset>
    </extension>
 </plugin>

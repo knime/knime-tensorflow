@@ -7,6 +7,7 @@ Bundle-ClassPath: knime-dl-tensorflow-keras.jar
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Require-Bundle: org.knime.base;bundle-version="[3.6.0,4.0.0)",
  org.knime.core;bundle-version="[3.6.0,4.0.0)",
+ org.knime.workbench.repository;bundle-version="[3.6.0,4.0.0)",
  org.knime.dl;bundle-version="[3.6.0,4.0.0)",
  org.knime.dl.python;bundle-version="[3.6.0,4.0.0)",
  org.apache.commons.lang3;bundle-version="[3.2.1,4.0.0)",
