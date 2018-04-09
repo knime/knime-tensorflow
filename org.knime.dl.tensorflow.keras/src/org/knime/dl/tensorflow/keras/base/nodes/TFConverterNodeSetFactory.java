@@ -54,6 +54,7 @@ import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.config.ConfigRO;
+import org.knime.dl.keras.core.DLKerasNetwork;
 import org.knime.dl.tensorflow.keras.base.nodes.converter.TFKerasConverterNodeFactory;
 
 /**
@@ -65,7 +66,12 @@ public class TFConverterNodeSetFactory implements NodeSetFactory {
 
 	@Override
 	public Collection<String> getNodeFactoryIds() {
-		m_nodeFactories.put(TFKerasConverterNodeFactory.class.getCanonicalName(), "/labs/deeplearning/tensorflow");
+		try {
+			Class.forName(DLKerasNetwork.class.getCanonicalName());
+			m_nodeFactories.put(TFKerasConverterNodeFactory.class.getCanonicalName(), "/labs/deeplearning/tensorflow");
+		} catch (final ClassNotFoundException e) {
+			// org.knime.dl.keras is not available. Nothing to do
+		}
 		return m_nodeFactories.keySet();
 	}
 
@@ -93,5 +99,4 @@ public class TFConverterNodeSetFactory implements NodeSetFactory {
 	public ConfigRO getAdditionalSettings(final String id) {
 		return null;
 	}
-
 }
