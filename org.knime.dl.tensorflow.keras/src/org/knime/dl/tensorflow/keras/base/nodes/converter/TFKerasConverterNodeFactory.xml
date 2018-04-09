@@ -4,20 +4,20 @@
 	<name>Keras to TensorFlow Network Converter</name>
 
 	<shortDescription>
-		Converts a compatible deep learning model to a
-		TensorFlow model. TODO
+		Converts a Keras deep learning model with TensorFlow
+		backend to a TensorFlow model.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Converts a compatible deep learning model to a TensorFlow
-			model. TensorFlow models can be executed using the TensorFlow Java
-			API which is usually faster then using a Python kernel to execute the
-			model via a Python API. TODO
+			Converts a Keras deep learning model with TensorFlow backend to
+			a TensorFlow model. TensorFlow models can be executed using the
+			TensorFlow Java API which is usually faster then using a Python
+			kernel to execute the model via the Keras Python API.
 		</intro>
 	</fullDescription>
 	<ports>
-		<inPort index="0" name="Deep Learning Network">Input deep learning network. TODO
+		<inPort index="0" name="Deep Learning Network">Keras deep learning network.
 		</inPort>
 		<outPort index="0" name="Deep Learning Network">The TensorFlow deep learning network.
 		</outPort>
