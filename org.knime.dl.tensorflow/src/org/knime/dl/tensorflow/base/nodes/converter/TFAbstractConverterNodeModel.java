@@ -63,7 +63,6 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.base.portobjects.DLNetworkPortObjectSpec;
-import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec;
@@ -71,40 +70,48 @@ import org.knime.dl.tensorflow.core.TFNetwork;
 import org.knime.dl.tensorflow.core.TFNetworkSpec;
 import org.knime.dl.tensorflow.core.convert.DLNetworkConversionException;
 import org.knime.dl.tensorflow.core.convert.TFNetworkConverter;
-import org.knime.dl.tensorflow.core.convert.TFNetworkConverterRegistry;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFConverterNodeModel extends NodeModel {
+public abstract class TFAbstractConverterNodeModel extends NodeModel {
 
-	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFConverterNodeModel.class);
-
-	private static final TFNetworkConverterRegistry CONVERTER_REGISTRY = TFNetworkConverterRegistry.getInstance();
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFAbstractConverterNodeModel.class);
 
 	private TFNetworkConverter m_converter;
 
 	/**
-	 * Creates a new {@link NodeModel} for the TensorFlow Network Converter.
+	 * Creates a new abstract {@link NodeModel} for a TensorFlow Network Converter.
+	 *
+	 * @param inPortType Type of the input port which holds the network.
 	 */
-	protected TFConverterNodeModel() {
-		super(new PortType[] { DLNetworkPortObject.TYPE }, new PortType[] { TFNetworkPortObject.TYPE });
+	protected TFAbstractConverterNodeModel(final PortType inPortType) {
+		super(new PortType[] { inPortType }, new PortType[] { TFNetworkPortObject.TYPE });
 	}
+
+	/**
+	 * Creates a network converter for the specific network.
+	 *
+	 * @param inSpec the spec of the network port object
+	 * @return a network creator suitable for the given network type
+	 * @throws DLNetworkConversionException if no converter can be created
+	 */
+	protected abstract TFNetworkConverter getTFNetworkConverter(DLNetworkPortObjectSpec inSpec)
+			throws DLNetworkConversionException;
 
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		final DLNetworkPortObjectSpec spec = (DLNetworkPortObjectSpec) inSpecs[0];
-		final Class<? extends DLNetwork> networkType = spec.getNetworkType();
-		final DLNetworkSpec networkSpec = spec.getNetworkSpec();
 
 		// Get the correct converter
-		m_converter = CONVERTER_REGISTRY.getConverter(networkType);
-		if (m_converter == null) {
-			throw new InvalidSettingsException(
-					"No converter for the given network type \"" + networkType + "\" found.");
+		try {
+			m_converter = getTFNetworkConverter(spec);
+		} catch (final DLNetworkConversionException e) {
+			throw new InvalidSettingsException(e.getMessage(), e);
 		}
 
 		// Try to convert the specs
+		final DLNetworkSpec networkSpec = spec.getNetworkSpec();
 		TFNetworkSpec tfSpec = null;
 		if (m_converter.canConvertSpec(networkSpec.getClass())) {
 			try {

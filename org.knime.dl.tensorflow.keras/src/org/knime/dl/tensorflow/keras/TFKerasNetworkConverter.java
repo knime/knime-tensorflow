@@ -77,6 +77,9 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 
 	private static final String SIGNATURE_KEY = "serve";
 
+	/**
+	 * Creates a new Keras to TensorFlow converter.
+	 */
 	public TFKerasNetworkConverter() {
 		super(DLKerasTensorFlowNetwork.class, TFSavedModelNetwork.class);
 	}

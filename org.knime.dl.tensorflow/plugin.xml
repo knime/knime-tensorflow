@@ -31,11 +31,6 @@
             deprecated="false"
             factory-class="org.knime.dl.tensorflow.base.nodes.reader.TFReaderNodeFactory">
       </node>
-      <node
-            category-path="/labs/deeplearning/tensorflow"
-            deprecated="false"
-            factory-class="org.knime.dl.tensorflow.base.nodes.converter.TFConverterNodeFactory">
-      </node>
   </extension>
    <extension
          point="org.knime.dl.DLExecutionContext">

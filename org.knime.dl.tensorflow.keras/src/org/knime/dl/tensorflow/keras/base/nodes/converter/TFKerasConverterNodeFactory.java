@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.base.nodes.converter;
+package org.knime.dl.tensorflow.keras.base.nodes.converter;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
@@ -53,11 +53,11 @@ import org.knime.core.node.NodeView;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFConverterNodeFactory extends NodeFactory<TFConverterNodeModel> {
+public class TFKerasConverterNodeFactory extends NodeFactory<TFKerasConverterNodeModel> {
 
 	@Override
-	public TFConverterNodeModel createNodeModel() {
-		return new TFConverterNodeModel();
+	public TFKerasConverterNodeModel createNodeModel() {
+		return new TFKerasConverterNodeModel();
 	}
 
 	@Override
@@ -66,7 +66,8 @@ public class TFConverterNodeFactory extends NodeFactory<TFConverterNodeModel> {
 	}
 
 	@Override
-	public NodeView<TFConverterNodeModel> createNodeView(final int viewIndex, final TFConverterNodeModel nodeModel) {
+	public NodeView<TFKerasConverterNodeModel> createNodeView(final int viewIndex,
+			final TFKerasConverterNodeModel nodeModel) {
 		return null;
 	}
 
