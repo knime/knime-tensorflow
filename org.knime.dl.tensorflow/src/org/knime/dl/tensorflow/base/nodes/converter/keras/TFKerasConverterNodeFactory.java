@@ -44,39 +44,40 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.keras.base.nodes.converter;
+package org.knime.dl.tensorflow.base.nodes.converter.keras;
 
-import org.knime.dl.base.portobjects.DLNetworkPortObject;
-import org.knime.dl.base.portobjects.DLNetworkPortObjectSpec;
-import org.knime.dl.core.DLNetwork;
-import org.knime.dl.tensorflow.base.nodes.converter.TFAbstractConverterNodeModel;
-import org.knime.dl.tensorflow.core.convert.DLNetworkConversionException;
-import org.knime.dl.tensorflow.core.convert.TFNetworkConverter;
-import org.knime.dl.tensorflow.core.convert.TFNetworkConverterRegistry;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeFactory;
+import org.knime.core.node.NodeView;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFKerasConverterNodeModel extends TFAbstractConverterNodeModel {
+public class TFKerasConverterNodeFactory extends NodeFactory<TFKerasConverterNodeModel> {
 
-	private static final TFNetworkConverterRegistry CONVERTER_REGISTRY = TFNetworkConverterRegistry.getInstance();
-
-	/**
-	 * Creates a new {@link TFKerasConverterNodeModel}.
-	 */
-	protected TFKerasConverterNodeModel() {
-		super(DLNetworkPortObject.TYPE);
+	@Override
+	public TFKerasConverterNodeModel createNodeModel() {
+		return new TFKerasConverterNodeModel();
 	}
 
 	@Override
-	protected TFNetworkConverter getTFNetworkConverter(final DLNetworkPortObjectSpec inSpec)
-			throws DLNetworkConversionException {
-		final Class<? extends DLNetwork> networkType = inSpec.getNetworkType();
-		final TFNetworkConverter converter = CONVERTER_REGISTRY.getConverter(networkType);
-		if (converter == null) {
-			throw new DLNetworkConversionException(
-					"Cannot convert Keras network of type '" + networkType + "'. No converter available.");
-		}
-		return converter;
+	protected int getNrNodeViews() {
+		return 0;
+	}
+
+	@Override
+	public NodeView<TFKerasConverterNodeModel> createNodeView(final int viewIndex,
+			final TFKerasConverterNodeModel nodeModel) {
+		return null;
+	}
+
+	@Override
+	protected boolean hasDialog() {
+		return false;
+	}
+
+	@Override
+	protected NodeDialogPane createNodeDialogPane() {
+		return null;
 	}
 }

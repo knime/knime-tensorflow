@@ -44,59 +44,39 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.keras.base.nodes;
+package org.knime.dl.tensorflow.base.nodes.converter.keras;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSetFactory;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.dl.keras.core.DLKerasNetwork;
-import org.knime.dl.tensorflow.keras.base.nodes.converter.TFKerasConverterNodeFactory;
+import org.knime.dl.base.portobjects.DLNetworkPortObject;
+import org.knime.dl.base.portobjects.DLNetworkPortObjectSpec;
+import org.knime.dl.core.DLNetwork;
+import org.knime.dl.tensorflow.base.nodes.converter.TFAbstractConverterNodeModel;
+import org.knime.dl.tensorflow.core.convert.DLNetworkConversionException;
+import org.knime.dl.tensorflow.core.convert.TFNetworkConverter;
+import org.knime.dl.tensorflow.core.convert.TFNetworkConverterRegistry;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFConverterNodeSetFactory implements NodeSetFactory {
+public class TFKerasConverterNodeModel extends TFAbstractConverterNodeModel {
 
-	private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
+	private static final TFNetworkConverterRegistry CONVERTER_REGISTRY = TFNetworkConverterRegistry.getInstance();
+
+	/**
+	 * Creates a new {@link TFKerasConverterNodeModel}.
+	 */
+	protected TFKerasConverterNodeModel() {
+		super(DLNetworkPortObject.TYPE);
+	}
 
 	@Override
-	public Collection<String> getNodeFactoryIds() {
-		try {
-			Class.forName(DLKerasNetwork.class.getCanonicalName());
-			m_nodeFactories.put(TFKerasConverterNodeFactory.class.getCanonicalName(), "/labs/deeplearning/tensorflow");
-		} catch (final ClassNotFoundException e) {
-			// org.knime.dl.keras is not available. Nothing to do
+	protected TFNetworkConverter getTFNetworkConverter(final DLNetworkPortObjectSpec inSpec)
+			throws DLNetworkConversionException {
+		final Class<? extends DLNetwork> networkType = inSpec.getNetworkType();
+		final TFNetworkConverter converter = CONVERTER_REGISTRY.getConverter(networkType);
+		if (converter == null) {
+			throw new DLNetworkConversionException(
+					"Cannot convert Keras network of type '" + networkType + "'. No converter available.");
 		}
-		return m_nodeFactories.keySet();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(final String id) {
-		try {
-			return (Class<? extends NodeFactory<? extends NodeModel>>) Class.forName(id);
-		} catch (final ClassNotFoundException e) {
-		}
-		return null;
-	}
-
-	@Override
-	public String getCategoryPath(final String id) {
-		return m_nodeFactories.get(id);
-	}
-
-	@Override
-	public String getAfterID(final String id) {
-		return "";
-	}
-
-	@Override
-	public ConfigRO getAdditionalSettings(final String id) {
-		return null;
+		return converter;
 	}
 }

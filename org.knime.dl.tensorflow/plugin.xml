@@ -56,4 +56,16 @@
             DLDataValueToTensorConverterFactory="org.knime.dl.tensorflow.savedmodel.core.data.convert.DLStringValueToStringTensorConverterFactory">
       </DLDataValueToTensorConverterFactory>
    </extension>
+   <extension
+         point="org.knime.dl.tensorflow.TFNetworkConverter">
+      <TFNetworkConverter
+            TFNetworkConverter="org.knime.dl.tensorflow.core.convert.keras.TFKerasNetworkConverter">
+      </TFNetworkConverter>
+   </extension>
+   <extension
+         point="org.knime.workbench.repository.nodesets">
+      <nodeset
+         factory-class="org.knime.dl.tensorflow.base.nodes.converter.keras.TFConverterNodeSetFactory">
+      </nodeset>
+   </extension>
 </plugin>

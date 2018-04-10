@@ -44,7 +44,7 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.keras;
+package org.knime.dl.tensorflow.core.convert.keras;
 
 import java.io.IOException;
 import java.net.URL;

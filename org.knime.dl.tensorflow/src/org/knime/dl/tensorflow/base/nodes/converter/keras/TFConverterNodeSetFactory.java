@@ -44,40 +44,58 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.keras.base.nodes.converter;
+package org.knime.dl.tensorflow.base.nodes.converter.keras;
 
-import org.knime.core.node.NodeDialogPane;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
+import org.knime.core.node.NodeModel;
+import org.knime.core.node.NodeSetFactory;
+import org.knime.core.node.config.ConfigRO;
+import org.knime.dl.keras.core.DLKerasNetwork;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFKerasConverterNodeFactory extends NodeFactory<TFKerasConverterNodeModel> {
+public class TFConverterNodeSetFactory implements NodeSetFactory {
+
+	private final Map<String, String> m_nodeFactories = new HashMap<String, String>();
 
 	@Override
-	public TFKerasConverterNodeModel createNodeModel() {
-		return new TFKerasConverterNodeModel();
+	public Collection<String> getNodeFactoryIds() {
+		try {
+			Class.forName(DLKerasNetwork.class.getCanonicalName());
+			m_nodeFactories.put(TFKerasConverterNodeFactory.class.getCanonicalName(), "/labs/deeplearning/tensorflow");
+		} catch (final ClassNotFoundException e) {
+			// org.knime.dl.keras is not available. Nothing to do
+		}
+		return m_nodeFactories.keySet();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected int getNrNodeViews() {
-		return 0;
-	}
-
-	@Override
-	public NodeView<TFKerasConverterNodeModel> createNodeView(final int viewIndex,
-			final TFKerasConverterNodeModel nodeModel) {
+	public Class<? extends NodeFactory<? extends NodeModel>> getNodeFactory(final String id) {
+		try {
+			return (Class<? extends NodeFactory<? extends NodeModel>>) Class.forName(id);
+		} catch (final ClassNotFoundException e) {
+		}
 		return null;
 	}
 
 	@Override
-	protected boolean hasDialog() {
-		return false;
+	public String getCategoryPath(final String id) {
+		return m_nodeFactories.get(id);
 	}
 
 	@Override
-	protected NodeDialogPane createNodeDialogPane() {
+	public String getAfterID(final String id) {
+		return "";
+	}
+
+	@Override
+	public ConfigRO getAdditionalSettings(final String id) {
 		return null;
 	}
 }
