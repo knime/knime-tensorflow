@@ -46,6 +46,9 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
@@ -56,12 +59,12 @@ import org.knime.core.data.filestore.FileStore;
 import org.knime.dl.core.DLInvalidDestinationException;
 import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLInvalidSourceException;
-import org.knime.dl.python.core.DLPythonAbstractCommands;
 import org.knime.dl.python.core.DLPythonAbstractNetworkLoader;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetwork;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkPortObject;
+import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 
 /**
  * TODO Abstract class for all tensorflow python networks?
@@ -71,6 +74,8 @@ import org.knime.dl.python.core.DLPythonNetworkPortObject;
 public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSavedModelNetwork> {
 
 	private static final String URL_EXTENSION = "";
+
+	private static DLPythonInstallationTester installationTester = new DLPythonInstallationTester();
 
 	@Override
 	public Class<TFSavedModelNetwork> getNetworkType() {
@@ -112,35 +117,41 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 	@Override
 	public DLPythonNetworkHandle load(final URL source, final DLPythonContext context, final boolean loadTrainingConfig)
 			throws DLInvalidSourceException, DLInvalidEnvironmentException, IOException {
-		// TODO Auto-generated method stub
-		return null;
+		validateSource(source);
+		try {
+			final File savedModelDir = TFSavedModelUtil.getSavedModelInDir(source);
+			final TFPythonCommands commands = createCommands(checkNotNull(context));
+			return commands.loadNetwork(savedModelDir.getAbsolutePath(), loadTrainingConfig);
+		} catch (DLInvalidEnvironmentException | IOException | Error | RuntimeException e) {
+			// Delete the temporary file if it exists
+			TFSavedModelUtil.deleteTempIfLocal(source);
+			// TODO handle exception?
+			throw e;
+		}
 	}
 
 	@Override
 	public TFSavedModelNetwork fetch(final DLPythonNetworkHandle handle, final URL source,
 			final DLPythonContext context)
 			throws IllegalArgumentException, DLInvalidSourceException, DLInvalidEnvironmentException, IOException {
-		// TODO Auto-generated method stub
-		return null;
+		final TFPythonCommands commands = createCommands(checkNotNull(context));
+		final TFSavedModelNetworkSpec spec = commands.extractNetworkSpec(checkNotNull(handle));
+		return new TFSavedModelNetwork(spec, source);
 	}
 
 	@Override
 	public DLPythonNetworkPortObject<? extends DLPythonNetwork> createPortObject(final TFSavedModelNetwork network,
 			final FileStore fileStore) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return new TFNetworkPortObject(network, fileStore);
 	}
 
 	@Override
-	protected DLPythonAbstractCommands createCommands(final DLPythonContext context)
-			throws DLInvalidEnvironmentException {
-		// TODO Auto-generated method stub
-		return null;
+	protected TFPythonCommands createCommands(final DLPythonContext context) throws DLInvalidEnvironmentException {
+		return new TFPythonCommands(context);
 	}
 
 	@Override
 	protected DLPythonInstallationTester getInstallationTester() {
-		// TODO Auto-generated method stub
-		return null;
+		return installationTester;
 	}
 }

@@ -101,14 +101,14 @@ public class TFPythonCommands extends DLPythonAbstractCommands {
 
 	@Override
 	protected String getSetupBackendCode() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
 	protected String getLoadNetworkCode(final String path, final boolean loadTrainingConfig) {
-		// TODO Auto-generated method stub
-		return null;
+		return "import DLPythonNetwork\n" + //
+				"from TFNetwork import TFNetworkReader\n" + //
+				"network = TFNetworkReader().read(r'" + path + "')\n" + //
+				"DLPythonNetwork.add_network('" + DEFAULT_MODEL_NAME + "', network)";
 	}
-
 }
