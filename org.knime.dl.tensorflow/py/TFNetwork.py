@@ -78,7 +78,7 @@ class TFNetworkReader(DLPythonNetworkReader):
         with tf.Session(graph=graph) as sess:
             tf.saved_model_loader.load(sess, tags, path)
             # TODO get the signature
-        raise TFNetwork(TFModel(graph, signature, tags))
+        raise TFNetwork(TFModel(graph, None, tags))
 
 
 class TFNetwork(DLPythonNetwork):

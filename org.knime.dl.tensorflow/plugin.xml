@@ -68,4 +68,16 @@
          factory-class="org.knime.dl.tensorflow.base.nodes.converter.keras.TFConverterNodeSetFactory">
       </nodeset>
    </extension>
+   <extension
+         point="org.knime.dl.python.DLPythonNetworkLoader">
+      <DLPythonNetworkLoader
+            DLPythonNetworkLoader="org.knime.dl.tensorflow.savedmodel.core.TFPythonNetworkLoader">
+      </DLPythonNetworkLoader>
+   </extension>
+   <extension
+         point="org.knime.python.modules">
+      <directory
+            path="py/">
+      </directory>
+   </extension>
 </plugin>
