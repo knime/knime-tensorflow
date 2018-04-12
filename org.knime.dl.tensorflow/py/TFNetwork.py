@@ -47,7 +47,10 @@
 @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
 '''
 
+import os
+
 import tensorflow as tf
+from tensorflow.core.protobuf import saved_model_pb2
 
 from DLPythonNetwork import DLPythonNetwork
 from DLPythonNetwork import DLPythonNetworkReader
@@ -60,13 +63,77 @@ from TFModel import TFModel
 class TFNetworkReader(DLPythonNetworkReader):
 
     def read(self, path, **kwargs):
-        # TODO tags as parameter?
-        tags = [ "SERVE" ]
+        # Parse the SavedModel
+        saved_model = self._parse_saved_model(path)
+        if len(saved_model.meta_graphs) > 1:
+            raise ValueError("The SavedModel must contain only one graph.")
+        meta_graph = saved_model.meta_graphs[0]
+        tags = meta_graph.meta_info_def.tags
+
+        # Read the SavedModel into a graph
         graph = tf.Graph()
         with tf.Session(graph=graph) as sess:
-            tf.saved_model_loader.load(sess, tags, path)
-            # TODO get the signature
-        raise TFNetwork(TFModel(graph, None, tags))
+            tf.saved_model.loader.load(sess, tags, path)
+
+        # Get the signature
+        if len(meta_graph.signature_def.items()) > 1:
+            raise ValueError("The SavedModel must contain only one signature.")
+        signature_key, sig = list(meta_graph.signature_def.items())[0]
+        method_name = sig.method_name
+
+        # Get the input and output tensors
+        get_tensor = lambda t: tf.saved_model.utils.get_tensor_from_tensor_info(t, graph=graph)
+        inps = { k: get_tensor(v) for k,v in sig.inputs.items() }
+        oups = { k: get_tensor(v) for k,v in sig.outputs.items() }
+
+        return TFNetwork(TFModel(graph, inputs=inps, outputs=oups, tags=tags,
+                                 method_name=method_name, signature_key=signature_key))
+
+    # TODO! Copied from https://github.com/tensorflow/tensorflow/blob/r1.4/tensorflow/python/saved_model/loader_impl.py
+    def _parse_saved_model(self, export_dir):
+        """Reads the savedmodel.pb or savedmodel.pbtxt file containing `SavedModel`.
+
+        Args:
+            export_dir: Directory containing the SavedModel file.
+
+        Returns:
+            A `SavedModel` protocol buffer.
+
+        Raises:
+            IOError: If the file does not exist, or cannot be successfully parsed.
+        """
+        # Build the path to the SavedModel in pbtxt format.
+        path_to_pbtxt = os.path.join(
+            tf.compat.as_bytes(export_dir),
+            tf.compat.as_bytes(tf.saved_model.constants.SAVED_MODEL_FILENAME_PBTXT))
+        # Build the path to the SavedModel in pb format.
+        path_to_pb = os.path.join(
+            tf.compat.as_bytes(export_dir),
+            tf.compat.as_bytes(tf.saved_model.constants.SAVED_MODEL_FILENAME_PB))
+
+        # Parse the SavedModel protocol buffer.
+        saved_model = saved_model_pb2.SavedModel()
+        if os.path.isfile(path_to_pb):
+            try:
+                with open(path_to_pb, 'rb') as pb_file:
+                    file_content = pb_file.read()
+                saved_model.ParseFromString(file_content)
+                return saved_model
+            except message.DecodeError as e:
+                raise IOError("Cannot parse file %s: %s." % (path_to_pb, str(e)))
+        elif os.path.isfile(path_to_pbtxt):
+            try:
+                with open(path_to_pbtxt, 'rb') as pb_file:
+                    file_content = pb_file.read()
+                text_format.Merge(file_content.decode("utf-8"), saved_model)
+                return saved_model
+            except text_format.ParseError as e:
+                raise IOError("Cannot parse file %s: %s." % (path_to_pbtxt, str(e)))
+        else:
+            raise IOError("SavedModel file does not exist at: %s/{%s|%s}" %
+                          (export_dir,
+                           constants.SAVED_MODEL_FILENAME_PBTXT,
+                           constants.SAVED_MODEL_FILENAME_PB))
 
 
 class TFNetwork(DLPythonNetwork):
