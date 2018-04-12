@@ -50,14 +50,12 @@ import java.io.File;
 import java.io.IOException;
 
 import org.knime.dl.core.DLInvalidEnvironmentException;
-import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
-import org.knime.dl.keras.core.DLKerasTensorSpecTableCreatorFactory;
 import org.knime.dl.python.core.DLPythonAbstractCommands;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNumPyTypeMap;
-import org.knime.dl.python.core.data.DLPythonTypeMap;
+import org.knime.dl.python.core.DLPythonTensorSpecTableCreatorFactory;
 import org.knime.python2.kernel.PythonKernel;
 
 /**
@@ -78,15 +76,21 @@ public class TFPythonCommands extends DLPythonAbstractCommands {
 		getContext().executeInKernel(getExtractNetworkSpecsCode(network));
 		final PythonKernel kernel = getContext().getKernel();
 		final DLTensorSpec[] inputSpecs = (DLTensorSpec[]) kernel
-				.getData(INPUT_SPECS_NAME, new DLKerasTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE))
+				.getData(INPUT_SPECS_NAME, new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE))
 				.getTable();
-		return null;
+		// TODO hidden output spec (could be a lot)
+		final DLTensorSpec[] hiddenOutputSpecs = new DLTensorSpec[0];
+		final DLTensorSpec[] outputSpecs = (DLTensorSpec[]) kernel
+				.getData(OUTPUT_SPECS_NAME, new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE))
+				.getTable();
+		// TODO Tags in python specs and extract
+		final String[] tags = new String[] { "SERVE" };
+		return new TFSavedModelNetworkSpec(tags, inputSpecs, hiddenOutputSpecs, outputSpecs);
 	}
 
 	@Override
 	protected String getSetupEnvironmentCode() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
