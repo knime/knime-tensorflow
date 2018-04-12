@@ -56,6 +56,7 @@ import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNumPyTypeMap;
 import org.knime.dl.python.core.DLPythonTensorSpecTableCreatorFactory;
+import org.knime.dl.util.DLUtils;
 import org.knime.python2.kernel.PythonKernel;
 
 /**
@@ -95,8 +96,7 @@ public class TFPythonCommands extends DLPythonAbstractCommands {
 
 	@Override
 	protected File getInstallationTestFile() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return DLUtils.Files.getFileFromSameBundle(this, "py/TFNetworkTester.py");
 	}
 
 	@Override
