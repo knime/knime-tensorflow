@@ -57,6 +57,10 @@ import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNumPyTypeMap;
 import org.knime.dl.python.core.DLPythonTensorSpecTableCreatorFactory;
 import org.knime.dl.util.DLUtils;
+import org.knime.python2.extensions.serializationlibrary.interfaces.Row;
+import org.knime.python2.extensions.serializationlibrary.interfaces.TableCreator;
+import org.knime.python2.extensions.serializationlibrary.interfaces.TableCreatorFactory;
+import org.knime.python2.extensions.serializationlibrary.interfaces.TableSpec;
 import org.knime.python2.kernel.PythonKernel;
 
 /**
@@ -84,8 +88,35 @@ public class TFPythonCommands extends DLPythonAbstractCommands {
 		final DLTensorSpec[] outputSpecs = (DLTensorSpec[]) kernel
 				.getData(OUTPUT_SPECS_NAME, new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE))
 				.getTable();
-		// TODO Tags in python specs and extract
-		final String[] tags = new String[] { "SERVE" };
+
+		getContext().executeInKernel(getExtractTagsCode(network));
+		final String[] tags = (String[]) kernel.getData("tags", new TableCreatorFactory() {
+
+			@Override
+			public TableCreator<?> createTableCreator(TableSpec spec, int tableSize) {
+				return new TableCreator<String[]>() {
+
+					private final String[] m_tags = new String[tableSize];
+					private int m_nextIdx = 0;
+
+					@Override
+					public void addRow(Row row) {
+						m_tags[m_nextIdx++] = row.getCell(0).getStringValue();
+					}
+
+					@Override
+					public TableSpec getTableSpec() {
+						return spec;
+					}
+
+					@Override
+					public String[] getTable() {
+						return m_tags;
+					}
+				};
+			}
+		}).getTable();
+
 		return new TFSavedModelNetworkSpec(tags, inputSpecs, hiddenOutputSpecs, outputSpecs);
 	}
 
@@ -110,5 +141,11 @@ public class TFPythonCommands extends DLPythonAbstractCommands {
 				"from TFNetwork import TFNetworkReader\n" + //
 				"network = TFNetworkReader().read(r'" + path + "')\n" + //
 				"DLPythonNetwork.add_network('" + DEFAULT_MODEL_NAME + "', network)";
+	}
+
+	private String getExtractTagsCode(final DLPythonNetworkHandle network) {
+		return "import pandas as pd\n" + //
+				"global tags\n" + //
+				"tags = pd.DataFrame({ 'tags':" + network.getIdentifier() + ".tags })";
 	}
 }
