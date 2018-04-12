@@ -47,13 +47,41 @@
 @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
 '''
 
+import tensorflow as tf
 # TODO better documentation
 
-class TFNetworkModel(object):
-    """ Object which holds all information for a tensorflow model """
 
-    def __init__(self, graph, signature, tags):
+class TFModel(object):
+    """ Object which holds all information for a tensorflow model.
+    In contrast to an SavedModel this object only supports one signature.
+    """
+
+    def __init__(self, graph, inputs, outputs, tags=['SAVE'],
+                 method_name='PREDICT', signature_key='predict'):
         # TODO check arguments
+        # TODO default for tags, method_name and signature_key
+        # TODO check that shape of inputs and outputs is okay
         self.graph = graph
-        self.signature = signature
+        self.inputs = inputs
+        self.outputs = outputs
         self.tags = tags
+        self._method_name = method_name
+        self._signature_key = signature_key
+
+    def save(self, path):
+        builder = tf.saved_model.builder.SavedModelBuilder(path)
+        inps = self.inputs
+        oups = self.outputs
+        with tf.Session(graph=self.graph) as sess:
+            tensor_info = tf.saved_model.utils.build_tensor_info
+            sig_inps = { k: tensor_info(t) for k, t in inps.items() }
+            sig_oups = { k: tensor_info(t) for k, t in oups.items() }
+            sig = tf.saved_model.signature_def_utils.build_signature_def(
+                inputs=sig_inps,
+                outputs=sig_oups,
+                method_name=self._method_name)
+            sigs = { self._signature_key: sig }
+            builder.add_meta_graph_and_variables(sess,
+                                                 self.tags,
+                                                 signature_def_map=sigs)
+        builder.save()

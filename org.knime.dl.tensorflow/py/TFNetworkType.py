@@ -49,11 +49,11 @@
 
 import DLPythonNetworkType
 
-class TFNetworkType(DLPythonNetworkType):
+class TFNetworkType(DLPythonNetworkType.DLPythonNetworkType):
 
     def __init__(self):
         # TODO real identifier
-        super().__init__('org.knime.dl.tensorflow.core.TFNetwork')
+        super().__init__('org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork')
 
     @property
     def reader(self):

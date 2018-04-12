@@ -47,24 +47,12 @@
 @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
 '''
 
-# TODO clean imports
+import tensorflow as tf
 
-import numpy as np
-import pandas as pd
-from keras.models import load_model
-from keras.models import model_from_json
-from keras.models import model_from_yaml
-
-from DLKerasTrainingCallbacks import DLKerasTrainingMonitor
-from DLPythonDataBuffers import DLPythonDoubleBuffer
-from DLPythonDataBuffers import DLPythonFloatBuffer
-from DLPythonDataBuffers import DLPythonIntBuffer
-from DLPythonDataBuffers import DLPythonLongBuffer
-from DLPythonInstallationTester import compare_versions
 from DLPythonNetwork import DLPythonNetwork
 from DLPythonNetwork import DLPythonNetworkReader
 from DLPythonNetwork import DLPythonNetworkSpec
-from DLPythonNetwork import DLPythonTrainingConfig
+from DLPythonNetwork import DLPythonTensorSpec
 
 from TFModel import TFModel
 
@@ -88,8 +76,14 @@ class TFNetwork(DLPythonNetwork):
 
     @property
     def spec(self):
-        # TODO implement
-        raise NotImplementedError()
+        if self._spec is None:
+            model = self._model
+
+            inp_specs = [ self._tensor_spec(t, n) for n, t in model.inputs.items() ]
+            hid_specs = [] # TODO hidden layer spec
+            oup_specs = [ self._tensor_spec(t, n) for n, t in model.outputs.items() ]
+
+            self._spec = TFNetworkSpec(inp_specs, hid_specs, oup_specs, model.tags)
         return self._spec
 
     def execute(self, in_data, batch_size):
@@ -97,14 +91,35 @@ class TFNetwork(DLPythonNetwork):
         raise NotImplementedError()
 
     def save(self, path):
-        # TODO implement
-        raise NotImplementedError()
+        model = self._model
+        model.save(path)
+
+    def _tensor_spec(self, tf_tensor, name=None):
+        id = tf_tensor.name
+        if name is None:
+            name = tf_tensor.name
+        tf_shape = tf_tensor.get_shape().as_list()
+        if len(tf_shape) < 2:
+            tf_shape.append(1)
+        batch_size = tf_shape[0]
+        shape = tf_shape[1:]
+        element_type = tf_tensor.dtype.name
+        try:
+            data_format = tf_tensor.op.get_attr('data_format')
+            dimension_order = 'TCDHW' if data_format.startswith("NC") else 'TDHWC'
+        except ValueError:
+            # Default to TDHWC TODO is this a good idea?
+            dimension_order = 'TDHWC'
+        return DLPythonTensorSpec(id, name, batch_size, shape, element_type, dimension_order)
 
 
 class TFNetworkSpec(DLPythonNetworkSpec):
 
-    def __init__(self, input_specs, intermediate_output_specs, output_specs):
+    def __init__(self, input_specs, intermediate_output_specs, output_specs, tags):
         super().__init__(input_specs, intermediate_output_specs, output_specs)
+        self._tags = tags
+        # TODO enforce the training config attribute in the super class?
+        self.training_config = None
 
     @property
     def network_type(self):
