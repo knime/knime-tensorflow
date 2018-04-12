@@ -177,20 +177,12 @@ public class TFMetaGraphDef {
 				&& signatureDef.getOutputsMap().entrySet().stream().anyMatch(t -> canBeOutput(t.getValue()));
 	}
 
-	private String opName(final String name) {
-		if (name.contains(":")) {
-			return name.substring(0, name.lastIndexOf(':'));
-		} else {
-			return name;
-		}
-	}
-
 	// ---------------------- Methods on TensorInfo --------------------
 
 	private DLTensorSpec createTensorSpec(final String name, final TensorInfo t) {
 		try {
 			final Class<?> type = getClassForType(t.getDtype());
-			final DLTensorId id = new DLDefaultTensorId(opName(t.getName()));
+			final DLTensorId id = new DLDefaultTensorId(t.getName());
 			final TensorShapeProto shapeProto = t.getTensorShape();
 			return createTensorSpec(id, name, shapeProto, type);
 		} catch (final DLInvalidTypeException e) {

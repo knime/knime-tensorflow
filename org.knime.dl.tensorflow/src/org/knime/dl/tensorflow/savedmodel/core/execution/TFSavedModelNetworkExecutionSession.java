@@ -80,8 +80,8 @@ import org.tensorflow.Tensor;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */
-public class TFSavedModelNetworkExecutionSession extends
-	DLAbstractNetworkExecutionSession<TFSavedModelNetwork> implements TFNetworkExecutionSession {
+public class TFSavedModelNetworkExecutionSession extends DLAbstractNetworkExecutionSession<TFSavedModelNetwork>
+		implements TFNetworkExecutionSession {
 
 	private SavedModelBundle m_savedModelBundle;
 
@@ -196,8 +196,7 @@ public class TFSavedModelNetworkExecutionSession extends
 		final long batchSize = dlTensor.getBuffer().size() / dlTensor.getExampleSize();
 
 		try {
-			final TFTensorWritableBuffer<?> buffer = (TFTensorWritableBuffer<?>) dlTensor
-					.getBuffer();
+			final TFTensorWritableBuffer<?> buffer = (TFTensorWritableBuffer<?>) dlTensor.getBuffer();
 			return buffer.readIntoTensor(batchSize, shape);
 		} catch (final ClassCastException e) {
 			throw new IllegalStateException("Wrong type of buffer: \"" + dlTensor.getBuffer().getClass()
@@ -223,11 +222,11 @@ public class TFSavedModelNetworkExecutionSession extends
 		public void feed(final DLTensorId id, final DLTensor<? extends DLWritableBuffer> tensor) {
 			Tensor<?> t = createTFTensor(tensor);
 			m_openTensors.add(t);
-			m_runner.feed(id.getIdentifierString(), t);
+			m_runner.feed(opName(id), t);
 		}
 
 		public void fetch(final DLTensorId id) {
-			m_runner.fetch(id.getIdentifierString(), 0);
+			m_runner.fetch(opName(id), opOutput(id));
 			m_outputIds.add(id);
 		}
 
@@ -248,6 +247,24 @@ public class TFSavedModelNetworkExecutionSession extends
 						+ "\", expected: \"" + TFTensorReadableBuffer.class + "\".");
 			}
 			buffer.writeFromTensor(m_outputs.get(m_outputIds.indexOf(id)));
+		}
+
+		private String opName(final DLTensorId id) {
+			final String name = id.getIdentifierString();
+			if (name.contains(":")) {
+				return name.substring(0, name.lastIndexOf(':'));
+			} else {
+				return name;
+			}
+		}
+
+		private int opOutput(final DLTensorId id) {
+			final String name = id.getIdentifierString();
+			if (name.contains(":")) {
+				return Integer.parseInt(name.substring(name.lastIndexOf(':') + 1));
+			} else {
+				return 0;
+			}
 		}
 
 		@Override
