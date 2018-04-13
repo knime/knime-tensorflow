@@ -105,7 +105,7 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 						.n("from tensorflow import saved_model") //
 						.n("model = DLPythonNetwork.get_network(").as(networkHandle.getIdentifier()).a(").model") //
 						.n("inp, oup = model.input, model.output") //
-						.n("builder = saved_model.builder.SavedModelBuilder(").as(savePath).a(")") //
+						.n("builder = saved_model.builder.SavedModelBuilder(r").as(savePath).a(")") //
 						.n("signature = saved_model.signature_def_utils.predict_signature_def(") //
 						.n().t().a("inputs = dict([ (t.name,t) for t in (inp if type(inp) is list else [inp]) ]),") //
 						.n().t().a("outputs = dict([ (t.name,t) for t in (oup if type(oup) is list else [oup]) ]))") //
