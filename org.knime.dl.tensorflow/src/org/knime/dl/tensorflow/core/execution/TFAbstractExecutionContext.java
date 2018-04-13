@@ -47,7 +47,6 @@
 package org.knime.dl.tensorflow.core.execution;
 
 import org.knime.dl.core.DLTensorFactory;
-import org.knime.dl.core.DLTensorRegistry;
 import org.knime.dl.tensorflow.core.TFNetwork;
 
 /**
@@ -56,8 +55,7 @@ import org.knime.dl.tensorflow.core.TFNetwork;
  * @param <N> the specific {@link TFNetwork} of this execution context
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public abstract class TFAbstractExecutionContext<N extends TFNetwork>
-		implements TFExecutionContext<N> {
+public abstract class TFAbstractExecutionContext<N extends TFNetwork> implements TFExecutionContext<N> {
 
 	private final Class<N> m_networkType;
 
@@ -69,14 +67,13 @@ public abstract class TFAbstractExecutionContext<N extends TFNetwork>
 	 * Creates a new execution context for TensorFlow networks.
 	 *
 	 * @param networkType the class of the networks
+	 * @param tensorFactory the tensor factory
 	 * @param name the name of the execution context
 	 */
-	protected TFAbstractExecutionContext(final Class<N> networkType, final String name) {
+	protected TFAbstractExecutionContext(final Class<N> networkType, DLTensorFactory tensorFactory, final String name) {
 		m_networkType = networkType;
 		m_name = name;
-		m_tensorFactory = DLTensorRegistry.getInstance().getTensorFactory(m_networkType)
-				.orElseThrow(() -> new IllegalStateException("Deep learning network type '" + m_networkType
-						+ "' is not supported. No tensor factory found."));
+		m_tensorFactory = tensorFactory;
 	}
 
 	@Override

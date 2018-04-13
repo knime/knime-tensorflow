@@ -48,35 +48,33 @@ package org.knime.dl.tensorflow.savedmodel.core.execution;
 
 import java.util.Set;
 
+import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLNetworkInputPreparer;
+import org.knime.dl.core.DLTensorFactory;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
-import org.knime.dl.tensorflow.core.execution.TFAbstractExecutionContext;
+import org.knime.dl.python.core.execution.DLPythonAbstractNetworkExecutionSession;
 import org.knime.dl.tensorflow.core.execution.TFNetworkExecutionSession;
+import org.knime.dl.tensorflow.savedmodel.core.TFPythonCommands;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
-import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelTensorFactory;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFSavedModelExecutionContext
-	extends TFAbstractExecutionContext<TFSavedModelNetwork> {
+public class TFPythonSavedModelNetworkExecutionSession
+	extends DLPythonAbstractNetworkExecutionSession<TFSavedModelNetwork, TFPythonCommands>
+		implements TFNetworkExecutionSession {
 
-	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow";
-
-	/**
-	 * Creates a new execution context for TensorFlow SavedModels.
-	 */
-	public TFSavedModelExecutionContext() {
-		super(TFSavedModelNetwork.class, new TFSavedModelTensorFactory(), EXECUTION_CONTEXT_NAME);
+	protected TFPythonSavedModelNetworkExecutionSession(TFSavedModelNetwork network,
+			Set<DLTensorSpec> executionInputSpecs, Set<DLTensorId> requestedOutputs,
+			DLNetworkInputPreparer inputPreparer, DLNetworkOutputConsumer outputConsumer,
+			DLTensorFactory tensorFactory) {
+		super(network, executionInputSpecs, requestedOutputs, inputPreparer, outputConsumer, tensorFactory);
 	}
 
 	@Override
-	public TFNetworkExecutionSession createExecutionSession(final TFSavedModelNetwork network,
-			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
-			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer) {
-		return new TFSavedModelNetworkExecutionSession(network, executionInputSpecs, requestedOutputs,
-				inputPreparer, outputConsumer, getTensorFactory());
+	protected TFPythonCommands createCommands() throws DLInvalidEnvironmentException {
+		return new TFPythonCommands();
 	}
 }

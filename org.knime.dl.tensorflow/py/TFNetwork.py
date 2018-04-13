@@ -49,9 +49,16 @@
 
 import os
 
+import numpy as np
+import pandas as pd
+
 import tensorflow as tf
 from tensorflow.core.protobuf import saved_model_pb2
 
+from DLPythonDataBuffers import DLPythonDoubleBuffer
+from DLPythonDataBuffers import DLPythonFloatBuffer
+from DLPythonDataBuffers import DLPythonIntBuffer
+from DLPythonDataBuffers import DLPythonLongBuffer
 from DLPythonNetwork import DLPythonNetwork
 from DLPythonNetwork import DLPythonNetworkReader
 from DLPythonNetwork import DLPythonNetworkSpec
@@ -154,8 +161,11 @@ class TFNetwork(DLPythonNetwork):
         return self._spec
 
     def execute(self, in_data, batch_size):
-        # TODO implement
-        raise NotImplementedError()
+        X = self._format_input(in_data, batch_size)
+        fetches = self.model.outputs
+        with tf.Session(graph=self.model.graph) as sess:
+            Y = sess.run(fetches, feed_dict=X)
+        return self._format_output(Y)
 
     def save(self, path):
         model = self._model
@@ -178,6 +188,43 @@ class TFNetwork(DLPythonNetwork):
             # Default to TDHWC TODO is this a good idea?
             dimension_order = 'TDHWC'
         return DLPythonTensorSpec(id, name, batch_size, shape, element_type, dimension_order)
+
+    def _format_input(self, in_data, batch_size):
+        tensors = {}
+        for spec in self.spec.input_specs:
+            data = in_data[spec.identifier].values[0][0].array
+            tensor = self.model.inputs[spec.name]
+            shape = [batch_size] + in_data[spec.identifier].values[0][1]
+            # For batches of scalars we may added a singleton dimension
+            shape = shape if len(shape) == len(tensor.shape) else shape[:-1]
+            data = data.reshape(shape)
+            tensors[tensor] = data
+        return tensors
+
+    def _format_output(self, Y):
+        output = {}
+        for output_spec in self.spec.output_specs:
+            out = Y[output_spec.name]
+            out = out if len(out.shape) > 1 else out[...,None]
+            out = self._put_in_matching_buffer(out)
+            out = pd.DataFrame({output_spec.identifier: [out]})
+            output[output_spec.identifier] = out
+        return output
+
+    def _put_in_matching_buffer(self, y):
+        t = y.dtype
+        if t == np.float64:
+            return DLPythonDoubleBuffer(y)
+        elif t == np.float32:
+            return DLPythonFloatBuffer(y)
+        elif t == np.int32:
+            return DLPythonIntBuffer(y)
+        elif t == np.int64:
+            return DLPythonLongBuffer(y)
+        # TODO: support more types
+        else:
+            # TODO: warning to stderr? fail?
+            return DLPythonDoubleBuffer(y)
 
 
 class TFNetworkSpec(DLPythonNetworkSpec):

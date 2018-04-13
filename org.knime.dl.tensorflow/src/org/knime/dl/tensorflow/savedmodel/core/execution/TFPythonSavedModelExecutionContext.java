@@ -54,29 +54,29 @@ import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
 import org.knime.dl.tensorflow.core.execution.TFAbstractExecutionContext;
 import org.knime.dl.tensorflow.core.execution.TFNetworkExecutionSession;
+import org.knime.dl.tensorflow.savedmodel.core.TFPythonSavedModelTensorFactory;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
-import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelTensorFactory;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFSavedModelExecutionContext
-	extends TFAbstractExecutionContext<TFSavedModelNetwork> {
+public class TFPythonSavedModelExecutionContext extends TFAbstractExecutionContext<TFSavedModelNetwork>{
 
-	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow";
+	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow (Python)";
 
 	/**
-	 * Creates a new execution context for TensorFlow SavedModels.
+	 * Creates a new execution context for TensorFlow SavedModels which uses the Python TensorFlow library.
 	 */
-	public TFSavedModelExecutionContext() {
-		super(TFSavedModelNetwork.class, new TFSavedModelTensorFactory(), EXECUTION_CONTEXT_NAME);
+	public TFPythonSavedModelExecutionContext() {
+		super(TFSavedModelNetwork.class, new TFPythonSavedModelTensorFactory(), EXECUTION_CONTEXT_NAME);
 	}
 
 	@Override
-	public TFNetworkExecutionSession createExecutionSession(final TFSavedModelNetwork network,
-			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
-			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer) {
-		return new TFSavedModelNetworkExecutionSession(network, executionInputSpecs, requestedOutputs,
+	public TFNetworkExecutionSession createExecutionSession(TFSavedModelNetwork network,
+			Set<DLTensorSpec> executionInputSpecs, Set<DLTensorId> requestedOutputs,
+			DLNetworkInputPreparer inputPreparer, DLNetworkOutputConsumer outputConsumer) {
+		return new TFPythonSavedModelNetworkExecutionSession(network, executionInputSpecs, requestedOutputs,
 				inputPreparer, outputConsumer, getTensorFactory());
 	}
+
 }
