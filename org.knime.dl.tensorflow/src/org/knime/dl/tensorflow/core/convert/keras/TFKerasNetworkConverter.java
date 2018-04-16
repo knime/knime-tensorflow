@@ -46,10 +46,13 @@
  */
 package org.knime.dl.tensorflow.core.convert.keras;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import org.apache.commons.io.FileUtils;
 import org.knime.core.data.filestore.FileStore;
+import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLMissingExtensionException;
@@ -88,8 +91,8 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 	public TFNetwork convertNetworkInternal(final DLKerasTensorFlowNetwork network, final FileStore fileStore)
 			throws DLNetworkConversionException {
 		try {
+			final File tmpFile = new File(FileUtil.createTempDir("tf"), "sm");
 			final URL saveURL = fileStore.getFile().toURI().toURL();
-			final String savePath = fileStore.getFile().getAbsolutePath();
 
 			// Save the keras model as a SavedModel using python
 			try (final DLPythonContext pythonContext = new DLPythonDefaultContext()) {
@@ -99,13 +102,15 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 								"Python back end '" + network.getClass().getCanonicalName()
 										+ "' could not be found. Are you missing a KNIME Deep Learning extension?"))
 						.load(network.getSource(), pythonContext, false);
+
+				// Export the SavedModel to a temporary directory
 				final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
 						.a("import DLPythonNetwork") //
 						.n("import keras.backend as K") //
 						.n("from tensorflow import saved_model") //
 						.n("model = DLPythonNetwork.get_network(").as(networkHandle.getIdentifier()).a(").model") //
 						.n("inp, oup = model.input, model.output") //
-						.n("builder = saved_model.builder.SavedModelBuilder(r").as(savePath).a(")") //
+						.n("builder = saved_model.builder.SavedModelBuilder(r").as(tmpFile.getAbsolutePath()).a(")") //
 						.n("signature = saved_model.signature_def_utils.predict_signature_def(") //
 						.n().t().a("inputs = dict([ (t.name,t) for t in (inp if type(inp) is list else [inp]) ]),") //
 						.n().t().a("outputs = dict([ (t.name,t) for t in (oup if type(oup) is list else [oup]) ]))") //
@@ -115,6 +120,9 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 						.n("builder.save()");
 				pythonContext.executeInKernel(b.toString());
 			}
+
+			// Move the model to the filestore
+			FileUtils.moveDirectory(tmpFile, fileStore.getFile());
 
 			// Create a TFSavedModelNetwork
 			final TFSavedModel savedModel = new TFSavedModel(saveURL);
