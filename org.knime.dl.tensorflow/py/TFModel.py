@@ -47,41 +47,88 @@
 @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
 '''
 
+import os
+import shutil
+import tempfile
+
 import tensorflow as tf
 # TODO better documentation
 
 
 class TFModel(object):
-    """ Object which holds all information for a tensorflow model.
+    """ Object which holds all information for a TensorFlow model.
     In contrast to an SavedModel this object only supports one signature.
     """
 
-    def __init__(self, graph, inputs, outputs, tags=['SAVE'],
-                 method_name='PREDICT', signature_key='predict'):
-        # TODO check arguments
-        # TODO default for tags, method_name and signature_key
-        # TODO check that shape of inputs and outputs is okay
+    def __init__(self, inputs, outputs, graph=None, session=None, tags=['SAVE'],
+                 method_name='PREDICT', signature_key='predict', save=True):
+
+        if graph is None and session is None:
+            # Both None is forbidden
+            raise ValueError('Either a graph or a session must be given.')
+        elif graph is None:
+            # We use the graph from the session
+            graph = session.graph
+        elif session is not None:
+            # Both are not None. Check that they fit
+            if session.graph is not graph:
+                raise ValueError('The given session is not on the given graph.')
+
+        if not isinstance(inputs, dict):
+            raise ValueError('The inputs must be a dictionary.')
+        if not isinstance(outputs, dict):
+            raise ValueError('The outputs must be a dictionary.')
+
         self.graph = graph
         self.inputs = inputs
         self.outputs = outputs
+        self.session = session
         self.tags = tags
         self._method_name = method_name
         self._signature_key = signature_key
 
+        # Save the variables to a temporary directory
+        if save:
+            self._tmpdir = tempfile.TemporaryDirectory()
+            self._sm_path = os.path.join(self._tmpdir.name, 'sm')
+            self._save_saved_model(self._sm_path)
+        else:
+            assert session is not None
+
     def save(self, path):
+        if hasattr(self, '_sm_path'):
+            # Move the SavedModel to the filestore
+            shutil.move(self._sm_path, path)
+            # Cleanup the temporary directory
+            self._tmpdir.cleanup()
+        else:
+            self._save_saved_model(path)
+            self.session.close()
+
+    def _save_saved_model(self, path):
+        if self.session is not None:
+            with self.session.as_default() as sess:
+                with sess.graph.as_default():
+                    self._save_saved_model_with_session(sess, path)
+        else:
+            with tf.Session(graph=self.graph) as sess:
+                # Initialize the variables
+                sess.run(tf.global_variables_initializer())
+                self._save_saved_model_with_session(sess, path)
+
+    def _save_saved_model_with_session(self, session, path):
         builder = tf.saved_model.builder.SavedModelBuilder(path)
         inps = self.inputs
         oups = self.outputs
-        with tf.Session(graph=self.graph) as sess:
-            tensor_info = tf.saved_model.utils.build_tensor_info
-            sig_inps = { k: tensor_info(t) for k, t in inps.items() }
-            sig_oups = { k: tensor_info(t) for k, t in oups.items() }
-            sig = tf.saved_model.signature_def_utils.build_signature_def(
-                inputs=sig_inps,
-                outputs=sig_oups,
-                method_name=self._method_name)
-            sigs = { self._signature_key: sig }
-            builder.add_meta_graph_and_variables(sess,
-                                                 self.tags,
-                                                 signature_def_map=sigs)
+        tensor_info = tf.saved_model.utils.build_tensor_info
+        sig_inps = { k: tensor_info(t) for k, t in inps.items() }
+        sig_oups = { k: tensor_info(t) for k, t in oups.items() }
+        sig = tf.saved_model.signature_def_utils.build_signature_def(
+            inputs=sig_inps,
+            outputs=sig_oups,
+            method_name=self._method_name)
+        sigs = { self._signature_key: sig }
+        builder.add_meta_graph_and_variables(session,
+                                             self.tags,
+                                             signature_def_map=sigs)
         builder.save()

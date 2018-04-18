@@ -79,7 +79,8 @@ class TFNetworkReader(DLPythonNetworkReader):
 
         # Read the SavedModel into a graph
         graph = tf.Graph()
-        with tf.Session(graph=graph) as sess:
+        sess = tf.Session(graph=graph)
+        with sess.as_default():
             tf.saved_model.loader.load(sess, tags, path)
 
         # Get the signature
@@ -93,8 +94,8 @@ class TFNetworkReader(DLPythonNetworkReader):
         inps = { k: get_tensor(v) for k,v in sig.inputs.items() }
         oups = { k: get_tensor(v) for k,v in sig.outputs.items() }
 
-        return TFNetwork(TFModel(graph, inputs=inps, outputs=oups, tags=tags,
-                                 method_name=method_name, signature_key=signature_key))
+        return TFNetwork(TFModel(inputs=inps, outputs=oups, tags=tags, session=sess,
+                                 method_name=method_name, signature_key=signature_key, save=False))
 
     # TODO! Copied from https://github.com/tensorflow/tensorflow/blob/r1.4/tensorflow/python/saved_model/loader_impl.py
     def _parse_saved_model(self, export_dir):
@@ -163,8 +164,8 @@ class TFNetwork(DLPythonNetwork):
     def execute(self, in_data, batch_size):
         X = self._format_input(in_data, batch_size)
         fetches = self.model.outputs
-        with tf.Session(graph=self.model.graph) as sess:
-            Y = sess.run(fetches, feed_dict=X)
+        with self.model.session.as_default():
+            Y = self.model.session.run(fetches, feed_dict=X)
         return self._format_output(Y)
 
     def save(self, path):
@@ -175,15 +176,15 @@ class TFNetwork(DLPythonNetwork):
         id = tf_tensor.name
         if name is None:
             name = tf_tensor.name
-        tf_shape = tf_tensor.get_shape().as_list()
+        tf_shape = tf_tensor.shape.as_list()
         if len(tf_shape) < 2:
             tf_shape.append(1)
         batch_size = tf_shape[0]
         shape = tf_shape[1:]
-        element_type = tf_tensor.dtype.name
+        element_type = np.dtype(tf_tensor.dtype.as_numpy_dtype).name
         try:
             data_format = tf_tensor.op.get_attr('data_format')
-            dimension_order = 'TCDHW' if data_format.startswith("NC") else 'TDHWC'
+            dimension_order = 'TCDHW' if data_format.startswith(b'NC') else 'TDHWC'
         except ValueError:
             # Default to TDHWC TODO is this a good idea?
             dimension_order = 'TDHWC'
