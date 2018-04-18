@@ -67,8 +67,8 @@ import org.knime.dl.python.core.DLPythonNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 
 /**
- * TODO Abstract class for all tensorflow python networks?
- * 
+ * A python network loader for TensorFlow SavedModels.
+ *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSavedModelNetwork> {
@@ -99,12 +99,13 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 
 	@Override
 	public void validateSource(final URL source) throws DLInvalidSourceException {
-		// TODO validate the source: Maybe use the java SavedModel helper classes
+		// We just try to read the saved model with the java API. If this works we can be pretty sure that it is a valid
+		// SavedModel
+		TFSavedModelUtil.readSavedModelProtoBuf(source);
 	}
 
 	@Override
 	public void validateDestination(final URL destination) throws DLInvalidDestinationException {
-		// TODO copied from DLKerasAbstractNetworkLoader. Does this also work for this case?
 		try {
 			RemoteFileHandlerRegistry.getRemoteFileHandler(destination.getProtocol())
 					.createRemoteFile(destination.toURI(), null, null);
@@ -125,7 +126,6 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 		} catch (DLInvalidEnvironmentException | IOException | Error | RuntimeException e) {
 			// Delete the temporary file if it exists
 			TFSavedModelUtil.deleteTempIfLocal(source);
-			// TODO handle exception?
 			throw e;
 		}
 	}
