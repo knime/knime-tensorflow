@@ -155,7 +155,10 @@ class TFNetwork(DLPythonNetwork):
             model = self._model
 
             inp_specs = [ self._tensor_spec(t, n) for n, t in model.inputs.items() ]
-            hid_specs = [] # TODO hidden layer spec
+            # hid_tensors = [ t for op in model.graph.get_operations() for t in op.outputs ]
+            # hid_tensors = [ t for t in hid_tensors if model.graph.is_fetchable(t) and t.shape.ndims is not None and t.shape.ndims > 1 ]
+            # hid_specs = [ self._tensor_spec(t) for t in hid_tensors ]
+            hid_specs = []
             oup_specs = [ self._tensor_spec(t, n) for n, t in model.outputs.items() ]
 
             self._spec = TFNetworkSpec(inp_specs, hid_specs, oup_specs, model.tags)

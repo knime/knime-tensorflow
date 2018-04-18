@@ -83,8 +83,15 @@ public class TFPythonCommands extends DLPythonAbstractCommands {
 		final DLTensorSpec[] inputSpecs = (DLTensorSpec[]) kernel
 				.getData(INPUT_SPECS_NAME, new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE))
 				.getTable();
-		// TODO hidden output spec (could be a lot)
 		final DLTensorSpec[] hiddenOutputSpecs = new DLTensorSpec[0];
+//		DLTensorSpec[] hiddenOutputSpecs;
+//		try {
+//			hiddenOutputSpecs = (DLTensorSpec[]) kernel.getData(HIDDEN_OUTPUT_SPECS_NAME,
+//					new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE)).getTable();
+//		} catch (final IllegalStateException e) {
+//			// We didn't get the hidden specs
+//			hiddenOutputSpecs = new DLTensorSpec[0];
+//		}
 		final DLTensorSpec[] outputSpecs = (DLTensorSpec[]) kernel
 				.getData(OUTPUT_SPECS_NAME, new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE))
 				.getTable();
