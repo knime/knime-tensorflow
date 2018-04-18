@@ -68,9 +68,17 @@ import org.knime.python2.kernel.PythonKernel;
  */
 public class TFPythonCommands extends DLPythonAbstractCommands {
 
+	/**
+	 * Creates new TensorFlow python commands without a context.
+	 */
 	public TFPythonCommands() {
 	}
 
+	/**
+	 * Creates new TensorFlow python commands with a context.
+	 *
+	 * @param context the python context
+	 */
 	public TFPythonCommands(final DLPythonContext context) {
 		super(context);
 	}

@@ -66,10 +66,20 @@ public class TFPythonSavedModelNetworkExecutionSession
 	extends DLPythonAbstractNetworkExecutionSession<TFSavedModelNetwork, TFPythonCommands>
 		implements TFNetworkExecutionSession {
 
-	protected TFPythonSavedModelNetworkExecutionSession(TFSavedModelNetwork network,
-			Set<DLTensorSpec> executionInputSpecs, Set<DLTensorId> requestedOutputs,
-			DLNetworkInputPreparer inputPreparer, DLNetworkOutputConsumer outputConsumer,
-			DLTensorFactory tensorFactory) {
+	/**
+	 * Creates a new execution session for TensorFlow SavedModels using the TensorFlow python API.
+	 *
+	 * @param network the TensorFlow network
+	 * @param executionInputSpecs specs of the input tensors
+	 * @param requestedOutputs ids of the requested output tensors
+	 * @param inputPreparer the input preparer
+	 * @param outputConsumer the output consumer
+	 * @param tensorFactory a tensor factory
+	 */
+	protected TFPythonSavedModelNetworkExecutionSession(final TFSavedModelNetwork network,
+			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
+			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer,
+			final DLTensorFactory tensorFactory) {
 		super(network, executionInputSpecs, requestedOutputs, inputPreparer, outputConsumer, tensorFactory);
 	}
 
