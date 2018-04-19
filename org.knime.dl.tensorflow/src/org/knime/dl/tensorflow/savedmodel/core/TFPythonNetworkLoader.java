@@ -75,7 +75,7 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 
 	private static final String URL_EXTENSION = "";
 
-	private static DLPythonInstallationTester installationTester = new DLPythonInstallationTester();
+	private static final DLPythonInstallationTester INSTALLATION_TESTER = new DLPythonInstallationTester();
 
 	@Override
 	public Class<TFSavedModelNetwork> getNetworkType() {
@@ -152,6 +152,6 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 
 	@Override
 	protected DLPythonInstallationTester getInstallationTester() {
-		return installationTester;
+		return INSTALLATION_TESTER;
 	}
 }
