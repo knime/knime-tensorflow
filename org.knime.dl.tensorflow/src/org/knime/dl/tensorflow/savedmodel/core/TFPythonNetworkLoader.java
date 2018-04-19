@@ -111,7 +111,7 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 					.createRemoteFile(destination.toURI(), null, null);
 		} catch (final Exception e) {
 			throw new DLInvalidDestinationException(
-					"An error occurred while resolving the Keras network file location.\nCause: " + e.getMessage(), e);
+					"An error occurred while resolving the TensorFlow network file location.\nCause: " + e.getMessage(), e);
 		}
 	}
 
