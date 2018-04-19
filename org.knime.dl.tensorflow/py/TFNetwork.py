@@ -97,7 +97,8 @@ class TFNetworkReader(DLPythonNetworkReader):
         return TFNetwork(TFModel(inputs=inps, outputs=oups, tags=tags, session=sess,
                                  method_name=method_name, signature_key=signature_key, save=False))
 
-    # TODO! Copied from https://github.com/tensorflow/tensorflow/blob/r1.4/tensorflow/python/saved_model/loader_impl.py
+    # TODO! Copied and modified from https://github.com/tensorflow/tensorflow/blob/r1.4/tensorflow/python/saved_model/loader_impl.py
+    # Date: 2018-04-13, License: Apache License 2.0
     def _parse_saved_model(self, export_dir):
         """Reads the savedmodel.pb or savedmodel.pbtxt file containing `SavedModel`.
 
