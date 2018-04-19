@@ -123,7 +123,7 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 			final File savedModelDir = TFSavedModelUtil.getSavedModelInDir(source);
 			final TFPythonCommands commands = createCommands(checkNotNull(context));
 			return commands.loadNetwork(savedModelDir.getAbsolutePath(), loadTrainingConfig);
-		} catch (DLInvalidEnvironmentException | IOException | Error | RuntimeException e) {
+		} catch (final Throwable e) {
 			// Delete the temporary file if it exists
 			TFSavedModelUtil.deleteTempIfLocal(source);
 			throw e;
