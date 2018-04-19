@@ -2,9 +2,9 @@
 
 ## Python bindings
 
-The TensorFlow integration can be used with the _DL Python Network_ Nodes which allow you to create, train an modify a TensorFlow model using the powerfull TensorFlow Python API.
+The TensorFlow integration can be used with the _DL Python Network_ Nodes which allow you to create, train and modify a TensorFlow model using the powerful TensorFlow Python API.
 
-The KNIME TensorFlow Integration provides an `TFModel` object to python whenever a model is loaded into python and requires you to set a `TFModel` object whenever a model should be retured to KNIME for further usage.
+The KNIME TensorFlow Integration provides a `TFModel` object to Python whenever a model is loaded into Python and requires you to set a `TFModel` object whenever a model should be returned to KNIME for further usage.
 
 ### Examples
 
