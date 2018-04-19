@@ -93,7 +93,7 @@ class TFModel(object):
             self._sm_path = os.path.join(self._tmpdir.name, 'sm')
             self._save_saved_model(self._sm_path)
         else:
-            assert session is not None
+            raise ValueError('A session must be given if save is False')
 
     def save(self, path):
         if hasattr(self, '_sm_path'):
