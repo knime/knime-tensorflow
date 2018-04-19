@@ -76,7 +76,7 @@ public class TFPythonSavedModelNetworkExecutionSession
 	 * @param outputConsumer the output consumer
 	 * @param tensorFactory a tensor factory
 	 */
-	protected TFPythonSavedModelNetworkExecutionSession(final TFSavedModelNetwork network,
+	public TFPythonSavedModelNetworkExecutionSession(final TFSavedModelNetwork network,
 			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
 			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer,
 			final DLTensorFactory tensorFactory) {
