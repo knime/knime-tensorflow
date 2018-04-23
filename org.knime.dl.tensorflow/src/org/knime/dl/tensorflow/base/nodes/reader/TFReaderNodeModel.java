@@ -71,6 +71,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.util.FileUtil;
 import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLNetworkReferenceLocation;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec;
@@ -174,7 +175,7 @@ public class TFReaderNodeModel extends NodeModel {
 			throw new DLInvalidSourceException("The model changed. Please reconfigure the node.");
 		}
 		// Create the network object
-		final TFNetwork network = m_networkSpec.create(url);
+		final TFNetwork network = m_networkSpec.create(new DLNetworkReferenceLocation(url.toURI()));
 		TFNetworkPortObject portObject;
 		if (m_copyNetwork.getBooleanValue()) {
 			final FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);

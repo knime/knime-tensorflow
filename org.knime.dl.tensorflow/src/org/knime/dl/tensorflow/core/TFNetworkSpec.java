@@ -46,10 +46,9 @@
  */
 package org.knime.dl.tensorflow.core;
 
-import java.net.URL;
-
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetwork;
+import org.knime.dl.core.DLNetworkLocation;
 import org.knime.dl.core.DLNetworkSpec;
 
 /**
@@ -62,9 +61,9 @@ public interface TFNetworkSpec extends DLNetworkSpec {
 	/**
 	 * Creates a network which {@link DLNetwork#getSpec()} returns this spec.
 	 *
-	 * @param source URL to the location where the deep learning model is saved
+	 * @param source location where the deep learning model is saved
 	 * @return a new {@link TFNetwork}
 	 * @throws DLInvalidSourceException if reading the model failed
 	 */
-	TFNetwork create(URL source) throws DLInvalidSourceException;
+	TFNetwork create(DLNetworkLocation source) throws DLInvalidSourceException;
 }

@@ -48,7 +48,6 @@ package org.knime.dl.tensorflow.core.convert.keras;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.knime.core.data.filestore.FileStore;
@@ -56,6 +55,7 @@ import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLMissingExtensionException;
+import org.knime.dl.core.DLNetworkFileStoreLocation;
 import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetwork;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonDefaultContext;
@@ -92,7 +92,6 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 			throws DLNetworkConversionException {
 		try {
 			final File tmpFile = new File(FileUtil.createTempDir("tf"), "sm");
-			final URL saveURL = fileStore.getFile().toURI().toURL();
 
 			// Save the keras model as a SavedModel using python
 			try (final DLPythonContext pythonContext = new DLPythonDefaultContext()) {
@@ -101,7 +100,7 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 						.orElseThrow(() -> new DLMissingExtensionException(
 								"Python back end '" + network.getClass().getCanonicalName()
 										+ "' could not be found. Are you missing a KNIME Deep Learning extension?"))
-						.load(network.getSource(), pythonContext, false);
+						.load(network.getSource().getURI(), pythonContext, false);
 
 				// Export the SavedModel to a temporary directory
 				final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
@@ -125,10 +124,10 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 			FileUtils.moveDirectory(tmpFile, fileStore.getFile());
 
 			// Create a TFSavedModelNetwork
-			final TFSavedModel savedModel = new TFSavedModel(saveURL);
+			final TFSavedModel savedModel = new TFSavedModel(fileStore.getFile().toURI().toURL());
 			final TFMetaGraphDef metaGraphDefs = savedModel.getMetaGraphDefs(new String[] { SAVE_TAG });
 			final TFSavedModelNetworkSpec specs = metaGraphDefs.createSpecs(SIGNATURE_KEY);
-			return specs.create(saveURL);
+			return specs.create(new DLNetworkFileStoreLocation(fileStore));
 		} catch (DLInvalidSourceException | DLInvalidEnvironmentException | DLMissingExtensionException
 				| IOException e) {
 			throw new DLNetworkConversionException("Could not convert network.", e);

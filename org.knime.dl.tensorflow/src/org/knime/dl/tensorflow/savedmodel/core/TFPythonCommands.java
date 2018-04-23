@@ -56,17 +56,18 @@ import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNumPyTypeMap;
 import org.knime.dl.python.core.DLPythonTensorSpecTableCreatorFactory;
+import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
+import org.knime.dl.python.util.DLPythonUtils;
 import org.knime.dl.util.DLUtils;
 import org.knime.python2.extensions.serializationlibrary.interfaces.Row;
 import org.knime.python2.extensions.serializationlibrary.interfaces.TableCreator;
-import org.knime.python2.extensions.serializationlibrary.interfaces.TableCreatorFactory;
 import org.knime.python2.extensions.serializationlibrary.interfaces.TableSpec;
 import org.knime.python2.kernel.PythonKernel;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFPythonCommands extends DLPythonAbstractCommands {
+public final class TFPythonCommands extends DLPythonAbstractCommands {
 
 	/**
 	 * Creates new TensorFlow python commands without a context.
@@ -105,30 +106,24 @@ public class TFPythonCommands extends DLPythonAbstractCommands {
 				.getTable();
 
 		getContext().executeInKernel(getExtractTagsCode(network));
-		final String[] tags = (String[]) kernel.getData("tags", new TableCreatorFactory() {
+		final String[] tags = (String[]) kernel.getData("tags", (spec, tableSize) -> new TableCreator<String[]>() {
+
+			private final String[] m_tags = new String[tableSize];
+			private int m_nextIdx = 0;
 
 			@Override
-			public TableCreator<?> createTableCreator(TableSpec spec, int tableSize) {
-				return new TableCreator<String[]>() {
+			public void addRow(final Row row) {
+				m_tags[m_nextIdx++] = row.getCell(0).getStringValue();
+			}
 
-					private final String[] m_tags = new String[tableSize];
-					private int m_nextIdx = 0;
+			@Override
+			public TableSpec getTableSpec() {
+				return spec;
+			}
 
-					@Override
-					public void addRow(Row row) {
-						m_tags[m_nextIdx++] = row.getCell(0).getStringValue();
-					}
-
-					@Override
-					public TableSpec getTableSpec() {
-						return spec;
-					}
-
-					@Override
-					public String[] getTable() {
-						return m_tags;
-					}
-				};
+			@Override
+			public String[] getTable() {
+				return m_tags;
 			}
 		}).getTable();
 
@@ -151,16 +146,27 @@ public class TFPythonCommands extends DLPythonAbstractCommands {
 	}
 
 	@Override
-	protected String getLoadNetworkCode(final String path, final boolean loadTrainingConfig) {
-		return "import DLPythonNetwork\n" + //
-				"from TFNetwork import TFNetworkReader\n" + //
-				"network = TFNetworkReader().read(r'" + path + "')\n" + //
-				"DLPythonNetwork.add_network('" + DEFAULT_MODEL_NAME + "', network)";
+	protected TFPythonNetworkReaderCommands getNetworkReaderCommands() {
+		return new TFPythonNetworkReaderCommands();
 	}
 
 	private String getExtractTagsCode(final DLPythonNetworkHandle network) {
 		return "import pandas as pd\n" + //
 				"global tags\n" + //
 				"tags = pd.DataFrame({ 'tags':" + network.getIdentifier() + ".tags })";
+	}
+
+	private static class TFPythonNetworkReaderCommands extends DLPythonAbstractNetworkReaderCommands {
+
+		private TFPythonNetworkReaderCommands() {
+			super("from TFNetwork import TFNetworkReader", "TFNetworkReader()");
+		}
+
+		@Override
+		public String read(final String path, final boolean loadTrainingConfig) {
+			final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
+					.a("read(").asr(path).a(")");
+			return b.toString();
+		}
 	}
 }

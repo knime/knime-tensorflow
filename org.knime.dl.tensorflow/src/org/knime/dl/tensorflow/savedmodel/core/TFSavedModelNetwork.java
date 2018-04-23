@@ -48,9 +48,9 @@ package org.knime.dl.tensorflow.savedmodel.core;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import org.knime.core.data.filestore.FileStore;
+import org.knime.dl.core.DLNetworkLocation;
 import org.knime.dl.python.core.DLPythonAbstractNetwork;
 import org.knime.dl.tensorflow.core.TFNetwork;
 
@@ -68,13 +68,13 @@ public class TFSavedModelNetwork extends DLPythonAbstractNetwork<TFSavedModelNet
 	 * @param spec the spec of this network
 	 * @param source URL to the location where the deep learning model is saved
 	 */
-	protected TFSavedModelNetwork(final TFSavedModelNetworkSpec spec, final URL source) {
+	protected TFSavedModelNetwork(final TFSavedModelNetworkSpec spec, final DLNetworkLocation source) {
 		super(spec, source);
 	}
 
 	@Override
 	public void copyFilesToFileStore(final FileStore destination) throws IOException {
-		TFSavedModelUtil.copySavedModelToFileStore(getSource(), destination);
+		TFSavedModelUtil.copySavedModelToFileStore(getSource().getURI().toURL(), destination);
 	}
 
 	/**
@@ -85,6 +85,6 @@ public class TFSavedModelNetwork extends DLPythonAbstractNetwork<TFSavedModelNet
 	 * @throws IOException if extracting the ZIP file to a temporary directory failed.
 	 */
 	public File getSavedModelInDir() throws IOException {
-		return TFSavedModelUtil.getSavedModelInDir(getSource());
+		return TFSavedModelUtil.getSavedModelInDir(getSource().getURI().toURL());
 	}
 }

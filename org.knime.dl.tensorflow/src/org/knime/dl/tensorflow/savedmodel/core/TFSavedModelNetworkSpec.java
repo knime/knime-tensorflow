@@ -46,12 +46,12 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core;
 
-import java.net.URL;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.knime.dl.core.DLAbstractNetworkSpec;
 import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLNetworkLocation;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.training.DLTrainingConfig;
@@ -117,7 +117,7 @@ public class TFSavedModelNetworkSpec extends DLAbstractNetworkSpec<TFTrainingCon
 	}
 
 	@Override
-	public TFNetwork create(final URL source) throws DLInvalidSourceException {
+	public TFNetwork create(final DLNetworkLocation source) throws DLInvalidSourceException {
 		return new TFSavedModelNetwork(this, source);
 	}
 

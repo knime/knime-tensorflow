@@ -50,6 +50,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -59,6 +60,7 @@ import org.knime.core.data.filestore.FileStore;
 import org.knime.dl.core.DLInvalidDestinationException;
 import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLNetworkLocation;
 import org.knime.dl.python.core.DLPythonAbstractNetworkLoader;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetwork;
@@ -98,40 +100,55 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 	}
 
 	@Override
-	public void validateSource(final URL source) throws DLInvalidSourceException {
+	public URL validateSource(final URI source) throws DLInvalidSourceException {
+		URL sourceURL;
+		try {
+			sourceURL = source.toURL();
+		} catch (final Exception e) {
+			throw new DLInvalidSourceException("TensorFlow network source (" + source + ") is not a valid URL.");
+		}
 		// We just try to read the saved model with the java API. If this works we can be pretty sure that it is a valid
 		// SavedModel
-		TFSavedModelUtil.readSavedModelProtoBuf(source);
+		TFSavedModelUtil.readSavedModelProtoBuf(sourceURL);
+		return sourceURL;
 	}
 
 	@Override
-	public void validateDestination(final URL destination) throws DLInvalidDestinationException {
+	public URL validateDestination(final URI destination) throws DLInvalidDestinationException {
+		URL destinationURL;
 		try {
-			RemoteFileHandlerRegistry.getRemoteFileHandler(destination.getProtocol())
-					.createRemoteFile(destination.toURI(), null, null);
+			destinationURL = destination.toURL();
+		} catch (final Exception e) {
+			throw new DLInvalidDestinationException(
+					"TensorFlow network destination (" + destination + ") is not a valid URL.");
+		}
+		try {
+			RemoteFileHandlerRegistry.getRemoteFileHandler(destinationURL.getProtocol()).createRemoteFile(destination,
+					null, null);
 		} catch (final Exception e) {
 			throw new DLInvalidDestinationException(
 					"An error occurred while resolving the TensorFlow network file location.\nCause: " + e.getMessage(), e);
 		}
+		return destinationURL;
 	}
 
 	@Override
-	public DLPythonNetworkHandle load(final URL source, final DLPythonContext context, final boolean loadTrainingConfig)
+	public DLPythonNetworkHandle load(final URI source, final DLPythonContext context, final boolean loadTrainingConfig)
 			throws DLInvalidSourceException, DLInvalidEnvironmentException, IOException {
-		validateSource(source);
+		final URL sourceURL = validateSource(source);
 		try {
-			final File savedModelDir = TFSavedModelUtil.getSavedModelInDir(source);
+			final File savedModelDir = TFSavedModelUtil.getSavedModelInDir(sourceURL);
 			final TFPythonCommands commands = createCommands(checkNotNull(context));
 			return commands.loadNetwork(savedModelDir.getAbsolutePath(), loadTrainingConfig);
 		} catch (final Throwable e) {
 			// Delete the temporary file if it exists
-			TFSavedModelUtil.deleteTempIfLocal(source);
+			TFSavedModelUtil.deleteTempIfLocal(sourceURL);
 			throw e;
 		}
 	}
 
 	@Override
-	public TFSavedModelNetwork fetch(final DLPythonNetworkHandle handle, final URL source,
+	public TFSavedModelNetwork fetch(final DLPythonNetworkHandle handle, final DLNetworkLocation source,
 			final DLPythonContext context)
 			throws IllegalArgumentException, DLInvalidSourceException, DLInvalidEnvironmentException, IOException {
 		final TFPythonCommands commands = createCommands(checkNotNull(context));

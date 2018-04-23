@@ -49,6 +49,8 @@ package org.knime.dl.tensorflow.base.portobjects;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 
@@ -64,6 +66,8 @@ import org.knime.core.node.port.PortTypeRegistry;
 import org.knime.dl.base.portobjects.DLAbstractNetworkPortObject;
 import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.core.DLInvalidSourceException;
+import org.knime.dl.core.DLNetworkFileStoreLocation;
+import org.knime.dl.core.DLNetworkReferenceLocation;
 import org.knime.dl.python.core.DLPythonNetworkPortObject;
 import org.knime.dl.tensorflow.core.TFNetwork;
 
@@ -86,7 +90,7 @@ public class TFNetworkPortObject
 
 	private static final String ZIP_ENTRY_NAME = "TFNetworkPortObject";
 
-	private URL m_networkReference;
+	private URI m_networkReference;
 
 	/**
 	 * Creates a new TensorFlow deep learning network port object. The given network is stored in the given file store.
@@ -105,10 +109,11 @@ public class TFNetworkPortObject
 	 * source URL and uses it as a reference for later loading.
 	 *
 	 * @param network the TensorFlow deep learning network which source URL is stored
+	 * @throws IOException if failed to store the network
 	 */
-	public TFNetworkPortObject(final TFNetwork network) {
-		super(network, new TFNetworkPortObjectSpec(network.getSpec(), network.getClass()));
-		m_networkReference = network.getSource();
+	public TFNetworkPortObject(final TFNetwork network) throws IOException {
+		super(network, new TFNetworkPortObjectSpec(network.getSpec(), network.getClass()), null);
+		m_networkReference = network.getSource().getURI();
 	}
 
 	/**
@@ -143,7 +148,8 @@ public class TFNetworkPortObject
 	protected TFNetwork getNetworkInternal(final TFNetworkPortObjectSpec spec)
 			throws DLInvalidSourceException, IOException {
 		return spec.getNetworkSpec()
-				.create(m_networkReference == null ? getFileStore(0).getFile().toURI().toURL() : m_networkReference);
+				.create(m_networkReference == null ? new DLNetworkFileStoreLocation(getFileStore(0))
+						: new DLNetworkReferenceLocation(m_networkReference));
 	}
 
 	/**
@@ -159,7 +165,7 @@ public class TFNetworkPortObject
 			final boolean storedInFileStore = portObject.m_networkReference != null;
 			objOut.writeBoolean(storedInFileStore);
 			if (storedInFileStore) {
-				objOut.writeObject(portObject.m_networkReference);
+				objOut.writeObject(portObject.m_networkReference.toURL());
 			}
 			objOut.flush();
 		}
@@ -176,8 +182,8 @@ public class TFNetworkPortObject
 			final ObjectInputStream objIn = new ObjectInputStream(in);
 			if (objIn.readBoolean()) {
 				try {
-					portObject.m_networkReference = (URL) objIn.readObject();
-				} catch (final ClassNotFoundException e) {
+					portObject.m_networkReference = ((URL) objIn.readObject()).toURI();
+				} catch (final ClassNotFoundException | URISyntaxException e) {
 					throw new IOException("Failed to load TensorFlow deep learning network port object.", e);
 				}
 			} else {
