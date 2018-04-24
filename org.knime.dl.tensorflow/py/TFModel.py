@@ -92,7 +92,7 @@ class TFModel(object):
             self._tmpdir = tempfile.TemporaryDirectory()
             self._sm_path = os.path.join(self._tmpdir.name, 'sm')
             self._save_saved_model(self._sm_path)
-        else:
+        elif session is None:
             raise ValueError('A session must be given if save is False')
 
     def save(self, path):
