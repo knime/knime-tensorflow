@@ -86,4 +86,10 @@
             path="py/">
       </directory>
    </extension>
+   <extension
+         point="org.knime.dl.DLNetworkExporter">
+      <DLNetworkExporter
+            DLNetworkExporter="org.knime.dl.tensorflow.savedmodel.core.export.TFSavedModelNetworkExporter">
+      </DLNetworkExporter>
+   </extension>
 </plugin>
