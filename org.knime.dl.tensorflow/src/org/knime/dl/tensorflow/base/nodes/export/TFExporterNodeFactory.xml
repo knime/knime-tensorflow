@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="tfexporter.png" type="Source">
+	<name>TensorFlow Network Exporter</name>
+
+	<shortDescription>
+		Exports a TensorFlow network to a file.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			Exports a TensorFlow network to a file.
+		</intro>
+		<option name="Exporter">
+			The exporter to use.
+			<ul>
+				<li>
+					<b>TensorFlow SavedModel Exporter:</b>
+					TODO
+				</li>
+			</ul>
+		</option>
+		<option name="Output location">
+			The location of the output file. KNIME URLs like
+			"knime://knime.workflow/ ... &lt;filename&gt;" are supported.
+		</option>
+	</fullDescription>
+	<ports>
+		<inPort index="0" name="Deep Learning Network">The TensorFlow deep learning network.
+		</inPort>
+	</ports>
+</knimeNode>
