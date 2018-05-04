@@ -66,6 +66,9 @@ public class TFSavedModelNetworkExporter extends DLAbstractNetworkExporter<TFSav
 
 	private static final String[] VALID_EXTENSIONS = { "zip" };
 
+	/**
+	 * Creates a new deep learning network exporter which exports a TensorFlow Model as a SavedModel in a ZIP file.
+	 */
 	public TFSavedModelNetworkExporter() {
 		super(TFSavedModelNetwork.class, NAME, VALID_EXTENSIONS);
 	}

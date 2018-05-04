@@ -9,14 +9,20 @@
 
 	<fullDescription>
 		<intro>
-			Exports a TensorFlow network to a file.
+			Exports a TensorFlow network to a file or directory.
 		</intro>
 		<option name="Exporter">
 			The exporter to use.
 			<ul>
 				<li>
-					<b>TensorFlow SavedModel Exporter:</b>
-					TODO
+					<b>TensorFlow SavedModel ZIP Exporter:</b>
+					Exports a TensorFlow model as a SavedModel which is compressed to a
+					ZIP file. See
+					'
+					<a
+						href="https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">Structure of a SavedModel directory</a>
+					'
+					for information on SavedModels.
 				</li>
 			</ul>
 		</option>
