@@ -15,16 +15,18 @@
 			The exporter to use.
 			<ul>
 				<li>
-					<b>TensorFlow SavedModel ZIP Exporter:</b>
+					TensorFlow SavedModel ZIP Exporter:
 					Exports a TensorFlow model as a SavedModel which is compressed to a
-					ZIP file. See
+					ZIP file. 
+				</li>
+			</ul>
+			
+			See
 					'
 					<a
 						href="https://www.tensorflow.org/programmers_guide/saved_model#structure_of_a_savedmodel_directory">Structure of a SavedModel directory</a>
 					'
 					for information on SavedModels.
-				</li>
-			</ul>
 		</option>
 		<option name="Output location">
 			The location of the output file. KNIME URLs like
