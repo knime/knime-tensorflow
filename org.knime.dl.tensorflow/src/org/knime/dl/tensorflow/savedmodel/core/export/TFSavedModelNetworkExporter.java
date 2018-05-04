@@ -74,14 +74,14 @@ public class TFSavedModelNetworkExporter extends DLAbstractNetworkExporter<TFSav
 	}
 
 	@Override
-	public void exportNetworkInternal(final TFSavedModelNetwork network, final URL path, final boolean overwrite)
+	public void exportNetwork(final TFSavedModelNetwork network, final URL path, final boolean overwrite)
 			throws IOException {
 		// TODO make remote destinations work
 		final File dest = FileUtil.getFileFromURL(path);
 		if (dest.exists() && !overwrite) {
 			throw new IOException("The destination file already exists.");
 		}
-		FileUtil.zipDir(dest, TFSavedModelUtil.getSavedModelInDir(network.getSource()), ZIP_COMPRESSION_LEVEL);
+		FileUtil.zipDir(dest, TFSavedModelUtil.getSavedModelInDir(network.getSource().getURI().toURL()), ZIP_COMPRESSION_LEVEL);
 	}
 
 }
