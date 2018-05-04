@@ -65,7 +65,6 @@ import org.knime.dl.core.DLDimensionOrder;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorShape;
 import org.knime.dl.core.DLTensorSpec;
-import org.knime.dl.core.DLUnknownTensorShape;
 import org.knime.dl.tensorflow.core.DLInvalidTypeException;
 import org.knime.dl.tensorflow.core.TFUtil;
 import org.tensorflow.framework.DataType;
@@ -83,6 +82,8 @@ import org.tensorflow.framework.TensorShapeProto.Dim;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class TFMetaGraphDef {
+
+	private static final DLTensorShape SCALAR_SHAPE = new DLDefaultFixedTensorShape(new long[] { 1L });
 
 	private final String[] m_tags;
 
@@ -164,8 +165,7 @@ public class TFMetaGraphDef {
 	}
 
 	private Collection<Entry<String, SignatureDef>> getFilteredSignature() {
-		return getSignatureDefs().stream().filter(e -> canBeUsedInKNIME(e.getValue()))
-				.collect(Collectors.toSet());
+		return getSignatureDefs().stream().filter(e -> canBeUsedInKNIME(e.getValue())).collect(Collectors.toSet());
 	}
 
 	private Collection<Entry<String, SignatureDef>> getSignatureDefs() {
@@ -269,10 +269,10 @@ public class TFMetaGraphDef {
 				shapeList.remove(0);
 
 				// Create the shape
-				DLTensorShape shape;
+				final DLTensorShape shape;
 				if (shapeList.isEmpty()) {
-					// No shape other than the batch size
-					shape = DLUnknownTensorShape.INSTANCE;
+					// No shape other than the batch size => Scalar value
+					shape = SCALAR_SHAPE;
 				} else if (shapeList.contains(-1L)) {
 					// At least one dimension is unknown
 					shape = createPartialTensorShape(shapeList);
@@ -341,8 +341,7 @@ public class TFMetaGraphDef {
 		// the same as ours)
 		return m_metaGraphDef.getGraphDef().getNodeList().stream().filter(n -> n.containsAttr("data_format"))
 				.map(n -> inferDimensionOrderFromString(n.getAttrOrThrow("data_format").getS().toString()))
-				.filter(o -> o.isPresent()).map(o -> o.get()).findFirst()
-				.orElse(TFUtil.DEFAULT_DIMENSION_ORDER);
+				.filter(o -> o.isPresent()).map(o -> o.get()).findFirst().orElse(TFUtil.DEFAULT_DIMENSION_ORDER);
 	}
 
 	private Optional<DLDimensionOrder> inferDimensionOrderFromString(final String dimOrder) {
