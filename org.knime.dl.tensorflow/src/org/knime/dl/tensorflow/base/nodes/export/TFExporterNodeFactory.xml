@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="tfexporter.png" type="Sink">
-	<name>TensorFlow Network Exporter</name>
+	<name>TensorFlow Network Writer</name>
 
 	<shortDescription>
-		Exports a TensorFlow network to a file.
+		Writes a TensorFlow network to a file.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
-			Exports a TensorFlow network to a file or directory.
+			Writes a TensorFlow network to a file or directory.
 		</intro>
-		<option name="Exporter">
-			The exporter to use.
+		<option name="Writer">
+			The writer to use.
 			<ul>
 				<li>
-					TensorFlow SavedModel ZIP Exporter:
-					Exports a TensorFlow model as a SavedModel which is compressed to a
+					TensorFlow SavedModel ZIP Writer:
+					Writes a TensorFlow model as a SavedModel which is compressed to a
 					ZIP file. 
 				</li>
 			</ul>
