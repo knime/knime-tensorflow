@@ -26,7 +26,7 @@ with graph.as_default():
     # define the graph...
 
     # Create an output tensor
-    y = tf.softmax(last_layer)
+    y = tf.nn.softmax(last_layer)
 
 # Create the output network
 output_network = TFModel(inputs={ 'input': x }, outputs={ 'output': y }, graph=graph)
@@ -42,10 +42,10 @@ from TFModel import TFModel
 with input_network.session as sess:
 
     # Get the input tensor
-    x = input_network['input']
+    x = input_network.inputs['input']
 
     # Get the output tensor
-    y = input_network['output']
+    y = input_network.outputs['output']
 
     # Use/Train/Edit the model...
 
