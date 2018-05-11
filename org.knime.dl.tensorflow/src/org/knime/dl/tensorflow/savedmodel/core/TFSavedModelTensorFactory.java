@@ -83,11 +83,6 @@ import org.knime.dl.util.DLUtils;
 public class TFSavedModelTensorFactory implements DLTensorFactory {
 
 	@Override
-	public Class<?> getNetworkType() {
-		return TFSavedModelNetwork.class;
-	}
-
-	@Override
 	public Class<? extends DLWritableBuffer> getWritableBufferType(final DLTensorSpec spec) {
 		final Class<?> t = spec.getElementType();
 		if (t.equals(double.class)) {

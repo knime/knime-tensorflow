@@ -52,9 +52,9 @@ import org.knime.dl.core.DLNetworkInputPreparer;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
+import org.knime.dl.python.core.DLPythonDefaultTensorFactory;
 import org.knime.dl.tensorflow.core.execution.TFAbstractExecutionContext;
 import org.knime.dl.tensorflow.core.execution.TFNetworkExecutionSession;
-import org.knime.dl.tensorflow.savedmodel.core.TFPythonSavedModelTensorFactory;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
 
 /**
@@ -68,13 +68,13 @@ public class TFPythonSavedModelExecutionContext extends TFAbstractExecutionConte
 	 * Creates a new execution context for TensorFlow SavedModels which uses the Python TensorFlow library.
 	 */
 	public TFPythonSavedModelExecutionContext() {
-		super(TFSavedModelNetwork.class, new TFPythonSavedModelTensorFactory(), EXECUTION_CONTEXT_NAME);
+		super(TFSavedModelNetwork.class, new DLPythonDefaultTensorFactory(), EXECUTION_CONTEXT_NAME);
 	}
 
 	@Override
-	public TFNetworkExecutionSession createExecutionSession(TFSavedModelNetwork network,
-			Set<DLTensorSpec> executionInputSpecs, Set<DLTensorId> requestedOutputs,
-			DLNetworkInputPreparer inputPreparer, DLNetworkOutputConsumer outputConsumer) {
+	public TFNetworkExecutionSession createExecutionSession(final TFSavedModelNetwork network,
+			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
+			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer) {
 		return new TFPythonSavedModelNetworkExecutionSession(network, executionInputSpecs, requestedOutputs,
 				inputPreparer, outputConsumer, getTensorFactory());
 	}
