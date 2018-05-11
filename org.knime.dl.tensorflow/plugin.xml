@@ -47,15 +47,6 @@
       </DLExecutionContext>
    </extension>
    <extension
-         point="org.knime.dl.DLTensorFactory">
-      <DLTensorFactory
-            DLTensorFactory="org.knime.dl.tensorflow.savedmodel.core.TFSavedModelTensorFactory">
-      </DLTensorFactory>
-      <DLTensorFactory
-            DLTensorFactory="org.knime.dl.tensorflow.savedmodel.core.TFPythonSavedModelTensorFactory">
-      </DLTensorFactory>
-   </extension>
-   <extension
          point="org.knime.dl.DLTensorToDataCellConverterFactory">
       <DLTensorToDataCellConverterFactory
             DLTensorToDataCellConverterFactory="org.knime.dl.tensorflow.savedmodel.core.data.convert.DLStringTensorToStringCellConverterFactory">
