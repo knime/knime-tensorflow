@@ -46,10 +46,12 @@
  */
 package org.knime.dl.tensorflow.core;
 
+import org.knime.core.util.Version;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkLocation;
 import org.knime.dl.core.DLNetworkSpec;
+import org.knime.dl.util.DLUtils;
 
 /**
  * The spec of a {@link TFNetwork TensorFlow deep learning network}.
@@ -57,6 +59,15 @@ import org.knime.dl.core.DLNetworkSpec;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public interface TFNetworkSpec extends DLNetworkSpec {
+
+	/**
+	 * Must only be called by implementing classes that are in the same bundle as {@link TFNetworkSpec}.
+	 *
+	 * @return the version of the KNIME Deep Learning Tensorflow bundle
+	 */
+	public static Version getTFBundleVersion() {
+		return DLUtils.Misc.getVersionOfSameBundle(TFNetworkSpec.class);
+	}
 
 	/**
 	 * Creates a network which {@link DLNetwork#getSpec()} returns this spec.

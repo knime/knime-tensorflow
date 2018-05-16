@@ -61,6 +61,7 @@ import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.training.DLTrainingConfig;
 import org.knime.dl.tensorflow.core.TFNetwork;
+import org.knime.dl.tensorflow.core.TFNetworkSpec;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -141,7 +142,7 @@ public class TFNetworkConverterRegistryTest {
 		 */
 		protected DummyNetworkSpec(DLTensorSpec[] inputSpecs, DLTensorSpec[] hiddenOutputSpecs,
 				DLTensorSpec[] outputSpecs) {
-			super(inputSpecs, hiddenOutputSpecs, outputSpecs);
+			super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs);
 		}
 
 		@Override

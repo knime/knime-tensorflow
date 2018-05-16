@@ -64,8 +64,7 @@ import org.knime.dl.tensorflow.core.training.TFTrainingConfig;
  *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFSavedModelNetworkSpec extends DLAbstractNetworkSpec<TFTrainingConfig>
-		implements TFNetworkSpec {
+public class TFSavedModelNetworkSpec extends DLAbstractNetworkSpec<TFTrainingConfig> implements TFNetworkSpec {
 
 	private static final long serialVersionUID = 1L;
 
@@ -81,7 +80,7 @@ public class TFSavedModelNetworkSpec extends DLAbstractNetworkSpec<TFTrainingCon
 	 */
 	public TFSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs,
 			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs) {
-		super(inputSpecs, hiddenOutputSpecs, outputSpecs);
+		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs);
 		m_tags = tags;
 	}
 
@@ -97,7 +96,7 @@ public class TFSavedModelNetworkSpec extends DLAbstractNetworkSpec<TFTrainingCon
 	public TFSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs,
 			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs,
 			final TFTrainingConfig trainingConfig) {
-		super(inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
+		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
 		m_tags = tags;
 	}
 
