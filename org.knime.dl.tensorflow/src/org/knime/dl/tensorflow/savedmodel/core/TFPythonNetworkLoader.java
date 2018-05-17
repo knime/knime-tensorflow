@@ -57,6 +57,8 @@ import java.util.List;
 
 import org.knime.base.filehandling.remote.files.RemoteFileHandlerRegistry;
 import org.knime.core.data.filestore.FileStore;
+import org.knime.dl.core.DLCancelable;
+import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLInvalidDestinationException;
 import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLInvalidSourceException;
@@ -127,19 +129,21 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 					null, null);
 		} catch (final Exception e) {
 			throw new DLInvalidDestinationException(
-					"An error occurred while resolving the TensorFlow network file location.\nCause: " + e.getMessage(), e);
+					"An error occurred while resolving the TensorFlow network file location.\nCause: " + e.getMessage(),
+					e);
 		}
 		return destinationURL;
 	}
 
 	@Override
-	public DLPythonNetworkHandle load(final URI source, final DLPythonContext context, final boolean loadTrainingConfig)
-			throws DLInvalidSourceException, DLInvalidEnvironmentException, IOException {
+	public DLPythonNetworkHandle load(final URI source, final DLPythonContext context, final boolean loadTrainingConfig,
+			final DLCancelable cancelable)
+			throws DLInvalidSourceException, DLInvalidEnvironmentException, IOException, DLCanceledExecutionException {
 		final URL sourceURL = validateSource(source);
 		try {
 			final File savedModelDir = TFSavedModelUtil.getSavedModelInDir(sourceURL);
 			final TFPythonCommands commands = createCommands(checkNotNull(context));
-			return commands.loadNetwork(savedModelDir.getAbsolutePath(), loadTrainingConfig);
+			return commands.loadNetwork(savedModelDir.getAbsolutePath(), loadTrainingConfig, cancelable);
 		} catch (final Throwable e) {
 			// Delete the temporary file if it exists
 			TFSavedModelUtil.deleteTempIfLocal(sourceURL);
@@ -149,10 +153,10 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 
 	@Override
 	public TFSavedModelNetwork fetch(final DLPythonNetworkHandle handle, final DLNetworkLocation source,
-			final DLPythonContext context)
-			throws IllegalArgumentException, DLInvalidSourceException, DLInvalidEnvironmentException, IOException {
+			final DLPythonContext context, final DLCancelable cancelable) throws IllegalArgumentException,
+			DLInvalidSourceException, DLInvalidEnvironmentException, IOException, DLCanceledExecutionException {
 		final TFPythonCommands commands = createCommands(checkNotNull(context));
-		final TFSavedModelNetworkSpec spec = commands.extractNetworkSpec(checkNotNull(handle));
+		final TFSavedModelNetworkSpec spec = commands.extractNetworkSpec(checkNotNull(handle), cancelable);
 		return new TFSavedModelNetwork(spec, source);
 	}
 
