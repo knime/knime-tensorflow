@@ -63,6 +63,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.base.portobjects.DLNetworkPortObjectSpec;
+import org.knime.dl.core.DLExecutionMonitorCancelable;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec;
@@ -134,7 +135,8 @@ public abstract class TFAbstractConverterNodeModel extends NodeModel {
 
 		// Convert the network
 		final FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
-		final TFNetwork tfNetwork = m_converter.convertNetwork(in.getNetwork(), fileStore);
+		final TFNetwork tfNetwork = m_converter.convertNetwork(in.getNetwork(), fileStore,
+				new DLExecutionMonitorCancelable(exec));
 
 		return new PortObject[] { new TFNetworkPortObject(tfNetwork, fileStore) };
 	}

@@ -47,6 +47,8 @@
 package org.knime.dl.tensorflow.core.convert;
 
 import org.knime.core.data.filestore.FileStore;
+import org.knime.dl.core.DLCancelable;
+import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.core.TFNetwork;
@@ -95,13 +97,13 @@ public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public TFNetwork convertNetwork(final DLNetwork network, final FileStore fileStore)
-			throws DLNetworkConversionException {
+	public TFNetwork convertNetwork(final DLNetwork network, final FileStore fileStore, final DLCancelable cancelable)
+			throws DLNetworkConversionException, DLCanceledExecutionException {
 		if (!m_networkType.isAssignableFrom(network.getClass())) {
 			throw new IllegalArgumentException("This converter is not applicable for networks of type \""
 					+ network.getClass() + "\". Expected type: \"" + m_networkType + "\".");
 		}
-		return convertNetworkInternal((N) network, fileStore);
+		return convertNetworkInternal((N) network, fileStore, cancelable);
 	}
 
 	/**
@@ -109,9 +111,11 @@ public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements
 	 *
 	 * @param network the deep-learning network
 	 * @param fileStore a file store to store the TensorFlow deep-learning network in
-	 * @return the converted TensorFlow deep-learning network.
-	 * @throws DLNetworkConversionException if converting the network failed.
+	 * @param cancelable to check if the execution has been canceled
+	 * @return the converted TensorFlow deep-learning network
+	 * @throws DLNetworkConversionException if converting the network failed
+	 * @throws DLCanceledExecutionException if the execution has been canceled
 	 */
-	protected abstract TFNetwork convertNetworkInternal(N network, FileStore fileStore)
-			throws DLNetworkConversionException;
+	protected abstract TFNetwork convertNetworkInternal(N network, FileStore fileStore, DLCancelable cancelable)
+			throws DLNetworkConversionException, DLCanceledExecutionException;
 }

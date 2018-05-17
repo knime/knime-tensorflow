@@ -52,6 +52,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.util.FileUtil;
+import org.knime.dl.core.DLCancelable;
+import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLMissingExtensionException;
@@ -88,8 +90,8 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 	}
 
 	@Override
-	public TFNetwork convertNetworkInternal(final DLKerasTensorFlowNetwork network, final FileStore fileStore)
-			throws DLNetworkConversionException {
+	public TFNetwork convertNetworkInternal(final DLKerasTensorFlowNetwork network, final FileStore fileStore,
+			final DLCancelable cancelable) throws DLNetworkConversionException, DLCanceledExecutionException {
 		try {
 			final File tmpFile = new File(FileUtil.createTempDir("tf"), "sm");
 
@@ -100,7 +102,7 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 						.orElseThrow(() -> new DLMissingExtensionException(
 								"Python back end '" + network.getClass().getCanonicalName()
 										+ "' could not be found. Are you missing a KNIME Deep Learning extension?"))
-						.load(network.getSource().getURI(), pythonContext, false);
+						.load(network.getSource().getURI(), pythonContext, false, cancelable);
 
 				// Export the SavedModel to a temporary directory
 				final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
@@ -117,7 +119,7 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 						.n("builder.add_meta_graph_and_variables(K.get_session(), [").as(SAVE_TAG)
 						.a("], signature_def_map=signature_def_map)") //
 						.n("builder.save()");
-				pythonContext.executeInKernel(b.toString());
+				pythonContext.executeInKernel(b.toString(), cancelable);
 			}
 
 			// Move the model to the filestore

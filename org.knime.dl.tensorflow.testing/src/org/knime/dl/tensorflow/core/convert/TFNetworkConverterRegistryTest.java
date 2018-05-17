@@ -56,6 +56,7 @@ import org.junit.Test;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.dl.core.DLAbstractNetwork;
 import org.knime.dl.core.DLAbstractNetworkSpec;
+import org.knime.dl.core.DLCancelable;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
@@ -98,7 +99,7 @@ public class TFNetworkConverterRegistryTest {
 		}
 
 		@Override
-		protected TFNetwork convertNetworkInternal(DummyNetwork network, FileStore fileStore)
+		protected TFNetwork convertNetworkInternal(final DummyNetwork network, final FileStore fileStore, final DLCancelable cancelable)
 				throws DLNetworkConversionException {
 			throw new NotImplementedException("Should not be called");
 		}
@@ -112,17 +113,17 @@ public class TFNetworkConverterRegistryTest {
 		/**
 		 * @param spec
 		 */
-		protected DummyNetwork(DummyNetworkSpec spec) {
+		protected DummyNetwork(final DummyNetworkSpec spec) {
 			super(spec);
 		}
 
 		@Override
-		protected void hashCodeInternal(HashCodeBuilder b) {
+		protected void hashCodeInternal(final HashCodeBuilder b) {
 			// nothing to do
 		}
 
 		@Override
-		protected boolean equalsInternal(DLNetwork other) {
+		protected boolean equalsInternal(final DLNetwork other) {
 			return true;
 		}
 
@@ -140,18 +141,18 @@ public class TFNetworkConverterRegistryTest {
 		 * @param hiddenOutputSpecs
 		 * @param outputSpecs
 		 */
-		protected DummyNetworkSpec(DLTensorSpec[] inputSpecs, DLTensorSpec[] hiddenOutputSpecs,
-				DLTensorSpec[] outputSpecs) {
+		protected DummyNetworkSpec(final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
+				final DLTensorSpec[] outputSpecs) {
 			super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs);
 		}
 
 		@Override
-		protected void hashCodeInternal(HashCodeBuilder b) {
+		protected void hashCodeInternal(final HashCodeBuilder b) {
 			// nothing to do
 		}
 
 		@Override
-		protected boolean equalsInternal(DLNetworkSpec other) {
+		protected boolean equalsInternal(final DLNetworkSpec other) {
 			return true;
 		}
 
@@ -165,17 +166,17 @@ public class TFNetworkConverterRegistryTest {
 		/**
 		 * @param spec
 		 */
-		protected DummyNetwork2(DummyNetworkSpec spec) {
+		protected DummyNetwork2(final DummyNetworkSpec spec) {
 			super(spec);
 		}
 
 		@Override
-		protected void hashCodeInternal(HashCodeBuilder b) {
+		protected void hashCodeInternal(final HashCodeBuilder b) {
 			// nothing to do
 		}
 
 		@Override
-		protected boolean equalsInternal(DLNetwork other) {
+		protected boolean equalsInternal(final DLNetwork other) {
 			return true;
 		}
 

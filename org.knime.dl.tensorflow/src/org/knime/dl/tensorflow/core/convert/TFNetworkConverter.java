@@ -47,6 +47,8 @@
 package org.knime.dl.tensorflow.core.convert;
 
 import org.knime.core.data.filestore.FileStore;
+import org.knime.dl.core.DLCancelable;
+import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.tensorflow.core.TFNetwork;
@@ -91,5 +93,6 @@ public interface TFNetworkConverter {
 	 * @return the converted TensorFlow deep-learning network.
 	 * @throws DLNetworkConversionException if converting the network failed.
 	 */
-	TFNetwork convertNetwork(DLNetwork network, FileStore fileStore) throws DLNetworkConversionException;
+	TFNetwork convertNetwork(DLNetwork network, FileStore fileStore, DLCancelable cancelable)
+			throws DLNetworkConversionException, DLCanceledExecutionException;
 }
