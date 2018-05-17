@@ -49,6 +49,8 @@ package org.knime.dl.tensorflow.savedmodel.core;
 import java.io.File;
 import java.io.IOException;
 
+import org.knime.dl.core.DLCancelable;
+import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.python.core.DLPythonAbstractCommands;
@@ -62,7 +64,6 @@ import org.knime.dl.util.DLUtils;
 import org.knime.python2.extensions.serializationlibrary.interfaces.Row;
 import org.knime.python2.extensions.serializationlibrary.interfaces.TableCreator;
 import org.knime.python2.extensions.serializationlibrary.interfaces.TableSpec;
-import org.knime.python2.kernel.PythonKernel;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -85,47 +86,50 @@ public final class TFPythonCommands extends DLPythonAbstractCommands {
 	}
 
 	@Override
-	public TFSavedModelNetworkSpec extractNetworkSpec(final DLPythonNetworkHandle network)
-			throws DLInvalidEnvironmentException, IOException {
-		getContext().executeInKernel(getExtractNetworkSpecsCode(network));
-		final PythonKernel kernel = getContext().getKernel();
-		final DLTensorSpec[] inputSpecs = (DLTensorSpec[]) kernel
-				.getData(INPUT_SPECS_NAME, new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE))
+	public TFSavedModelNetworkSpec extractNetworkSpec(final DLPythonNetworkHandle network,
+			final DLCancelable cancelable)
+			throws DLInvalidEnvironmentException, IOException, DLCanceledExecutionException {
+		getContext(cancelable).executeInKernel(getExtractNetworkSpecsCode(network), cancelable);
+		final DLTensorSpec[] inputSpecs = (DLTensorSpec[]) getContext(cancelable)
+				.getDataFromKernel(INPUT_SPECS_NAME,
+						new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE), cancelable)
 				.getTable();
 		final DLTensorSpec[] hiddenOutputSpecs = new DLTensorSpec[0];
-//		DLTensorSpec[] hiddenOutputSpecs;
-//		try {
-//			hiddenOutputSpecs = (DLTensorSpec[]) kernel.getData(HIDDEN_OUTPUT_SPECS_NAME,
-//					new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE)).getTable();
-//		} catch (final IllegalStateException e) {
-//			// We didn't get the hidden specs
-//			hiddenOutputSpecs = new DLTensorSpec[0];
-//		}
-		final DLTensorSpec[] outputSpecs = (DLTensorSpec[]) kernel
-				.getData(OUTPUT_SPECS_NAME, new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE))
+		// DLTensorSpec[] hiddenOutputSpecs;
+		// try {
+		// hiddenOutputSpecs = (DLTensorSpec[]) kernel.getData(HIDDEN_OUTPUT_SPECS_NAME,
+		// new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE)).getTable();
+		// } catch (final IllegalStateException e) {
+		// // We didn't get the hidden specs
+		// hiddenOutputSpecs = new DLTensorSpec[0];
+		// }
+		final DLTensorSpec[] outputSpecs = (DLTensorSpec[]) getContext(cancelable)
+				.getDataFromKernel(OUTPUT_SPECS_NAME,
+						new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE), cancelable)
 				.getTable();
 
-		getContext().executeInKernel(getExtractTagsCode(network));
-		final String[] tags = (String[]) kernel.getData("tags", (spec, tableSize) -> new TableCreator<String[]>() {
+		getContext(cancelable).executeInKernel(getExtractTagsCode(network), cancelable);
+		final String[] tags = (String[]) getContext(cancelable)
+				.getDataFromKernel("tags", (spec, tableSize) -> new TableCreator<String[]>() {
 
-			private final String[] m_tags = new String[tableSize];
-			private int m_nextIdx = 0;
+					private final String[] m_tags = new String[tableSize];
+					private int m_nextIdx = 0;
 
-			@Override
-			public void addRow(final Row row) {
-				m_tags[m_nextIdx++] = row.getCell(0).getStringValue();
-			}
+					@Override
+					public void addRow(final Row row) {
+						m_tags[m_nextIdx++] = row.getCell(0).getStringValue();
+					}
 
-			@Override
-			public TableSpec getTableSpec() {
-				return spec;
-			}
+					@Override
+					public TableSpec getTableSpec() {
+						return spec;
+					}
 
-			@Override
-			public String[] getTable() {
-				return m_tags;
-			}
-		}).getTable();
+					@Override
+					public String[] getTable() {
+						return m_tags;
+					}
+				}, cancelable).getTable();
 
 		return new TFSavedModelNetworkSpec(tags, inputSpecs, hiddenOutputSpecs, outputSpecs);
 	}
