@@ -165,12 +165,11 @@ class TFNetwork(DLPythonNetwork):
             self._spec = TFNetworkSpec(inp_specs, hid_specs, oup_specs, model.tags)
         return self._spec
 
-    def execute(self, in_data, batch_size):
+    def execute(self, in_data, batch_size, output_identifiers):
         X = self._format_input(in_data, batch_size)
-        fetches = self.model.outputs
         with self.model.session.as_default():
-            Y = self.model.session.run(fetches, feed_dict=X)
-        return self._format_output(Y)
+            Y = self.model.session.run(output_identifiers, feed_dict=X)
+        return self._format_output(Y, output_identifiers)
 
     def save(self, path):
         model = self._model
@@ -206,10 +205,14 @@ class TFNetwork(DLPythonNetwork):
             tensors[tensor] = data
         return tensors
 
-    def _format_output(self, Y):
+    def _format_output(self, Y, output_identifiers):
         output = {}
-        for output_spec in self.spec.output_specs:
-            out = Y[output_spec.name]
+        out_and_hidden_spec = self.spec.output_specs + \
+                self.spec.intermediate_output_specs
+        output_specs = [[s for s in out_and_hidden_spec if s.identifier == id][0] \
+                for id in output_identifiers]
+        for i, output_spec in enumerate(output_specs):
+            out = Y[i]
             out = out if len(out.shape) > 1 else out[...,None]
             out = self._put_in_matching_buffer(out)
             out = pd.DataFrame({output_spec.identifier: [out]})
