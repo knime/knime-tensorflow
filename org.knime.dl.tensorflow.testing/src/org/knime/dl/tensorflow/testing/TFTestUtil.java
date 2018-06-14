@@ -48,9 +48,9 @@ package org.knime.dl.tensorflow.testing;
 
 import static org.junit.Assert.assertEquals;
 
-import org.knime.dl.core.DLDefaultDimensionOrder;
 import org.knime.dl.core.DLDefaultTensorId;
 import org.knime.dl.core.DLDefaultTensorSpec;
+import org.knime.dl.core.DLDimensionOrder;
 import org.knime.dl.core.DLTensorShape;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorStringBuffer;
@@ -77,6 +77,6 @@ public class TFTestUtil {
 
 	public static DLTensorSpec createSpec(DLTensorShape shape) {
 		return new DLDefaultTensorSpec(new DLDefaultTensorId("spec"), "spec", 1, shape, String.class,
-				DLDefaultDimensionOrder.TDHWC);
+				DLDimensionOrder.TDHWC);
 	}
 }

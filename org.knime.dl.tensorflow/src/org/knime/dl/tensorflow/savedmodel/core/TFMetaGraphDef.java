@@ -56,7 +56,6 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.Collectors;
 
-import org.knime.dl.core.DLDefaultDimensionOrder;
 import org.knime.dl.core.DLDefaultFixedTensorShape;
 import org.knime.dl.core.DLDefaultPartialTensorShape;
 import org.knime.dl.core.DLDefaultTensorId;
@@ -347,9 +346,9 @@ public class TFMetaGraphDef {
 	private Optional<DLDimensionOrder> inferDimensionOrderFromString(final String dimOrder) {
 		// TODO make more powerful
 		if (dimOrder.equals("NDHWC") || dimOrder.equals("NHWC") || dimOrder.equals("NWC")) {
-			return Optional.of(DLDefaultDimensionOrder.TDHWC);
+			return Optional.of(DLDimensionOrder.TDHWC);
 		} else if (dimOrder.equals("NCDHW") || dimOrder.equals("NCHW") || dimOrder.equals("NCW")) {
-			return Optional.of(DLDefaultDimensionOrder.TCDHW);
+			return Optional.of(DLDimensionOrder.TCDHW);
 		} else {
 			return Optional.empty();
 		}

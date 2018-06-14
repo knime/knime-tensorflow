@@ -46,7 +46,6 @@
  */
 package org.knime.dl.tensorflow.core;
 
-import org.knime.dl.core.DLDefaultDimensionOrder;
 import org.knime.dl.core.DLDimensionOrder;
 import org.knime.dl.core.DLFixedTensorShape;
 import org.tensorflow.Tensor;
@@ -61,7 +60,7 @@ public class TFUtil {
 	}
 
 	/** The default dimension order of TensorFlow */
-	public static final DLDimensionOrder DEFAULT_DIMENSION_ORDER = DLDefaultDimensionOrder.TDHWC;
+	public static final DLDimensionOrder DEFAULT_DIMENSION_ORDER = DLDimensionOrder.TDHWC;
 
 	/**
 	 * Creates a shape array which can be used to create a {@link Tensor} from a batch size and a
