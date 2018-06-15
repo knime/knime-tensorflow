@@ -49,6 +49,7 @@ package org.knime.dl.tensorflow.savedmodel.core;
 import java.io.File;
 import java.io.IOException;
 
+import org.knime.core.util.Version;
 import org.knime.dl.core.DLCancelable;
 import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLInvalidEnvironmentException;
@@ -56,11 +57,11 @@ import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.python.core.DLPythonAbstractCommands;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
-import org.knime.dl.python.core.DLPythonNumPyTypeMap;
-import org.knime.dl.python.core.DLPythonTensorSpecTableCreatorFactory;
+import org.knime.dl.python.core.SingleValueTableCreator;
 import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
 import org.knime.dl.python.util.DLPythonUtils;
 import org.knime.dl.util.DLUtils;
+import org.knime.python2.extensions.serializationlibrary.interfaces.Cell;
 import org.knime.python2.extensions.serializationlibrary.interfaces.Row;
 import org.knime.python2.extensions.serializationlibrary.interfaces.TableCreator;
 import org.knime.python2.extensions.serializationlibrary.interfaces.TableSpec;
@@ -69,6 +70,8 @@ import org.knime.python2.extensions.serializationlibrary.interfaces.TableSpec;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public final class TFPythonCommands extends DLPythonAbstractCommands {
+
+	private static final String TF_VERSION_NAME = "tf_version";
 
 	/**
 	 * Creates new TensorFlow python commands without a context.
@@ -90,23 +93,16 @@ public final class TFPythonCommands extends DLPythonAbstractCommands {
 			final DLCancelable cancelable)
 			throws DLInvalidEnvironmentException, IOException, DLCanceledExecutionException {
 		getContext(cancelable).executeInKernel(getExtractNetworkSpecsCode(network), cancelable);
-		final DLTensorSpec[] inputSpecs = (DLTensorSpec[]) getContext(cancelable)
-				.getDataFromKernel(INPUT_SPECS_NAME,
-						new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE), cancelable)
-				.getTable();
+		final DLTensorSpec[] inputSpecs = extractTensorSpec(INPUT_SPECS_NAME, cancelable);
 		final DLTensorSpec[] hiddenOutputSpecs = new DLTensorSpec[0];
 		// DLTensorSpec[] hiddenOutputSpecs;
 		// try {
-		// hiddenOutputSpecs = (DLTensorSpec[]) kernel.getData(HIDDEN_OUTPUT_SPECS_NAME,
-		// new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE)).getTable();
+		// hiddenOutputSpecs = extractTensorSpec(HIDDEN_OUTPUT_SPECS_NAME, cancelable);
 		// } catch (final IllegalStateException e) {
 		// // We didn't get the hidden specs
 		// hiddenOutputSpecs = new DLTensorSpec[0];
 		// }
-		final DLTensorSpec[] outputSpecs = (DLTensorSpec[]) getContext(cancelable)
-				.getDataFromKernel(OUTPUT_SPECS_NAME,
-						new DLPythonTensorSpecTableCreatorFactory(DLPythonNumPyTypeMap.INSTANCE), cancelable)
-				.getTable();
+		final DLTensorSpec[] outputSpecs = extractTensorSpec(OUTPUT_SPECS_NAME, cancelable);
 
 		getContext(cancelable).executeInKernel(getExtractTagsCode(network), cancelable);
 		final String[] tags = (String[]) getContext(cancelable)
@@ -131,7 +127,11 @@ public final class TFPythonCommands extends DLPythonAbstractCommands {
 					}
 				}, cancelable).getTable();
 
-		return new TFSavedModelNetworkSpec(tags, inputSpecs, hiddenOutputSpecs, outputSpecs);
+		// Get the version numbers
+		final Version pythonVersion = getPythonVersion(cancelable);
+		final Version tfVersion = getTensorFlowVersion(cancelable);
+
+		return new TFSavedModelNetworkSpec(pythonVersion, tfVersion, tags, inputSpecs, hiddenOutputSpecs, outputSpecs);
 	}
 
 	@Override
@@ -158,6 +158,26 @@ public final class TFPythonCommands extends DLPythonAbstractCommands {
 		return "import pandas as pd\n" + //
 				"global tags\n" + //
 				"tags = pd.DataFrame({ 'tags':" + network.getIdentifier() + ".tags })";
+	}
+
+	/**
+	 * @param cancelable to check if the execution has been canceled
+	 * @return the TensorFlow version
+	 * @throws DLCanceledExecutionException if the execution has been canceled
+	 * @throws DLInvalidEnvironmentException if failed to properly setup the Python context
+	 * @throws IOException if getting the data from python failed
+	 */
+	protected Version getTensorFlowVersion(final DLCancelable cancelable)
+			throws DLCanceledExecutionException, DLInvalidEnvironmentException, IOException {
+		final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
+				.a("import tensorflow as tf") //
+				.n("import pandas as pd") //
+				.n("global ").a(TF_VERSION_NAME) //
+				.n(TF_VERSION_NAME).a(" = pd.DataFrame([tf.__version__])"); //
+		getContext(cancelable).executeInKernel(b.toString(), cancelable);
+		final String kerasVersion = (String) getContext(cancelable).getDataFromKernel(TF_VERSION_NAME,
+				(s, ts) -> new SingleValueTableCreator<>(s, Cell::getStringValue), cancelable).getTable();
+		return new Version(kerasVersion);
 	}
 
 	private static class TFPythonNetworkReaderCommands extends DLPythonAbstractNetworkReaderCommands {
