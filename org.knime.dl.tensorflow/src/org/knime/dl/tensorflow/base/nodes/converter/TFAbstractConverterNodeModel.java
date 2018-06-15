@@ -104,15 +104,18 @@ public abstract class TFAbstractConverterNodeModel extends NodeModel {
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		final DLNetworkPortObjectSpec spec = (DLNetworkPortObjectSpec) inSpecs[0];
 
-		// Get the correct converter
+		final DLNetworkSpec networkSpec = spec.getNetworkSpec();
+
 		try {
+			// Get the correct converter
 			m_converter = getTFNetworkConverter(spec);
+			// Check the spec
+			m_converter.checkSpec(networkSpec);
 		} catch (final DLNetworkConversionException e) {
 			throw new InvalidSettingsException(e.getMessage(), e);
 		}
 
 		// Try to convert the specs
-		final DLNetworkSpec networkSpec = spec.getNetworkSpec();
 		TFNetworkSpec tfSpec = null;
 		if (m_converter.canConvertSpec(networkSpec.getClass())) {
 			try {

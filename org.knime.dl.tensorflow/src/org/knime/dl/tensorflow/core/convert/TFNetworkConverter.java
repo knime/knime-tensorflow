@@ -86,12 +86,22 @@ public interface TFNetworkConverter {
 	TFNetworkSpec convertSpec(DLNetworkSpec spec) throws DLNetworkConversionException;
 
 	/**
+	 * Checks if a network with the given spec can be converted.
+	 *
+	 * @param spec the deep-learning network spec
+	 * @throws DLNetworkConversionException if a network with the given spec can't be converted
+	 */
+	void checkSpec(DLNetworkSpec spec) throws DLNetworkConversionException;
+
+	/**
 	 * Converts the deep-learning network to a TensorFlow deep-learning network.
 	 *
 	 * @param network the deep-learning network
 	 * @param fileStore a file store to store the TensorFlow deep-learning network in
-	 * @return the converted TensorFlow deep-learning network.
-	 * @throws DLNetworkConversionException if converting the network failed.
+	 * @param cancelable to check if the execution has been canceled
+	 * @return the converted TensorFlow deep-learning network
+	 * @throws DLNetworkConversionException if converting the network failed
+	 * @throws DLCanceledExecutionException if the execution has been canceled
 	 */
 	TFNetwork convertNetwork(DLNetwork network, FileStore fileStore, DLCancelable cancelable)
 			throws DLNetworkConversionException, DLCanceledExecutionException;

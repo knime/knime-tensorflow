@@ -103,6 +103,11 @@ public class TFNetworkConverterRegistryTest {
 				throws DLNetworkConversionException {
 			throw new NotImplementedException("Should not be called");
 		}
+
+		@Override
+		public void checkSpec(final DLNetworkSpec spec) throws DLNetworkConversionException {
+			// nothing to do
+		}
 	}
 
 	/**

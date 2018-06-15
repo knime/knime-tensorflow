@@ -52,12 +52,15 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.util.FileUtil;
+import org.knime.core.util.Version;
 import org.knime.dl.core.DLCancelable;
 import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLInvalidEnvironmentException;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLMissingExtensionException;
 import org.knime.dl.core.DLNetworkFileStoreLocation;
+import org.knime.dl.core.DLNetworkSpec;
+import org.knime.dl.keras.core.DLKerasNetworkSpec;
 import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetwork;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonDefaultContext;
@@ -82,11 +85,26 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 
 	private static final String SIGNATURE_KEY = "serve";
 
+	private static final Version MIN_KERAS_VERSION = new Version(2, 1, 3);
+
 	/**
 	 * Creates a new Keras to TensorFlow converter.
 	 */
 	public TFKerasNetworkConverter() {
 		super(DLKerasTensorFlowNetwork.class, TFSavedModelNetwork.class);
+	}
+
+	@Override
+	public void checkSpec(final DLNetworkSpec spec) throws DLNetworkConversionException {
+		if (!(spec instanceof DLKerasNetworkSpec)) {
+			throw new DLNetworkConversionException("Cannot convert networks other than Keras networks.");
+		}
+		final DLKerasNetworkSpec s = (DLKerasNetworkSpec) spec;
+		if (s.getKerasVersion() != null && !s.getKerasVersion().isSameOrNewer(MIN_KERAS_VERSION)) {
+			throw new DLNetworkConversionException(
+					"Cannot convert networks which have been created with a Keras version below "
+							+ MIN_KERAS_VERSION.toString() + ".");
+		}
 	}
 
 	@Override
