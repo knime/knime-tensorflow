@@ -44,125 +44,115 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.savedmodel.core;
+package org.knime.dl.tensorflow.core;
 
-import java.util.Arrays;
+import static com.google.common.base.Objects.equal;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.knime.core.util.Version;
-import org.knime.dl.core.DLInvalidSourceException;
-import org.knime.dl.core.DLNetworkLocation;
+import org.knime.dl.core.DLAbstractNetworkSpec;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.training.DLTrainingConfig;
-import org.knime.dl.tensorflow.core.TFAbstractNetworkSpec;
-import org.knime.dl.tensorflow.core.TFNetwork;
-import org.knime.dl.tensorflow.core.TFNetworkSpec;
 import org.knime.dl.tensorflow.core.training.TFTrainingConfig;
 
 /**
- * The spec of a {@link TFSavedModelNetwork}.
- *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFSavedModelNetworkSpec extends TFAbstractNetworkSpec {
+public abstract class TFAbstractNetworkSpec extends DLAbstractNetworkSpec<TFTrainingConfig> implements TFNetworkSpec {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String[] m_tags;
+	private final Version m_pythonVersion;
+
+	private final Version m_tfVersion;
 
 	/**
-	 * Creates a new {@link TFNetworkSpec} for a {@link TFSavedModelNetwork}.
-	 *
-	 * @param tags a list of tags describing the graph definitions to load
-	 * @param inputSpecs the input tensor specs, can be empty
-	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
-	 * @param outputSpecs the output tensor specs, can be empty
-	 */
-	public TFSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs,
-			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs) {
-		super(inputSpecs, hiddenOutputSpecs, outputSpecs);
-		m_tags = tags;
-	}
-
-	/**
-	 * Creates a new {@link TFNetworkSpec} for a {@link TFSavedModelNetwork}.
-	 *
-	 * @param tags a list of tags describing the graph definitions to load
-	 * @param inputSpecs the input tensor specs, can be empty
-	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
-	 * @param outputSpecs the output tensor specs, can be empty
-	 * @param trainingConfig the {@link DLTrainingConfig training configuration}
-	 */
-	public TFSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs,
-			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs,
-			final TFTrainingConfig trainingConfig) {
-		super(inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
-		m_tags = tags;
-	}
-
-	/**
-	 * Creates a new {@link TFNetworkSpec} for a {@link TFSavedModelNetwork}.
+	 * Creates a new {@link TFNetworkSpec}.
 	 *
 	 * @param pythonVersion the Python version of the network
 	 * @param tfVersion the TensorFlow version of the network
-	 * @param tags a list of tags describing the graph definitions to load
 	 * @param inputSpecs the input tensor specs, can be empty
 	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
 	 * @param outputSpecs the output tensor specs, can be empty
 	 */
-	public TFSavedModelNetworkSpec(final Version pythonVersion, final Version tfVersion, final String[] tags,
+	protected TFAbstractNetworkSpec(final Version pythonVersion, final Version tfVersion,
 			final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs) {
-		super(pythonVersion, tfVersion, inputSpecs, hiddenOutputSpecs, outputSpecs);
-		m_tags = tags;
+		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs);
+		m_pythonVersion = checkNotNull(pythonVersion);
+		m_tfVersion = checkNotNull(tfVersion);
 	}
 
 	/**
-	 * Creates a new {@link TFNetworkSpec} for a {@link TFSavedModelNetwork}.
+	 * Creates a new {@link TFNetworkSpec}.
 	 *
 	 * @param pythonVersion the Python version of the network
 	 * @param tfVersion the TensorFlow version of the network
-	 * @param tags a list of tags describing the graph definitions to load
 	 * @param inputSpecs the input tensor specs, can be empty
 	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
 	 * @param outputSpecs the output tensor specs, can be empty
 	 * @param trainingConfig the {@link DLTrainingConfig training configuration}
 	 */
-	public TFSavedModelNetworkSpec(final Version pythonVersion, final Version tfVersion, final String[] tags,
+	protected TFAbstractNetworkSpec(final Version pythonVersion, final Version tfVersion,
 			final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs,
 			final TFTrainingConfig trainingConfig) {
-		super(pythonVersion, tfVersion, inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
-		m_tags = tags;
+		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
+		m_pythonVersion = checkNotNull(pythonVersion);
+		m_tfVersion = checkNotNull(tfVersion);
+	}
+
+	/**
+	 * Creates a new {@link TFNetworkSpec}.
+	 *
+	 * @param inputSpecs the input tensor specs, can be empty
+	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
+	 * @param outputSpecs the output tensor specs, can be empty
+	 */
+	protected TFAbstractNetworkSpec(final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
+			final DLTensorSpec[] outputSpecs) {
+		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs);
+		m_pythonVersion = null;
+		m_tfVersion = null;
+	}
+
+	/**
+	 * Creates a new {@link TFNetworkSpec}.
+	 *
+	 * @param inputSpecs the input tensor specs, can be empty
+	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
+	 * @param outputSpecs the output tensor specs, can be empty
+	 * @param trainingConfig the {@link DLTrainingConfig training configuration}
+	 */
+	protected TFAbstractNetworkSpec(final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
+			final DLTensorSpec[] outputSpecs, final TFTrainingConfig trainingConfig) {
+		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
+		m_pythonVersion = null;
+		m_tfVersion = null;
+	}
+
+	@Override
+	public Version getPythonVersion() {
+		return m_pythonVersion;
+	}
+
+	@Override
+	public Version getTensorFlowVersion() {
+		return m_tfVersion;
 	}
 
 	@Override
 	protected void hashCodeInternal(final HashCodeBuilder b) {
-		super.hashCodeInternal(b);
-		b.append(m_tags);
+		b.append(m_pythonVersion);
+		b.append(m_tfVersion);
 	}
 
 	@Override
 	protected boolean equalsInternal(final DLNetworkSpec other) {
-		if (!super.equalsInternal(other)) {
+		final TFAbstractNetworkSpec o = (TFAbstractNetworkSpec) other;
+		if (!equal(m_pythonVersion, o.m_pythonVersion)) {
 			return false;
 		}
-		final TFSavedModelNetworkSpec o = (TFSavedModelNetworkSpec) other;
-		if (m_tags.length != o.m_tags.length) {
-			return false;
-		}
-		// The order of the tags doesn't matter
-		return Arrays.asList(m_tags).containsAll(Arrays.asList(o.m_tags));
-	}
-
-	@Override
-	public TFNetwork create(final DLNetworkLocation source) throws DLInvalidSourceException {
-		return new TFSavedModelNetwork(this, source);
-	}
-
-	/**
-	 * @return the list of tags describing the graph definitions to load
-	 */
-	public String[] getTags() {
-		return m_tags;
+		return equal(m_tfVersion, o.m_tfVersion);
 	}
 }

@@ -50,7 +50,7 @@ import org.knime.core.util.Version;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.core.DLNetworkLocation;
-import org.knime.dl.core.DLNetworkSpec;
+import org.knime.dl.python.core.DLPythonNetworkSpec;
 import org.knime.dl.util.DLUtils;
 
 /**
@@ -58,7 +58,7 @@ import org.knime.dl.util.DLUtils;
  *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFNetworkSpec extends DLNetworkSpec {
+public interface TFNetworkSpec extends DLPythonNetworkSpec {
 
 	/**
 	 * Must only be called by implementing classes that are in the same bundle as {@link TFNetworkSpec}.
@@ -68,6 +68,11 @@ public interface TFNetworkSpec extends DLNetworkSpec {
 	public static Version getTFBundleVersion() {
 		return DLUtils.Misc.getVersionOfSameBundle(TFNetworkSpec.class);
 	}
+
+	/**
+	 * @return the version of the TensorFlow python library this network has been created with
+	 */
+	Version getTensorFlowVersion();
 
 	/**
 	 * Creates a network which {@link DLNetwork#getSpec()} returns this spec.
