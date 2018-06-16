@@ -48,6 +48,10 @@ package org.knime.dl.tensorflow.savedmodel.core.execution;
 
 import java.util.Set;
 
+import org.knime.dl.core.DLCancelable;
+import org.knime.dl.core.DLCanceledExecutionException;
+import org.knime.dl.core.DLInstallationTestTimeoutException;
+import org.knime.dl.core.DLMissingDependencyException;
 import org.knime.dl.core.DLNetworkInputPreparer;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
@@ -70,6 +74,12 @@ public class TFSavedModelExecutionContext
 	 */
 	public TFSavedModelExecutionContext() {
 		super(TFSavedModelNetwork.class, new TFSavedModelTensorFactory(), EXECUTION_CONTEXT_NAME);
+	}
+
+	@Override
+	public void checkAvailability(final boolean forceRefresh, final int timeout, final DLCancelable cancelable)
+			throws DLMissingDependencyException, DLInstallationTestTimeoutException, DLCanceledExecutionException {
+		// No-op: No external dependencies.
 	}
 
 	@Override

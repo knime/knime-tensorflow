@@ -48,6 +48,10 @@ package org.knime.dl.tensorflow.savedmodel.core.execution;
 
 import java.util.Set;
 
+import org.knime.dl.core.DLCancelable;
+import org.knime.dl.core.DLCanceledExecutionException;
+import org.knime.dl.core.DLInstallationTestTimeoutException;
+import org.knime.dl.core.DLMissingDependencyException;
 import org.knime.dl.core.DLNetworkInputPreparer;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
@@ -55,6 +59,7 @@ import org.knime.dl.core.execution.DLNetworkOutputConsumer;
 import org.knime.dl.python.core.DLPythonDefaultTensorFactory;
 import org.knime.dl.tensorflow.core.execution.TFAbstractExecutionContext;
 import org.knime.dl.tensorflow.core.execution.TFNetworkExecutionSession;
+import org.knime.dl.tensorflow.savedmodel.core.TFPythonNetworkLoader;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
 
 /**
@@ -69,6 +74,12 @@ public class TFPythonSavedModelExecutionContext extends TFAbstractExecutionConte
 	 */
 	public TFPythonSavedModelExecutionContext() {
 		super(TFSavedModelNetwork.class, new DLPythonDefaultTensorFactory(), EXECUTION_CONTEXT_NAME);
+	}
+
+	@Override
+	public void checkAvailability(final boolean forceRefresh, final int timeout, final DLCancelable cancelable)
+			throws DLMissingDependencyException, DLInstallationTestTimeoutException, DLCanceledExecutionException {
+		new TFPythonNetworkLoader().checkAvailability(forceRefresh, timeout, cancelable);
 	}
 
 	@Override
