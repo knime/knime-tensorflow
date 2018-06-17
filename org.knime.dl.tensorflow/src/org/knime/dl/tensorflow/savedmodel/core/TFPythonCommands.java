@@ -53,17 +53,25 @@ import org.knime.core.util.Version;
 import org.knime.dl.core.DLCancelable;
 import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLInvalidEnvironmentException;
+import org.knime.dl.core.DLNetworkInputProvider;
+import org.knime.dl.core.DLTensor;
+import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
+import org.knime.dl.core.data.DLWritableBuffer;
+import org.knime.dl.core.training.DLTrainingMonitor;
 import org.knime.dl.python.core.DLPythonAbstractCommands;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.SingleValueTableCreator;
+import org.knime.dl.python.core.training.DLPythonTrainingStatus;
 import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
 import org.knime.dl.python.util.DLPythonUtils;
 import org.knime.dl.tensorflow.core.TFUtil;
+import org.knime.dl.util.DLThrowingLambdas.DLThrowingBiFunction;
 import org.knime.dl.util.DLUtils;
 import org.knime.python2.extensions.serializationlibrary.interfaces.Cell;
 import org.knime.python2.extensions.serializationlibrary.interfaces.Row;
+import org.knime.python2.extensions.serializationlibrary.interfaces.TableChunker;
 import org.knime.python2.extensions.serializationlibrary.interfaces.TableCreator;
 import org.knime.python2.extensions.serializationlibrary.interfaces.TableSpec;
 
@@ -154,6 +162,14 @@ public final class TFPythonCommands extends DLPythonAbstractCommands {
 	@Override
 	protected TFPythonNetworkReaderCommands getNetworkReaderCommands() {
 		return new TFPythonNetworkReaderCommands();
+	}
+
+	@Override
+	protected DLPythonNetworkTrainingTaskHandler createNetworkTrainingTaskHandler(final DLPythonContext context,
+			final DLTrainingMonitor<? extends DLPythonTrainingStatus> monitor,
+			final DLNetworkInputProvider trainingInputProvider, final DLNetworkInputProvider validationInputProvider,
+			final DLThrowingBiFunction<DLTensorId, DLTensor<? extends DLWritableBuffer>, TableChunker, IOException> singleTensorTableChunkerCreator) {
+		throw new UnsupportedOperationException("TensorFlow does not support training networks, yet.");
 	}
 
 	private String getExtractTagsCode(final DLPythonNetworkHandle network) {
