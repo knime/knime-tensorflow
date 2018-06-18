@@ -46,14 +46,19 @@
  */
 package org.knime.dl.tensorflow.core;
 
+import org.knime.core.node.NodeLogger;
+import org.knime.core.util.Version;
 import org.knime.dl.core.DLDimensionOrder;
 import org.knime.dl.core.DLFixedTensorShape;
 import org.tensorflow.Tensor;
+import org.tensorflow.TensorFlow;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class TFUtil {
+
+	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFUtil.class);
 
 	private TFUtil() {
 		// Utility class
@@ -75,5 +80,22 @@ public class TFUtil {
 		tfShape[0] = batchSize;
 		System.arraycopy(dlShape.getShape(), 0, tfShape, 1, dlShape.getNumDimensions());
 		return tfShape;
+	}
+
+	/**
+	 * Checks if the TensorFlow version of the network is compatible with the runtime TensorFlow version and logs a
+	 * warning if it is not compatible.
+	 *
+	 * @param networkTFVersion the TensorFlow version of the network.
+	 */
+	public static void checkTFVersion(final Version networkTFVersion) {
+		final Version runtimeTFVersion = new Version(TensorFlow.version());
+		if (!runtimeTFVersion.isSameOrNewer(networkTFVersion)) {
+			LOGGER.warn("The TensorFlow version of the network \"" + networkTFVersion.toString()
+					+ "\" is newer than the runtime TensorFlow version \"" + runtimeTFVersion.toString() + "\".\n"
+					+ "This could lead to unexpected behaviour.\n"
+					+ "If the network has been created by the Python Network Creator or the TensorFlow Converter "
+					+ "this could mean that your Python TensorFlow version is to new.");
+		}
 	}
 }

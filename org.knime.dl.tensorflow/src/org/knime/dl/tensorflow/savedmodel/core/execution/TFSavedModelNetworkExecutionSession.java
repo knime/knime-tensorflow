@@ -68,6 +68,7 @@ import org.knime.dl.core.execution.DLAbstractNetworkExecutionSession;
 import org.knime.dl.core.execution.DLExecutionMonitor;
 import org.knime.dl.core.execution.DLExecutionStatus;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
+import org.knime.dl.tensorflow.core.TFUtil;
 import org.knime.dl.tensorflow.core.execution.TFNetworkExecutionSession;
 import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableBuffer;
@@ -101,6 +102,7 @@ public class TFSavedModelNetworkExecutionSession extends DLAbstractNetworkExecut
 			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer,
 			final DLTensorFactory tensorFactory) {
 		super(network, executionInputSpecs, requestedOutputs, inputPreparer, outputConsumer, tensorFactory);
+		TFUtil.checkTFVersion(network.getSpec().getTensorFlowVersion());
 	}
 
 	@Override

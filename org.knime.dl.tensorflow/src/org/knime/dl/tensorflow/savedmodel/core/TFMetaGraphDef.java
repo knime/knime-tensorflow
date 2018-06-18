@@ -167,8 +167,12 @@ public class TFMetaGraphDef {
 		final DLTensorSpec[] outputSpecs = outputs.entrySet().stream()
 				.map(e -> createTensorSpec(e.getKey(), e.getValue())).toArray(DLTensorSpec[]::new);
 
+		// Get the TensorFlow Version of the network
+		final Version tfVersion = getTFVersion();
+		TFUtil.checkTFVersion(tfVersion);
+
 		// Create the NetworkSpec
-		return new TFSavedModelNetworkSpec(getTFVersion(), m_tags, inputSpecs, hiddenSpecs, outputSpecs);
+		return new TFSavedModelNetworkSpec(tfVersion, m_tags, inputSpecs, hiddenSpecs, outputSpecs);
 	}
 
 	private Collection<Entry<String, SignatureDef>> getFilteredSignature() {

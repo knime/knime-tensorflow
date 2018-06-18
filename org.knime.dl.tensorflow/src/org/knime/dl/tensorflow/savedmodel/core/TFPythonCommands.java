@@ -60,6 +60,7 @@ import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.SingleValueTableCreator;
 import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
 import org.knime.dl.python.util.DLPythonUtils;
+import org.knime.dl.tensorflow.core.TFUtil;
 import org.knime.dl.util.DLUtils;
 import org.knime.python2.extensions.serializationlibrary.interfaces.Cell;
 import org.knime.python2.extensions.serializationlibrary.interfaces.Row;
@@ -130,6 +131,7 @@ public final class TFPythonCommands extends DLPythonAbstractCommands {
 		// Get the version numbers
 		final Version pythonVersion = getPythonVersion(cancelable);
 		final Version tfVersion = getTensorFlowVersion(cancelable);
+		TFUtil.checkTFVersion(tfVersion);
 
 		return new TFSavedModelNetworkSpec(pythonVersion, tfVersion, tags, inputSpecs, hiddenOutputSpecs, outputSpecs);
 	}
