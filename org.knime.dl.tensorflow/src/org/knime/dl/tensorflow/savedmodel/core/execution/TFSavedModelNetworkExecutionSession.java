@@ -57,6 +57,7 @@ import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLFixedTensorShape;
+import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetworkInputPreparer;
 import org.knime.dl.core.DLTensor;
 import org.knime.dl.core.DLTensorFactory;
@@ -76,6 +77,7 @@ import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableBuffer;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session.Runner;
 import org.tensorflow.Tensor;
+import org.tensorflow.TensorFlow;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -108,8 +110,19 @@ public class TFSavedModelNetworkExecutionSession extends DLAbstractNetworkExecut
 	@Override
 	protected void executeInternal(final DLExecutionMonitor monitor) throws DLCanceledExecutionException, Exception {
 		if (m_savedModelBundle == null) {
-			m_savedModelBundle = SavedModelBundle.load(m_network.getSavedModelInDir().getAbsolutePath(),
-					m_network.getSpec().getTags());
+			try {
+				m_savedModelBundle = SavedModelBundle.load(m_network.getSavedModelInDir().getAbsolutePath(),
+						m_network.getSpec().getTags());
+			} catch (final IllegalArgumentException e) {
+				if (TFUtil.hasNewerTFVersion(m_network.getSpec().getTensorFlowVersion())) {
+					throw new DLInvalidSourceException("Could not load the TensorFlow graph. "
+							+ "Most likely the issue is that the network has been created with a "
+							+ "newer version of TensorFlow \"" + m_network.getSpec().getTensorFlowVersion()
+							+ "\" than used by KNIME \"" + TensorFlow.version() + "\".", e);
+				} else {
+					throw new DLInvalidSourceException("Could not load the TensorFlow graph.", e);
+				}
+			}
 		}
 
 		final DLExecutionStatus status = monitor.getExecutionStatus();

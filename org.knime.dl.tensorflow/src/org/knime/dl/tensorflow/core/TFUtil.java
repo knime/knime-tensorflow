@@ -89,13 +89,23 @@ public class TFUtil {
 	 * @param networkTFVersion the TensorFlow version of the network.
 	 */
 	public static void checkTFVersion(final Version networkTFVersion) {
-		final Version runtimeTFVersion = new Version(TensorFlow.version());
-		if (!runtimeTFVersion.isSameOrNewer(networkTFVersion)) {
+		if (hasNewerTFVersion(networkTFVersion)) {
 			LOGGER.warn("The TensorFlow version of the network \"" + networkTFVersion.toString()
-					+ "\" is newer than the runtime TensorFlow version \"" + runtimeTFVersion.toString() + "\".\n"
+					+ "\" is newer than the runtime TensorFlow version \"" + TensorFlow.version() + "\".\n"
 					+ "This could lead to unexpected behaviour.\n"
 					+ "If the network has been created by the Python Network Creator or the TensorFlow Converter "
 					+ "this could mean that your Python TensorFlow version is to new.");
 		}
+	}
+
+	/**
+	 * Checks if the network has been created with a newer version of TensorFlow than the one used in Java.
+	 *
+	 * @param networkTFVersion the TensorFlow version of the network.
+	 * @return true if the network uses a newer version of TensorFlow
+	 */
+	public static boolean hasNewerTFVersion(final Version networkTFVersion) {
+		final Version runtimeTFVersion = new Version(TensorFlow.version());
+		return !runtimeTFVersion.isSameOrNewer(networkTFVersion);
 	}
 }
