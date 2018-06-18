@@ -62,6 +62,27 @@ class TFModel(object):
 
     def __init__(self, inputs, outputs, graph=None, session=None, tags=['SAVE'],
                  method_name='PREDICT', signature_key='predict', save=True):
+        """
+        Creates a TFModel object which holds all information of a TensorFlow
+        model and can be used to save it as a SavedModel.
+
+        Args:
+            inputs: Dictionary, list or tensor, the input tensors. If a dictionary
+                is given the key will be used as a name. Otherwise the name of
+                the tensor will be used.
+            outputs: Dictionary, list or tensor, the output tensors. If a dictionary
+                is given the key will be used as a name. Otherwise the name of
+                the tensor will be used.
+            graph: tf.Graph, the graph containing the model. If no graph is given
+                the default graph of the session will be used. If a graph and a
+                session are given, this must be the default graph of this session.
+            session: tf.Session, the session.
+            tags: List, the tags of the SavedModel.
+            method_name: String, the method name of the SavedModel.
+            signature_key: The key of the signature for the SavedModel.
+            save: Boolean, if the model should be saved to disc. (DO NOT CHANGE
+                THIS VALUE)
+        """
 
         if graph is None and session is None:
             # Both None is forbidden
@@ -74,14 +95,9 @@ class TFModel(object):
             if session.graph is not graph:
                 raise ValueError('The given session is not on the given graph.')
 
-        if not isinstance(inputs, dict):
-            raise ValueError('The inputs must be a dictionary.')
-        if not isinstance(outputs, dict):
-            raise ValueError('The outputs must be a dictionary.')
-
         self.graph = graph
-        self.inputs = inputs
-        self.outputs = outputs
+        self.inputs = _format_tensors(inputs)
+        self.outputs = _format_tensors(outputs)
         self.session = session
         self.tags = tags
         self._method_name = method_name
@@ -132,3 +148,15 @@ class TFModel(object):
                                              self.tags,
                                              signature_def_map=sigs)
         builder.save()
+
+
+def _format_tensors(tensors):
+    if isinstance(tensors, dict):
+        # If it is a dict just return it
+        return tensors
+    elif isinstance(tensors, (list, tuple)):
+        # If it is a list or tuple: Make a dict using the names
+        return dict([(t.name, t) for t in tensors])
+    else:
+        # If it is a single tensor: Make a dict with the name
+        return { tensors.name: tensors }
