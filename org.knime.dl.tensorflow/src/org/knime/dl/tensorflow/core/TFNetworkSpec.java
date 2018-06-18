@@ -70,7 +70,11 @@ public interface TFNetworkSpec extends DLPythonNetworkSpec {
 	}
 
 	/**
-	 * @return the version of the TensorFlow python library this network has been created with
+	 * Returns the version of the TensorFlow executable this network has been created with. Please note that the version
+	 * should only be used for version management (e.g. resolving backward compatibility issues). As such, it is not
+	 * considered by {@link #hashCode()} and {@link #equals(Object)}.
+	 *
+	 * @return the version of the TensorFlow library this network has been created with
 	 */
 	Version getTensorFlowVersion();
 

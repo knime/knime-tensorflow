@@ -56,6 +56,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.Collectors;
 
+import org.knime.core.util.Version;
 import org.knime.dl.core.DLDefaultFixedTensorShape;
 import org.knime.dl.core.DLDefaultPartialTensorShape;
 import org.knime.dl.core.DLDefaultTensorId;
@@ -137,6 +138,13 @@ public class TFMetaGraphDef {
 	}
 
 	/**
+	 * @return the TensorFlow version of the MetaGraphDef
+	 */
+	public Version getTFVersion() {
+		return new Version(m_metaGraphDef.getMetaInfoDef().getTensorflowVersion());
+	}
+
+	/**
 	 * Creates the specs for a DLNetwork with this SavedModel.
 	 *
 	 * @param signature the signature to consider which must be available.
@@ -160,7 +168,7 @@ public class TFMetaGraphDef {
 				.map(e -> createTensorSpec(e.getKey(), e.getValue())).toArray(DLTensorSpec[]::new);
 
 		// Create the NetworkSpec
-		return new TFSavedModelNetworkSpec(m_tags, inputSpecs, hiddenSpecs, outputSpecs);
+		return new TFSavedModelNetworkSpec(getTFVersion(), m_tags, inputSpecs, hiddenSpecs, outputSpecs);
 	}
 
 	private Collection<Entry<String, SignatureDef>> getFilteredSignature() {

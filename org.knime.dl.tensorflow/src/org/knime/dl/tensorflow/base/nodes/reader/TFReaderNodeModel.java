@@ -207,7 +207,7 @@ public class TFReaderNodeModel extends NodeModel {
 			final DLTensorSpec[] hiddenSpecs = new DLTensorSpec[0];
 			final DLTensorSpec[] outputSpecs = metaGraphDefs.getPossibleOutputTensors().stream()
 					.filter(t -> outputs.contains(getIdentifier(t))).toArray(s -> new DLTensorSpec[s]);
-			return new TFSavedModelNetworkSpec(tags, inputSpecs, hiddenSpecs, outputSpecs);
+			return new TFSavedModelNetworkSpec(metaGraphDefs.getTFVersion(), tags, inputSpecs, hiddenSpecs, outputSpecs);
 		}
 	}
 

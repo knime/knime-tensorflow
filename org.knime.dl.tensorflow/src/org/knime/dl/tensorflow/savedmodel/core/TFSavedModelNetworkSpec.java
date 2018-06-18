@@ -74,30 +74,32 @@ public class TFSavedModelNetworkSpec extends TFAbstractNetworkSpec {
 	/**
 	 * Creates a new {@link TFNetworkSpec} for a {@link TFSavedModelNetwork}.
 	 *
+	 * @param tfVersion the TensorFlow version of the network
 	 * @param tags a list of tags describing the graph definitions to load
 	 * @param inputSpecs the input tensor specs, can be empty
 	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
 	 * @param outputSpecs the output tensor specs, can be empty
 	 */
-	public TFSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs,
+	public TFSavedModelNetworkSpec(final Version tfVersion, final String[] tags, final DLTensorSpec[] inputSpecs,
 			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs) {
-		super(inputSpecs, hiddenOutputSpecs, outputSpecs);
+		super(tfVersion, inputSpecs, hiddenOutputSpecs, outputSpecs);
 		m_tags = tags;
 	}
 
 	/**
 	 * Creates a new {@link TFNetworkSpec} for a {@link TFSavedModelNetwork}.
 	 *
+	 * @param tfVersion the TensorFlow version of the network
 	 * @param tags a list of tags describing the graph definitions to load
 	 * @param inputSpecs the input tensor specs, can be empty
 	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
 	 * @param outputSpecs the output tensor specs, can be empty
 	 * @param trainingConfig the {@link DLTrainingConfig training configuration}
 	 */
-	public TFSavedModelNetworkSpec(final String[] tags, final DLTensorSpec[] inputSpecs,
+	public TFSavedModelNetworkSpec(final Version tfVersion, final String[] tags, final DLTensorSpec[] inputSpecs,
 			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs,
 			final TFTrainingConfig trainingConfig) {
-		super(inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
+		super(tfVersion, inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
 		m_tags = tags;
 	}
 
@@ -137,15 +139,11 @@ public class TFSavedModelNetworkSpec extends TFAbstractNetworkSpec {
 
 	@Override
 	protected void hashCodeInternal(final HashCodeBuilder b) {
-		super.hashCodeInternal(b);
 		b.append(m_tags);
 	}
 
 	@Override
 	protected boolean equalsInternal(final DLNetworkSpec other) {
-		if (!super.equalsInternal(other)) {
-			return false;
-		}
 		final TFSavedModelNetworkSpec o = (TFSavedModelNetworkSpec) other;
 		if (m_tags.length != o.m_tags.length) {
 			return false;

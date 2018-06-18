@@ -46,13 +46,10 @@
  */
 package org.knime.dl.tensorflow.core;
 
-import static com.google.common.base.Objects.equal;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.knime.core.util.Version;
 import org.knime.dl.core.DLAbstractNetworkSpec;
-import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.training.DLTrainingConfig;
 import org.knime.dl.tensorflow.core.training.TFTrainingConfig;
@@ -67,6 +64,38 @@ public abstract class TFAbstractNetworkSpec extends DLAbstractNetworkSpec<TFTrai
 	private final Version m_pythonVersion;
 
 	private final Version m_tfVersion;
+
+	/**
+	 * Creates a new {@link TFNetworkSpec}.
+	 *
+	 * @param tfVersion the TensorFlow version of the network
+	 * @param inputSpecs the input tensor specs, can be empty
+	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
+	 * @param outputSpecs the output tensor specs, can be empty
+	 */
+	protected TFAbstractNetworkSpec(final Version tfVersion, final DLTensorSpec[] inputSpecs,
+			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs) {
+		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs);
+		m_pythonVersion = null;
+		m_tfVersion = checkNotNull(tfVersion);
+	}
+
+	/**
+	 * Creates a new {@link TFNetworkSpec}.
+	 *
+	 * @param tfVersion the TensorFlow version of the network
+	 * @param inputSpecs the input tensor specs, can be empty
+	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
+	 * @param outputSpecs the output tensor specs, can be empty
+	 * @param trainingConfig the {@link DLTrainingConfig training configuration}
+	 */
+	protected TFAbstractNetworkSpec(final Version tfVersion, final DLTensorSpec[] inputSpecs,
+			final DLTensorSpec[] hiddenOutputSpecs, final DLTensorSpec[] outputSpecs,
+			final TFTrainingConfig trainingConfig) {
+		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
+		m_pythonVersion = null;
+		m_tfVersion = checkNotNull(tfVersion);
+	}
 
 	/**
 	 * Creates a new {@link TFNetworkSpec}.
@@ -102,35 +131,6 @@ public abstract class TFAbstractNetworkSpec extends DLAbstractNetworkSpec<TFTrai
 		m_tfVersion = checkNotNull(tfVersion);
 	}
 
-	/**
-	 * Creates a new {@link TFNetworkSpec}.
-	 *
-	 * @param inputSpecs the input tensor specs, can be empty
-	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
-	 * @param outputSpecs the output tensor specs, can be empty
-	 */
-	protected TFAbstractNetworkSpec(final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
-			final DLTensorSpec[] outputSpecs) {
-		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs);
-		m_pythonVersion = null;
-		m_tfVersion = null;
-	}
-
-	/**
-	 * Creates a new {@link TFNetworkSpec}.
-	 *
-	 * @param inputSpecs the input tensor specs, can be empty
-	 * @param hiddenOutputSpecs the hidden output tensor specs, can be empty
-	 * @param outputSpecs the output tensor specs, can be empty
-	 * @param trainingConfig the {@link DLTrainingConfig training configuration}
-	 */
-	protected TFAbstractNetworkSpec(final DLTensorSpec[] inputSpecs, final DLTensorSpec[] hiddenOutputSpecs,
-			final DLTensorSpec[] outputSpecs, final TFTrainingConfig trainingConfig) {
-		super(TFNetworkSpec.getTFBundleVersion(), inputSpecs, hiddenOutputSpecs, outputSpecs, trainingConfig);
-		m_pythonVersion = null;
-		m_tfVersion = null;
-	}
-
 	@Override
 	public Version getPythonVersion() {
 		return m_pythonVersion;
@@ -139,20 +139,5 @@ public abstract class TFAbstractNetworkSpec extends DLAbstractNetworkSpec<TFTrai
 	@Override
 	public Version getTensorFlowVersion() {
 		return m_tfVersion;
-	}
-
-	@Override
-	protected void hashCodeInternal(final HashCodeBuilder b) {
-		b.append(m_pythonVersion);
-		b.append(m_tfVersion);
-	}
-
-	@Override
-	protected boolean equalsInternal(final DLNetworkSpec other) {
-		final TFAbstractNetworkSpec o = (TFAbstractNetworkSpec) other;
-		if (!equal(m_pythonVersion, o.m_pythonVersion)) {
-			return false;
-		}
-		return equal(m_tfVersion, o.m_tfVersion);
 	}
 }
