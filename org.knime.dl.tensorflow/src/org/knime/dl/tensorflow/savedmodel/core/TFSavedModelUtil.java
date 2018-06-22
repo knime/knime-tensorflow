@@ -53,8 +53,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -77,7 +77,7 @@ public class TFSavedModelUtil {
 			+ "|^.*assets(/.*|\\.*)?$";
 
 	/** Map saving which files already have been extracted to a folder. */
-	private static final Map<URL, File> CACHED_MODELS = new HashMap<>();
+	private static final Map<URL, File> CACHED_MODELS = new ConcurrentHashMap<>();
 
 	private TFSavedModelUtil() {
 		// Utility class
@@ -94,9 +94,12 @@ public class TFSavedModelUtil {
 	 * @param source a URL pointing to the model source
 	 */
 	public static void deleteTempIfLocal(final URL source) {
-		if (CACHED_MODELS.containsKey(source) && getSavedModelType(source).equals(SavedModelType.LOCAL_ZIP)) {
-			final File tmp = CACHED_MODELS.get(source);
-			CACHED_MODELS.remove(source);
+		if (!getSavedModelType(source).equals(SavedModelType.LOCAL_ZIP)) {
+			// If it's not a local zip: Do nothing
+			return;
+		}
+		final File tmp = CACHED_MODELS.remove(source);
+		if (tmp != null) {
 			FileUtil.deleteRecursively(tmp);
 		}
 	}
