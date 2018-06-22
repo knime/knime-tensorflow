@@ -1,12 +1,25 @@
-# KNIME Deep Learning - TensorFlow Integration
+# ![Image](https://www.knime.com/files/knime_logo_github_40x40_4layers.png) KNIME® Deep Learning - TensorFlow Integration
 
-## Python bindings
+This repository contains the plugins for the KNIME TensorFlow Integration which contains a set of KNIME nodes for exeuting TensorFlow models in KNIME.
+
+## Overview
+
+TODO screenshot of a workflow
+
+
+## TensorFlow Python Bindings
 
 The TensorFlow integration can be used with the _DL Python Network_ Nodes which allow you to create, train and modify a TensorFlow model using the powerful TensorFlow Python API.
 
 The KNIME TensorFlow Integration provides a `TFModel` object to Python whenever a model is loaded into Python and requires you to set a `TFModel` object whenever a model should be returned to KNIME for further usage.
 
-### Examples
+### Required Python Packages
+
+* `tensorflow` or `tensorflow-gpu` (version: 1.8.0)
+
+Note that newer or older versions can cause problems because the TensorFlow for Java version used is 1.8.0.
+
+### Example
 
 __Create a TensorFlow model:__
 
@@ -54,3 +67,19 @@ with input_network.session as sess:
     #       This needs to be called before the session is closed
     output_network = TFModel(inputs={ 'input': x }, outputs={ 'output': y }, session=sess)
 ```
+
+
+## Example Workflows
+
+TODO reference to example workflows
+
+## Development Notes
+
+You can find instructions on how to work with our code or develop extensions for
+KNIME Analytics Platform in the _knime-sdk-setup_ repository
+on [BitBucket](https://bitbucket.org/KNIME/knime-sdk-setup)
+or [GitHub](http://github.com/knime/knime-sdk-setup).
+
+## Join the Community!
+
+* [KNIME Forum](https://tech.knime.org/forum)
