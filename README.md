@@ -4,8 +4,7 @@ This repository contains the plugins for the KNIME TensorFlow Integration which 
 
 ## Overview
 
-TODO screenshot of a workflow
-
+![Workflow Screenshot](https://files.knime.com/sites/default/files/KNIME-TF-Screenshot.png)
 
 ## TensorFlow Python Bindings
 
