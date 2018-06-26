@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="kerasconverter.png" type="Source">
+<knimeNode icon="kerasconverter.png" type="Source"
+	xmlns="http://knime.org/node/v3.6"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
 	<name>Keras to TensorFlow Network Converter</name>
 
 	<shortDescription>
@@ -15,6 +17,9 @@
 			TensorFlow Java API which is usually faster then using a Python
 			kernel to execute the model via the Keras Python API.
 		</intro>
+		<link href="https://www.knime.com/deeplearning/tensorflow">
+			KNIME Labs: Deep Learning - TensorFlow
+		</link>
 	</fullDescription>
 	<ports>
 		<inPort index="0" name="Deep Learning Network">Keras deep learning network.
