@@ -70,7 +70,7 @@ with input_network.session as sess:
 
 ## Example Workflows
 
-TODO reference to example workflows
+You can download the example workflows from the KNIME public example server (See [here how to connect...](https://www.knime.org/example-workflows)) or from the [KNIME node guide](https://www.knime.com/nodeguide/analytics/deep-learning).
 
 ## Development Notes
 
