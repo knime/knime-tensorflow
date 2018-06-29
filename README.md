@@ -1,8 +1,15 @@
 # ![Image](https://www.knime.com/files/knime_logo_github_40x40_4layers.png) KNIME® Deep Learning - TensorFlow Integration
 
-This repository contains the plugins for the KNIME TensorFlow Integration which contains a set of KNIME nodes for exeuting TensorFlow models in KNIME.
+This repository contains the plugins for the KNIME TensorFlow Integration which contains a set of KNIME nodes for executing TensorFlow models in KNIME.
 
 ## Overview
+
+The extension contains the following nodes:
+
+* The TensorFlow Network Reader node for reading TensorFlow SavedModels.
+* The TensorFlow Network Writer node for writing TensorFlow SavedModels.
+* The Keras to TensorFlow Network Converter node for converting Keras models to TensorFlow.
+* Additionally, the DL Python nodes provided in KNIME Deep Learning can be used to create, edit, execute and train models with user-supplied Python scripts.
 
 ![Workflow Screenshot](https://files.knime.com/sites/default/files/KNIME-TF-Screenshot.png)
 
