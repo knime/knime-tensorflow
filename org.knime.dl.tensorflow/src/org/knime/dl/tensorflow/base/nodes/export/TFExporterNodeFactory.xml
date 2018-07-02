@@ -35,7 +35,7 @@
 			"knime://knime.workflow/ ... &lt;filename&gt;" are supported.
 		</option>
 		<link href="https://www.knime.com/deeplearning/tensorflow">
-			KNIME Labs: Deep Learning - TensorFlow
+			KNIME Deep Learning Tensorflow Integration
 		</link>
 	</fullDescription>
 	<ports>
