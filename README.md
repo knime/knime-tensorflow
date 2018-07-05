@@ -6,16 +6,17 @@ This repository contains the plugins for the KNIME TensorFlow Integration which 
 
 The extension contains the following nodes:
 
-* The TensorFlow Network Reader node for reading TensorFlow SavedModels.
-* The TensorFlow Network Writer node for writing TensorFlow SavedModels.
+* The TensorFlow Network Reader node for reading [TensorFlow SavedModels](https://www.tensorflow.org/programmers_guide/saved_model#save_and_restore_models).
+* The TensorFlow Network Writer node for writing [TensorFlow SavedModels](https://www.tensorflow.org/programmers_guide/saved_model#save_and_restore_models).
 * The Keras to TensorFlow Network Converter node for converting Keras models to TensorFlow.
-* Additionally, the DL Python nodes provided in KNIME Deep Learning can be used to create, edit, execute and train models with user-supplied Python scripts.
+
+Additionally, the DL Python nodes provided in [KNIME Deep Learning](https://www.knime.com/deeplearning) can be used to create, edit, execute and train models with user-supplied Python scripts.
 
 ![Workflow Screenshot](https://files.knime.com/sites/default/files/KNIME-TF-Screenshot.png)
 
 ## TensorFlow Python Bindings
 
-The TensorFlow integration can be used with the _DL Python Network_ Nodes which allow you to create, train and modify a TensorFlow model using the powerful TensorFlow Python API.
+The KNIME TensorFlow Integration can be used with the _DL Python Network_ nodes which allow you to create, train and modify a TensorFlow model using the powerful TensorFlow Python API.
 
 The KNIME TensorFlow Integration provides a `TFModel` object to Python whenever a model is loaded into Python and requires you to set a `TFModel` object whenever a model should be returned to KNIME for further usage.
 
