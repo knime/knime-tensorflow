@@ -111,12 +111,13 @@ public class TFPreferencePage extends FieldEditorPreferencePage implements IWork
 		boolean currentForceCPU = getPreferenceStore().getBoolean(P_FORCE_CPU);
 		if (m_forceCPU != currentForceCPU) {
 			m_forceCPU = currentForceCPU;
-			promptRestartWithMessage("Changes become first available after restarting the workbench.\n"
-					+ "Do you want to restart the workbench now?");
+			Display.getDefault().asyncExec(
+					() -> promptRestartWithMessage("Changes become first available after restarting the workbench.\n"
+							+ "Do you want to restart the workbench now?"));
 		}
 	}
 
-	private void promptRestartWithMessage(final String message) {
+	private static void promptRestartWithMessage(final String message) {
 		MessageBox mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 		mb.setText("Restart workbench...");
 		mb.setMessage(message);
