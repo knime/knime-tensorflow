@@ -173,9 +173,16 @@ public final class TFPythonCommands extends DLPythonAbstractCommands {
 	}
 
 	private String getExtractTagsCode(final DLPythonNetworkHandle network) {
+		// NB: We need to write sequences into a new list because pandas<0.21 can't handle all types of sequence
 		return "import pandas as pd\n" + //
+				"import collections\n" + //
 				"global tags\n" + //
-				"tags = pd.DataFrame({ 'tags':" + network.getIdentifier() + ".tags })";
+				"tags_val = " + network.getIdentifier() + ".tags\n" + //
+				"if isinstance(tags_val, collections.Sequence) and not isinstance(tags_val, str):\n" + //
+				"\ttags_val = [ t for t in tags_val ]\n" + //
+				"else:\n" + //
+				"\ttags_val = [ tags_val ]\n" + //
+				"tags = pd.DataFrame({ 'tags': tags_val })";
 	}
 
 	/**
