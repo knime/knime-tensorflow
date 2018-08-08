@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TensorFlow CPU Libraries for OSX
 Bundle-SymbolicName: org.knime.tensorflow.bin.macosx.amd64.cpu
-Bundle-Version: 3.6.0.qualifier
+Bundle-Version: 3.7.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Fragment-Host: org.knime.tensorflow.libs;bundle-version="3.6.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-PlatformFilter: (&(osgi.os=macosx)(osgi.arch=x86_64))
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
