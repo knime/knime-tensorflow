@@ -51,6 +51,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Map;
@@ -61,6 +62,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.util.FileUtil;
 import org.knime.dl.core.DLInvalidSourceException;
@@ -267,7 +269,11 @@ public class TFSavedModelUtil {
 						createDirs(destFile);
 					} else {
 						createDirs(destFile.getParentFile());
-						FileUtils.copyToFile(zipStream, destFile);
+						// This is due to a bug in apache commons io 2.6
+						// FileUtils.copyToFile(...) closes the input stream.
+						try (OutputStream out = FileUtils.openOutputStream(destFile)) {
+							IOUtils.copy(zipStream, out);
+						}
 					}
 				}
 			}
