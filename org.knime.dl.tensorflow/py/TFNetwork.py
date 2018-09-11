@@ -57,6 +57,10 @@ from tensorflow.core.protobuf import saved_model_pb2
 
 from DLPythonDataBuffers import DLPythonDoubleBuffer
 from DLPythonDataBuffers import DLPythonFloatBuffer
+from DLPythonDataBuffers import DLPythonBitBuffer
+from DLPythonDataBuffers import DLPythonByteBuffer
+from DLPythonDataBuffers import DLPythonUnsignedByteBuffer
+from DLPythonDataBuffers import DLPythonShortBuffer
 from DLPythonDataBuffers import DLPythonIntBuffer
 from DLPythonDataBuffers import DLPythonLongBuffer
 from DLPythonNetwork import DLPythonNetwork
@@ -225,6 +229,14 @@ class TFNetwork(DLPythonNetwork):
             return DLPythonDoubleBuffer(y)
         elif t == np.float32:
             return DLPythonFloatBuffer(y)
+        elif t == np.bool_:
+            return DLPythonBitBuffer(y)
+        elif t == np.int8:
+            return DLPythonByteBuffer(y)
+        elif t == np.uint8:
+            return DLPythonUnsignedByteBuffer(y)
+        elif t == np.int16:
+            return DLPythonShortBuffer(y)
         elif t == np.int32:
             return DLPythonIntBuffer(y)
         elif t == np.int64:
