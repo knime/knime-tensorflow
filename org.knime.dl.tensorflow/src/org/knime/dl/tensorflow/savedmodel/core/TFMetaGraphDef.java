@@ -76,6 +76,8 @@ import org.tensorflow.framework.TensorInfo;
 import org.tensorflow.framework.TensorShapeProto;
 import org.tensorflow.framework.TensorShapeProto.Dim;
 
+import com.google.common.primitives.UnsignedBytes;
+
 /**
  * Wrapper for multiple TensorFlow {@link MetaGraphDef}s. Can extract important information of them. TODO change!
  *
@@ -329,6 +331,10 @@ public class TFMetaGraphDef {
 			return float.class;
 		case DT_DOUBLE:
 			return double.class;
+		case DT_BOOL:
+			return boolean.class;
+		case DT_UINT8:
+			return UnsignedBytes.class;
 		case DT_INT32:
 			return int.class;
 		case DT_INT64:

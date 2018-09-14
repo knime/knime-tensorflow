@@ -59,22 +59,30 @@ import org.knime.dl.core.data.DLBuffer;
 import org.knime.dl.core.data.DLReadableBuffer;
 import org.knime.dl.core.data.DLWritableBuffer;
 import org.knime.dl.tensorflow.core.TFUtil;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorBitBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorDoubleBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorIntBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorLongBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableBitBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableDoubleBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableIntBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableLongBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableStringBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorReadableUnsignedByteBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorStringBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorUnsignedByteBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableBitBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableDoubleBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableFloatBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableIntBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableLongBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableStringBuffer;
+import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorWritableUnsignedByteBuffer;
 import org.knime.dl.util.DLUtils;
+
+import com.google.common.primitives.UnsignedBytes;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -89,6 +97,10 @@ public class TFSavedModelTensorFactory implements DLTensorFactory {
 			return TFTensorWritableDoubleBuffer.class;
 		} else if (t.equals(float.class)) {
 			return TFTensorWritableFloatBuffer.class;
+		} else if (t.equals(boolean.class)) {
+			return TFTensorWritableBitBuffer.class;
+		} else if (t.equals(UnsignedBytes.class)) {
+			return TFTensorWritableUnsignedByteBuffer.class;
 		} else if (t.equals(int.class)) {
 			return TFTensorWritableIntBuffer.class;
 		} else if (t.equals(long.class)) {
@@ -107,6 +119,10 @@ public class TFSavedModelTensorFactory implements DLTensorFactory {
 			return TFTensorReadableDoubleBuffer.class;
 		} else if (t.equals(float.class)) {
 			return TFTensorReadableFloatBuffer.class;
+		} else if (t.equals(boolean.class)) {
+			return TFTensorReadableBitBuffer.class;
+		} else if (t.equals(UnsignedBytes.class)) {
+			return TFTensorReadableUnsignedByteBuffer.class;
 		} else if (t.equals(int.class)) {
 			return TFTensorReadableIntBuffer.class;
 		} else if (t.equals(long.class)) {
@@ -153,6 +169,10 @@ public class TFSavedModelTensorFactory implements DLTensorFactory {
 			s = () -> (B) new TFTensorDoubleBuffer(size);
 		} else if (t.equals(float.class)) {
 			s = () -> (B) new TFTensorFloatBuffer(size);
+		} else if (t.equals(boolean.class)) {
+			s = () -> (B) new TFTensorBitBuffer(size);
+		} else if (t.equals(UnsignedBytes.class)) {
+			s = () -> (B) new TFTensorUnsignedByteBuffer(size);
 		} else if (t.equals(int.class)) {
 			s = () -> (B) new TFTensorIntBuffer(size);
 		} else if (t.equals(long.class)) {
