@@ -48,6 +48,10 @@ package org.knime.dl.tensorflow.core;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.knime.core.util.Version;
 import org.knime.dl.core.DLAbstractNetworkSpec;
 import org.knime.dl.core.DLTensorSpec;
@@ -61,9 +65,9 @@ public abstract class TFAbstractNetworkSpec extends DLAbstractNetworkSpec<TFTrai
 
 	private static final long serialVersionUID = 1L;
 
-	private final Version m_pythonVersion;
+	private /** final */ Version m_pythonVersion;
 
-	private final Version m_tfVersion;
+	private /** final */ Version m_tfVersion;
 
 	/**
 	 * Creates a new {@link TFNetworkSpec}.
@@ -139,5 +143,27 @@ public abstract class TFAbstractNetworkSpec extends DLAbstractNetworkSpec<TFTrai
 	@Override
 	public Version getTensorFlowVersion() {
 		return m_tfVersion;
+	}
+
+	@SuppressWarnings("static-method") // signature must be exactly as is
+	private void writeObject(final ObjectOutputStream stream) throws IOException {
+		stream.defaultWriteObject();
+	}
+
+	private void readObject(final ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		m_pythonVersion = fixBlankQualifier(m_pythonVersion);
+		m_tfVersion = fixBlankQualifier(m_tfVersion);
+	}
+
+	private static Version fixBlankQualifier(Version version) {
+		// Older versions of Version don't have a qualifier.
+		// Leaving it blank would lead to an NPE in its compareTo method.
+		// Note that even older versions of this spec don't have such Versions at all.
+		if (version != null && version.getQualifier() == null) {
+			return new Version(version.getMajor(), version.getMinor(), version.getRevision());
+		} else {
+			return version;
+		}
 	}
 }
