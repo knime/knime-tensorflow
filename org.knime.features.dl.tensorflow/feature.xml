@@ -788,4 +788,13 @@ propagated with or for interoperation with KNIME.
          version="0.0.0"
          fragment="true"/>
 
+   <plugin
+         id="org.knime.tensorflow.bin.windows.amd64.gpu"
+         os="win32"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
 </feature>
