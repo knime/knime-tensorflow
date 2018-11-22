@@ -83,6 +83,18 @@ public class TFPluginActivator extends AbstractUIPlugin {
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		
+		String osName = System.getProperty("os.name");
+		String osVersion = System.getProperty("os.version");
+		if(osName.toLowerCase().contains("mac")) {
+			if(osVersion.toLowerCase().contains("10.11")) {
+				Exception ex = new IllegalStateException("Can't start KNIME Deep Learning - Tensorflow Integration. "
+						+ "macOs 10.11 (El Capitan) is not supported by Tensorflow. Please use "
+						+ "macOS 10.12.6 (Sierra) or later.");
+				LOGGER.error(ex.getMessage());
+				throw ex;
+			}
+		}
 
 		initPreferencePageDefaults();
 		final boolean forceCPU = plugin.getPreferenceStore().getBoolean(TFPreferencePage.P_FORCE_CPU);
