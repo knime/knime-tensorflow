@@ -88,8 +88,8 @@ public class TFPreferencePage extends FieldEditorPreferencePage implements IWork
 		addField(new LabelField(getFieldEditorParent(),
 				"The TensorFlow integration tries to load the TensorFlow GPU binaries by default.\n"
 						+ "If this fails the TensorFlow CPU binaries are loaded.\n"
-						+ "Note that TensorFlow GPU is currently only available for Linux.\n"
-						+ "Therefore this setting will have no effect on Windows or MacOS."));
+						+ "Note that TensorFlow GPU is currently only available for Linux and Windows.\n"
+						+ "Therefore this setting will have no effect MacOSX."));
 		addField(new BooleanFieldEditor(P_FORCE_CPU, "Force CPU", BooleanFieldEditor.SEPARATE_LABEL,
 				getFieldEditorParent()));
 	}
