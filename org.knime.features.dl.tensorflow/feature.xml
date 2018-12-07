@@ -727,18 +727,6 @@ license terms applicable to such Node, including when such Node is
 propagated with or for interoperation with KNIME.
    </license>
 
-   <requires>
-      <import plugin="org.knime.base" version="3.5.0" match="compatible"/>
-      <import plugin="org.knime.core" version="3.5.0" match="compatible"/>
-      <import plugin="org.knime.dl" version="3.6.0" match="compatible"/>
-      <import plugin="org.knime.dl.python" version="3.6.0" match="compatible"/>
-      <import plugin="org.apache.commons.lang3" version="3.2.1" match="compatible"/>
-      <import plugin="com.google.guava" version="19.0.0" match="perfect"/>
-      <import plugin="org.knime.tensorflow.libs" version="3.6.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.core.runtime"/>
-   </requires>
-
    <plugin
          id="org.knime.dl.tensorflow"
          download-size="0"
