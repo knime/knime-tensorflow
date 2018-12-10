@@ -140,7 +140,7 @@ public class TFNetworkPortObject
 	}
 
 	@Override
-	public String getSummary() {
+	public String getModelName() {
 		return "TensorFlow Deep Learning Network";
 	}
 
