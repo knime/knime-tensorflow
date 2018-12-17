@@ -153,14 +153,14 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 		// We can't change the size of this component. Therefore we use it as a reference width.
 		final int componentWidth = m_dcCopyNetwork.getComponentPanel().getComponent(0).getPreferredSize().width;
 		m_dcTags = new DialogComponentObjectSelection<>(m_smTags, t -> String.join(" ,", t),
-				(t, sm) -> sm.setStringArrayValue(t), sm -> sm.getStringArrayValue(), "Tags");
+				(t, sm) -> sm.setStringArrayValue(t), SettingsModelStringArray::getStringArrayValue, "Tags");
 		m_dcSignature = new DialogComponentStringSelection(m_smSignature, "Signature", EMPTY_STRING_COLLECTION);
 		m_statusLabel = new JLabel();
 		m_dcAdvanced = new DialogComponentBoolean(m_smAdvanced, "Use advanced settings");
 		m_dcInputs = new DialogComponentTensorSelection(m_smInputs, "Inputs", Collections.emptySet(),
-				t -> TFReaderNodeModel.getIdentifier(t));
+				TFReaderNodeModel::getIdentifier);
 		m_dcOutputs = new DialogComponentTensorSelection(m_smOutputs, "Outputs", Collections.emptySet(),
-				t -> TFReaderNodeModel.getIdentifier(t));
+				TFReaderNodeModel::getIdentifier);
 
 		// Add the dialog components
 		final JPanel inputPanel = new JPanel(new GridBagLayout());
@@ -286,7 +286,7 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 				// Update the UI if this is the current thread
 				updateSavedModel(savedModel, exception, errorMessage, id);
 			});
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			updateSavedModel(null, e, "Reading the SavedModel has been interrupted.", id);
 		}
 	}
