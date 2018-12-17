@@ -50,7 +50,9 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.util.Collection;
 import java.util.Collections;
@@ -259,7 +261,17 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 				// Try to read the saved model
 				try {
 					final String filePath = m_smFilePath.getStringValue();
-					savedModel = new TFSavedModel(FileUtil.toURL(filePath));
+					final URL url = FileUtil.toURL(filePath);
+					final File localFile = FileUtil.getFileFromURL(url);
+					if (localFile != null && !localFile.exists()) {
+						// The path points to a local file that doesn't exist (The user is probably typing):
+						// Just show the message in the dialog but don't log anything
+						errorMessage = "The file doesn't exist.";
+					} else {
+						// File exists or is not local:
+						// Try to read it
+						savedModel = new TFSavedModel(url);
+					}
 				} catch (final DLInvalidSourceException e) {
 					exception = e;
 					errorMessage = e.getMessage();
@@ -285,8 +297,10 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 			} else {
 				m_savedModel = null;
 				m_errorReading = true;
-				LOGGER.warn(exception, exception);
 				showError(errorMessage);
+				if (exception != null) {
+					LOGGER.debug(exception, exception);
+				}
 			}
 			updateTags();
 			updateAdvanced();
