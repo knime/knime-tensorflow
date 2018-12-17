@@ -275,9 +275,12 @@ public class TFReaderNodeDialog extends NodeDialogPane {
 				} catch (final DLInvalidSourceException e) {
 					exception = e;
 					errorMessage = e.getMessage();
-				} catch (InvalidPathException | MalformedURLException e) {
+				} catch (final InvalidPathException | MalformedURLException e) {
 					exception = e;
 					errorMessage = "The filepath is not valid.";
+				} catch (final IllegalArgumentException e) {
+					exception = e;
+					errorMessage = "Couldn't resolve the URL.";
 				}
 
 				// Update the UI if this is the current thread
