@@ -63,6 +63,7 @@ from DLPythonDataBuffers import DLPythonUnsignedByteBuffer
 from DLPythonDataBuffers import DLPythonShortBuffer
 from DLPythonDataBuffers import DLPythonIntBuffer
 from DLPythonDataBuffers import DLPythonLongBuffer
+from DLPythonDataBuffers import DLPythonStringBuffer
 from DLPythonNetwork import DLPythonNetwork
 from DLPythonNetwork import DLPythonNetworkReader
 from DLPythonNetwork import DLPythonNetworkSpec
@@ -241,6 +242,8 @@ class TFNetwork(DLPythonNetwork):
             return DLPythonIntBuffer(y)
         elif t == np.int64:
             return DLPythonLongBuffer(y)
+        elif t == np.object:
+            return DLPythonStringBuffer(y)
         # TODO: support more types
         else:
             # TODO: warning to stderr? fail?
