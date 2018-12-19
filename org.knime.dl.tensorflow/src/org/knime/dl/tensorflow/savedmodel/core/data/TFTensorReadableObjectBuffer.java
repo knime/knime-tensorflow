@@ -46,6 +46,8 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import org.knime.dl.core.data.DLReadableObjectBuffer;
+
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  * @param <T> The type of objects stored in this buffer

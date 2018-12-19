@@ -46,6 +46,8 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import org.knime.dl.core.data.DLWritableStringBuffer;
+
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
  */

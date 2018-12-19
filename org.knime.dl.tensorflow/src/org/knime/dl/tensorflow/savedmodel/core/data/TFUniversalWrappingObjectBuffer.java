@@ -46,7 +46,9 @@
  */
 package org.knime.dl.tensorflow.savedmodel.core.data;
 
+import org.knime.dl.core.data.DLReadableObjectBuffer;
 import org.knime.dl.core.data.DLWrappingDataBuffer;
+import org.knime.dl.core.data.DLWritableObjectBuffer;
 
 /**
  * Combines the interfaces {@link DLReadableObjectBuffer}, {@link DLWritableObjectBuffer} and
