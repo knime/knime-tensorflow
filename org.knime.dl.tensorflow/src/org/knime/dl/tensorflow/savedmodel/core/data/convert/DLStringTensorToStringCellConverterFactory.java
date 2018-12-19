@@ -51,9 +51,9 @@ import java.util.OptionalLong;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.StringCell;
 import org.knime.dl.core.DLTensorSpec;
+import org.knime.dl.core.data.DLReadableStringBuffer;
 import org.knime.dl.core.data.convert.DLTensorToDataCellConverter;
 import org.knime.dl.core.data.convert.DLTensorToDataCellConverterFactory;
-import org.knime.dl.tensorflow.savedmodel.core.data.DLReadableStringBuffer;
 import org.knime.dl.util.DLUtils;
 
 /**

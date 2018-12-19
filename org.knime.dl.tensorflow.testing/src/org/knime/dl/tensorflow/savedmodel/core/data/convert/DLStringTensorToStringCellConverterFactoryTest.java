@@ -56,8 +56,8 @@ import org.knime.core.data.def.StringCell;
 import org.knime.dl.core.DLDefaultFixedTensorShape;
 import org.knime.dl.core.DLDefaultTensor;
 import org.knime.dl.core.DLTensor;
+import org.knime.dl.core.data.DLReadableStringBuffer;
 import org.knime.dl.core.data.convert.DLTensorToDataCellConverter;
-import org.knime.dl.tensorflow.savedmodel.core.data.DLReadableStringBuffer;
 import org.knime.dl.tensorflow.savedmodel.core.data.TFTensorStringBuffer;
 import org.knime.dl.tensorflow.testing.TFTestUtil;
 

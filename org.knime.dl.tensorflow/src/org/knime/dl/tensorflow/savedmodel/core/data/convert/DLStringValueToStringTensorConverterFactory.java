@@ -53,10 +53,10 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.ExtensibleUtilityFactory;
 import org.knime.core.data.StringValue;
 import org.knime.dl.core.DLTensor;
+import org.knime.dl.core.data.DLWritableStringBuffer;
 import org.knime.dl.core.data.convert.DLAbstractScalarDataValueToTensorConverter;
 import org.knime.dl.core.data.convert.DLAbstractScalarDataValueToTensorConverterFactory;
 import org.knime.dl.core.data.convert.DLDataValueToTensorConverter;
-import org.knime.dl.tensorflow.savedmodel.core.data.DLWritableStringBuffer;
 
 /**
  * @author Adrian Nembach, KNIME GmbH, Konstanz, Germany
