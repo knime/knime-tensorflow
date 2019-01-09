@@ -126,16 +126,14 @@ public class TFSavedModelNetworkExecutionSession extends DLAbstractNetworkExecut
 		}
 
 		final DLExecutionStatus status = monitor.getExecutionStatus();
-		final long numBatches = m_inputPreparer.getNumBatches();
-
 		// Loop over batches
-		for (long i = 0; i < numBatches; i++) {
+		while (m_inputPreparer.hasNext()) {
 			// Create a TensorFlow runner
 			try (final DLRunner runner = new DLRunner(m_savedModelBundle.session().runner())) {
 				monitor.checkCanceled();
 
 				// Prepare the inputs
-				m_inputPreparer.prepare(m_input, i);
+				m_inputPreparer.prepareNext(m_input);
 				monitor.checkCanceled();
 
 				// Feed the inputs
