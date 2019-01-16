@@ -49,13 +49,15 @@
    <extension
          point="org.knime.dl.DLTensorToDataCellConverterFactory">
       <DLTensorToDataCellConverterFactory
-            DLTensorToDataCellConverterFactory="org.knime.dl.tensorflow.savedmodel.core.data.convert.DLStringTensorToStringCellConverterFactory">
+            DLTensorToDataCellConverterFactory="org.knime.dl.tensorflow.savedmodel.core.data.convert.DLStringTensorToStringCellConverterFactory"
+            deprecated="true">
       </DLTensorToDataCellConverterFactory>
    </extension>
    <extension
          point="org.knime.dl.DLDataValueToTensorConverterFactory">
       <DLDataValueToTensorConverterFactory
-            DLDataValueToTensorConverterFactory="org.knime.dl.tensorflow.savedmodel.core.data.convert.DLStringValueToStringTensorConverterFactory">
+            DLDataValueToTensorConverterFactory="org.knime.dl.tensorflow.savedmodel.core.data.convert.DLStringValueToStringTensorConverterFactory"
+            deprecated="true">
       </DLDataValueToTensorConverterFactory>
    </extension>
    <extension
