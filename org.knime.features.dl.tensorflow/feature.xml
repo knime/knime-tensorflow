@@ -2,7 +2,7 @@
 <feature
       id="org.knime.features.dl.tensorflow"
       label="KNIME Deep Learning - TensorFlow Integration"
-      version="3.7.0.qualifier"
+      version="3.7.1.qualifier"
       provider-name="KNIME AG, Zurich, Switzerland">
 
    <description url="http://tech.knime.org/knime-labs">
