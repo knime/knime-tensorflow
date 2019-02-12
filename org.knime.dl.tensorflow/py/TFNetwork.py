@@ -189,7 +189,7 @@ class TFNetwork(DLPythonNetwork):
             tf_shape.append(1)
         batch_size = tf_shape[0]
         shape = tf_shape[1:]
-        element_type = np.dtype(tf_tensor.dtype.as_numpy_dtype).name
+        element_type = tf_tensor.dtype.name
         try:
             data_format = tf_tensor.op.get_attr('data_format')
             dimension_order = 'TCDHW' if data_format.startswith(b'NC') else 'TDHWC'
