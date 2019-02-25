@@ -224,7 +224,13 @@ public class TFSavedModelUtil {
 	 */
 	private static SavedModelType getSavedModelType(final URL source) {
 		if (source.getProtocol().equalsIgnoreCase("file") || source.getProtocol().equalsIgnoreCase("knime")) {
-			if (FileUtil.getFileFromURL(source).isDirectory()) {
+			final File file = FileUtil.getFileFromURL(source);
+			if (file == null) {
+				// A knime URL could point to a non-local file. In this case the file is null and we need to treat it as
+				// a remote file
+				return SavedModelType.REMOTE_ZIP;
+			}
+			if (file.isDirectory()) {
 				return SavedModelType.LOCAL_DIR;
 			} else {
 				return SavedModelType.LOCAL_ZIP;
