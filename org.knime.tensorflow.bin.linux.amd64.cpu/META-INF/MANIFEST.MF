@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TensorFlow CPU Libraries for Linux x86_64
 Bundle-SymbolicName: org.knime.tensorflow.bin.linux.amd64.cpu
-Bundle-Version: 3.7.1.qualifier
+Bundle-Version: 3.7.2.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Fragment-Host: org.knime.tensorflow.libs;bundle-version="3.7.1"
 Eclipse-PlatformFilter: (&(osgi.os=linux)(osgi.arch=x86_64))
