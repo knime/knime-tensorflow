@@ -90,4 +90,10 @@
             DLNetworkExporter="org.knime.dl.tensorflow.savedmodel.core.export.TFSavedModelNetworkExporter">
       </DLNetworkExporter>
    </extension>
+   <extension
+         point="org.knime.dl.python.DLPythonModuleDependency">
+      <DLPythonModuleDependency
+            DLPythonModuleDependency="org.knime.dl.tensorflow.core.TFPythonModuleDependency">
+      </DLPythonModuleDependency>
+   </extension>
 </plugin>
