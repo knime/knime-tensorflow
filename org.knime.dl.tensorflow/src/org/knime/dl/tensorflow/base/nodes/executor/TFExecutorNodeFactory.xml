@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="dlexecutor.png" type="Predictor">
+	<name>TensorFlow Network Executor</name>
+
+	<shortDescription>
+		Executes a TensorFlow deep learning network.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			This node executes a TensorFlow deep learning network on a
+			compatible external back end that can be selected by the user.
+		</intro>
+		<tab name="General Settings">
+			<option name="Back end">
+				The deep learning back end which is used to
+				execute the input network for the given input data.
+			</option>
+			<option name="Input batch size">
+				The number of rows that are processed at a time.
+			</option>
+		</tab>
+		<tab name="Inputs">
+			<option name="Conversion">
+				The converter that is used to transform the
+				selected input columns into a format that is accepted by the
+				respective network input specification.
+			</option>
+			<option name="Input columns">
+				The table columns that are part of the respective
+				network input.
+				The availability of a column depends on the currently
+				selected input converter.
+			</option>
+		</tab>
+		<tab name="Outputs">
+			<option name="Conversion">
+				The converter that is used to transform the
+				network output into table columns.
+			</option>
+			<option name="Output columns prefix">
+				The prefix that is used to distinguish between
+				the columns of the different outputs.
+			</option>
+		</tab>
+
+	</fullDescription>
+	<ports>
+		<inPort index="0" name="Deep Learning Network">The TensorFlow deep learning network.
+		</inPort>
+		<inPort index="1" name="Data Table">The input table.</inPort>
+		<outPort index="0" name="Data Table">The output table.</outPort>
+	</ports>
+</knimeNode>

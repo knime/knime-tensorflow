@@ -36,6 +36,11 @@
             deprecated="false"
             factory-class="org.knime.dl.tensorflow.base.nodes.export.TFExporterNodeFactory">
       </node>
+      <node
+            category-path="/labs/deeplearning/tensorflow"
+            deprecated="false"
+            factory-class="org.knime.dl.tensorflow.base.nodes.executor.TFExecutorNodeFactory">
+      </node>
   </extension>
    <extension
          point="org.knime.dl.DLExecutionContext">
