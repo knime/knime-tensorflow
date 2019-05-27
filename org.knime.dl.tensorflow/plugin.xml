@@ -5,7 +5,7 @@
    <extension
          point="org.knime.core.PortType">
       <portType
-            color="#8fb3c2"
+            color="#ff6f00"
             hidden="false"
             name="TensorFlow Deep Learning Network"
             objectClass="org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject"
