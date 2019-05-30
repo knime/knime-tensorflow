@@ -78,6 +78,8 @@ import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session.Runner;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
+import org.tensorflow.framework.ConfigProto;
+import org.tensorflow.framework.GPUOptions;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -87,6 +89,10 @@ public class TFSavedModelNetworkExecutionSession extends DLAbstractNetworkExecut
 		implements TFNetworkExecutionSession {
 
 	private SavedModelBundle m_savedModelBundle;
+
+	private String m_visibleDeviceList = "";
+
+	private double m_perProcessGpuMemoryFraction = 1;
 
 	/**
 	 * Creates a new execution session for a TensorFlow SavedModel deep learning network.
@@ -107,12 +113,42 @@ public class TFSavedModelNetworkExecutionSession extends DLAbstractNetworkExecut
 		TFUtil.checkTFVersion(network.getSpec().getTensorFlowVersion());
 	}
 
+	/**
+	 * Set the list of visible GPU devices. See {@link GPUOptions#getVisibleDeviceList()}.
+	 *
+	 * @param visibleDeviceList the visibleDeviceList to set
+	 */
+	public void setVisibleDeviceList(final String visibleDeviceList) {
+		m_visibleDeviceList = visibleDeviceList;
+	}
+
+	/**
+	 * Set the per process GPU memory fraction that can be used. See
+	 * {@link GPUOptions#getPerProcessGpuMemoryFraction()}.
+	 *
+	 * @param perProcessGpuMemoryFraction the perProcessGpuMemoryFraction to set
+	 */
+	public void setPerProcessGpuMemoryFraction(final double perProcessGpuMemoryFraction) {
+		m_perProcessGpuMemoryFraction = perProcessGpuMemoryFraction;
+	}
+
 	@Override
 	protected void executeInternal(final DLExecutionMonitor monitor) throws DLCanceledExecutionException, Exception {
 		if (m_savedModelBundle == null) {
 			try {
-				m_savedModelBundle = SavedModelBundle.load(m_network.getSavedModelInDir().getAbsolutePath(),
-						m_network.getSpec().getTags());
+				final GPUOptions gpuOptions = GPUOptions.newBuilder() //
+						.setAllowGrowth(true) //
+						.setVisibleDeviceList(m_visibleDeviceList) //
+						.setPerProcessGpuMemoryFraction(m_perProcessGpuMemoryFraction) //
+						.build();
+				final ConfigProto configProto = ConfigProto.newBuilder() //
+						.setGpuOptions(gpuOptions) //
+						.build();
+
+				m_savedModelBundle = SavedModelBundle.loader(m_network.getSavedModelInDir().getAbsolutePath()) //
+						.withConfigProto(configProto.toByteArray()) //
+						.withTags(m_network.getSpec().getTags()) //
+						.load();
 			} catch (final IllegalArgumentException e) {
 				if (TFUtil.hasNewerTFVersion(m_network.getSpec().getTensorFlowVersion())) {
 					throw new DLInvalidSourceException("Could not load the TensorFlow graph. "
