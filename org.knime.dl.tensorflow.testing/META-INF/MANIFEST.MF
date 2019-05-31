@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Deep Learning - TensorFlow Integration Testing
 Bundle-SymbolicName: org.knime.dl.tensorflow.testing;singleton:=true
-Bundle-Version: 3.6.0.qualifier
+Bundle-Version: 4.0.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Fragment-Host: org.knime.dl.tensorflow;bundle-version="3.6.0"
 Require-Bundle: org.junit;bundle-version="[4.12.0,5.0.0)",
- org.knime.testing;bundle-version="[3.6.0,4.0.0)",
- org.knime.dl;bundle-version="[3.6.0,4.0.0)"
+  org.knime.testing;bundle-version="[3.6.0,4.0.0)",
+  org.knime.dl;bundle-version="[3.6.0,4.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.tensorflow
