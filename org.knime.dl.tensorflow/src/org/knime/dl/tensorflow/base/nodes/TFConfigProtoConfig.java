@@ -44,41 +44,67 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.base.nodes.executor;
+package org.knime.dl.tensorflow.base.nodes;
 
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.dl.base.nodes.executor2.DLDefaultExecutorNodeModel;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.dl.base.settings.AbstractConfig;
+import org.knime.dl.base.settings.ConfigEntry;
+import org.knime.dl.base.settings.DefaultConfigEntry;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFExecutorNodeFactory extends NodeFactory<DLDefaultExecutorNodeModel> {
+public class TFConfigProtoConfig extends AbstractConfig {
 
-	@Override
-	public DLDefaultExecutorNodeModel createNodeModel() {
-		return new TFExecutorNodeModel();
+	/** The default value of the visible devices list */
+	public static final String VISIBLE_DEVICES_LIST_DEFAULT = "";
+
+	/** The default value of the per process GPU memory fraction */
+	public static final double PER_PROCESS_GPU_MEM_DEFAULT = 1.0;
+
+	private static final String CFG_KEY_ROOT = "config_proto";
+
+	private static final String CFG_KEY_VISIBLE_DEVICES_LIST = "visible_devices_list";
+
+	private static final String CFG_KEY_PER_PROCESS_GPU_MEM = "per_process_gpu_mem";
+
+	/**
+	 * Create a new config for a TensorFlow config proto.
+	 */
+	public TFConfigProtoConfig() {
+		super(CFG_KEY_ROOT);
+
+		putVisibleDevicesList();
+		putPerProcessGpuMem();
+	}
+
+	/**
+	 * @return the configured visible devices list
+	 */
+	public ConfigEntry<String> getVisibleDevicesList() {
+		return get(CFG_KEY_VISIBLE_DEVICES_LIST, String.class);
+	}
+
+	/**
+	 * @return the configured per process GPU memory
+	 */
+	public ConfigEntry<Double> getPerProcessGpuMem() {
+		return get(CFG_KEY_PER_PROCESS_GPU_MEM, Double.class);
 	}
 
 	@Override
-	protected int getNrNodeViews() {
-		return 0;
-	}
-
-	@Override
-	public NodeView<DLDefaultExecutorNodeModel> createNodeView(final int viewIndex,
-			final DLDefaultExecutorNodeModel nodeModel) {
-		return null;
-	}
-
-	@Override
-	protected boolean hasDialog() {
+	protected boolean handleFailureToLoadConfig(final NodeSettingsRO settings, final Exception cause) {
+		putPerProcessGpuMem();
+		putVisibleDevicesList();
 		return true;
 	}
 
-	@Override
-	protected NodeDialogPane createNodeDialogPane() {
-		return new TFExecutorNodeDialog();
+	private void putPerProcessGpuMem() {
+		put(new DefaultConfigEntry<>(CFG_KEY_PER_PROCESS_GPU_MEM, Double.class, PER_PROCESS_GPU_MEM_DEFAULT));
 	}
+
+	private void putVisibleDevicesList() {
+		put(new DefaultConfigEntry<>(CFG_KEY_VISIBLE_DEVICES_LIST, String.class, VISIBLE_DEVICES_LIST_DEFAULT));
+	}
+
 }

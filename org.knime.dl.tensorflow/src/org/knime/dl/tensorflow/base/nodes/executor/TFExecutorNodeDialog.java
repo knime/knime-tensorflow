@@ -46,39 +46,49 @@
  */
 package org.knime.dl.tensorflow.base.nodes.executor;
 
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.dl.base.nodes.executor2.DLDefaultExecutorNodeModel;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.dl.base.nodes.DLDefaultNodeDialogTab;
+import org.knime.dl.base.nodes.executor2.DLExecutorNodeDialog;
+import org.knime.dl.tensorflow.base.nodes.TFConfigProtoConfig;
+import org.knime.dl.tensorflow.base.nodes.TFConfigProtoPanel;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFExecutorNodeFactory extends NodeFactory<DLDefaultExecutorNodeModel> {
+public class TFExecutorNodeDialog extends DLExecutorNodeDialog {
 
-	@Override
-	public DLDefaultExecutorNodeModel createNodeModel() {
-		return new TFExecutorNodeModel();
+	private final TFConfigProtoConfig m_configProtoConfig;
+
+	TFExecutorNodeDialog() {
+		super();
+		final DLDefaultNodeDialogTab advancedTab = new DLDefaultNodeDialogTab("Advanced Options");
+		addTab(advancedTab.getTitle(), advancedTab.getTab(), false);
+
+		m_configProtoConfig = TFExecutorNodeModel.createConfigProtoConfig();
+		final TFConfigProtoPanel configProtoPanel = new TFConfigProtoPanel(m_configProtoConfig);
+		setWrapperPanel(advancedTab.getTabRoot());
+		// NOTE: Currently, all settings of the config proto are related to the GPU
+		addDialogComponentGroupWithBorder(configProtoPanel, "GPU Configuration");
 	}
 
 	@Override
-	protected int getNrNodeViews() {
-		return 0;
+	protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
+			throws NotConfigurableException {
+		super.loadSettingsFrom(settings, specs);
+		try {
+			m_configProtoConfig.loadFromSettings(settings);
+		} catch (final InvalidSettingsException e) {
+			throw new NotConfigurableException(e.getMessage(), e);
+		}
 	}
 
 	@Override
-	public NodeView<DLDefaultExecutorNodeModel> createNodeView(final int viewIndex,
-			final DLDefaultExecutorNodeModel nodeModel) {
-		return null;
-	}
-
-	@Override
-	protected boolean hasDialog() {
-		return true;
-	}
-
-	@Override
-	protected NodeDialogPane createNodeDialogPane() {
-		return new TFExecutorNodeDialog();
+	protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+		super.saveSettingsTo(settings);
+		m_configProtoConfig.saveToSettings(settings);
 	}
 }

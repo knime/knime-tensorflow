@@ -44,41 +44,41 @@
  * ---------------------------------------------------------------------
  *
  */
-package org.knime.dl.tensorflow.base.nodes.executor;
+package org.knime.dl.tensorflow.base.nodes;
 
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeFactory;
-import org.knime.core.node.NodeView;
-import org.knime.dl.base.nodes.executor2.DLDefaultExecutorNodeModel;
+import javax.swing.JLabel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+
+import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
+import org.knime.core.node.defaultnodesettings.DialogComponentString;
+import org.knime.dl.base.nodes.AbstractGridBagDialogComponentGroup;
+import org.knime.dl.base.settings.ConfigEntry;
+import org.knime.dl.base.settings.ConfigUtil;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFExecutorNodeFactory extends NodeFactory<DLDefaultExecutorNodeModel> {
+public class TFConfigProtoPanel extends AbstractGridBagDialogComponentGroup {
 
-	@Override
-	public DLDefaultExecutorNodeModel createNodeModel() {
-		return new TFExecutorNodeModel();
-	}
+	/**
+	 * Creates a new dialog for TensorFlow config proto settings.
+	 * 
+	 * @param cfg the config object
+	 */
+	public TFConfigProtoPanel(final TFConfigProtoConfig cfg) {
+		final ConfigEntry<String> visibleDevicesList = cfg.getVisibleDevicesList();
+		final ConfigEntry<Double> perProcessGpuMem = cfg.getPerProcessGpuMem();
 
-	@Override
-	protected int getNrNodeViews() {
-		return 0;
-	}
+		final DialogComponentString dcVisibleDevicesList = new DialogComponentString(
+				ConfigUtil.toSettingsModelString(visibleDevicesList), "Visible devices list");
+		final DialogComponentNumber dcPerProcessGpuMem = new DialogComponentNumber(
+				ConfigUtil.toSettingsModelDoubleBounded(perProcessGpuMem, 0., 1.), "Per process GPU memory fraction",
+				0.1);
 
-	@Override
-	public NodeView<DLDefaultExecutorNodeModel> createNodeView(final int viewIndex,
-			final DLDefaultExecutorNodeModel nodeModel) {
-		return null;
-	}
-
-	@Override
-	protected boolean hasDialog() {
-		return true;
-	}
-
-	@Override
-	protected NodeDialogPane createNodeDialogPane() {
-		return new TFExecutorNodeDialog();
+		addDoubleColumnRow(getFirstComponent(dcVisibleDevicesList, JLabel.class),
+				getFirstComponent(dcVisibleDevicesList, JTextField.class));
+		addDoubleColumnRow(getFirstComponent(dcPerProcessGpuMem, JLabel.class),
+				getFirstComponent(dcPerProcessGpuMem, JSpinner.class));
 	}
 }
