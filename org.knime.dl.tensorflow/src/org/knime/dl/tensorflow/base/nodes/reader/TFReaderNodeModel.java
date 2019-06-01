@@ -122,7 +122,7 @@ public class TFReaderNodeModel extends NodeModel {
 	}
 
 	static SettingsModelBoolean createCopyNetworkSettingsModel() {
-		return new SettingsModelBoolean(CFG_KEY_COPY_NETWORK, false);
+		return new SettingsModelBoolean(CFG_KEY_COPY_NETWORK, true);
 	}
 
 	static SettingsModelStringArray createTagsSettingsModel() {
