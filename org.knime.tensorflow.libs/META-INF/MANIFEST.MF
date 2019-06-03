@@ -4,9 +4,9 @@ Bundle-Name: TensorFlow Libraries
 Bundle-SymbolicName: org.knime.tensorflow.libs;singleton:=true
 Bundle-Version: 4.0.0.qualifier
 Bundle-ClassPath: .,
-  lib/libtensorflow-1.12.0.jar,
-  lib/proto-1.12.0.jar,
-  lib/protobuf-java-3.5.1.jar
+ lib/libtensorflow-1.13.1.jar,
+ lib/proto-1.13.1.jar,
+ lib/protobuf-java-3.5.1.jar
 Bundle-Activator: org.knime.tensorflow.libs.TFPluginActivator
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Export-Package: com.google.protobuf,
