@@ -80,7 +80,7 @@ public class TFLibraryTest {
 			// Execute the "MyConst" operation in a Session.
 			try (final Session s = new Session(g)) {
 				try (Tensor<?> output = s.runner().fetch("MyConst").run().get(0)) {
-					assertEquals("Hello from 1.12.0", new String(output.bytesValue(), "UTF-8"));
+					assertEquals("Hello from 1.13.1", new String(output.bytesValue(), "UTF-8"));
 				}
 			}
 		}
