@@ -69,7 +69,7 @@ class TFNetworkType(DLPythonNetworkType.DLPythonNetworkType):
         return TFNetwork(model)
 
     def _test_installation(self, tester):
-        tester.check_lib('tensorflow', min_version="1.4.0", max_version="1.4.1")
+        tester.check_lib('tensorflow', min_version="1.4.0")
 
 
 # pseudo-singleton:
