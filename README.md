@@ -22,9 +22,9 @@ The KNIME TensorFlow Integration provides a `TFModel` object to Python whenever 
 
 ### Required Python Packages
 
-* `tensorflow` or `tensorflow-gpu` (version: 1.8.0)
+* `tensorflow` or `tensorflow-gpu` (version: 1.13.1)
 
-Note that newer or older versions can cause problems because the TensorFlow for Java version used is 1.8.0.
+Note that newer or older versions can cause problems because the TensorFlow for Java version used is 1.13.1.
 
 ### Example
 
