@@ -53,7 +53,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.dl.base.nodes.executor2.DLDefaultExecutorNodeModel;
+import org.knime.dl.base.nodes.executor2.DLAbstractExecutorNodeModel;
 import org.knime.dl.core.DLExecutionSpecCreator;
 import org.knime.dl.core.DLMissingExtensionException;
 import org.knime.dl.core.DLNetwork;
@@ -70,7 +70,7 @@ import org.knime.dl.tensorflow.savedmodel.core.execution.TFSavedModelNetworkExec
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFExecutorNodeModel extends DLDefaultExecutorNodeModel {
+public class TFExecutorNodeModel extends DLAbstractExecutorNodeModel {
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFExecutorNodeModel.class);
 

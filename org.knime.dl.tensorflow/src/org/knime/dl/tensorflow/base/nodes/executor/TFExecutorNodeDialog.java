@@ -52,14 +52,14 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.dl.base.nodes.DLDefaultNodeDialogTab;
-import org.knime.dl.base.nodes.executor2.DLExecutorNodeDialog;
+import org.knime.dl.base.nodes.executor2.DLAbstractExecutorNodeDialog;
 import org.knime.dl.tensorflow.base.nodes.TFConfigProtoConfig;
 import org.knime.dl.tensorflow.base.nodes.TFConfigProtoPanel;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFExecutorNodeDialog extends DLExecutorNodeDialog {
+public class TFExecutorNodeDialog extends DLAbstractExecutorNodeDialog {
 
 	private final TFConfigProtoConfig m_configProtoConfig;
 
