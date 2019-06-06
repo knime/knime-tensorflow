@@ -224,7 +224,7 @@ public class TFMetaGraphDef {
 		// Get the type
 		final Class<?> type;
 		try {
-			type = getClassForType(getDataTypeOfNodeDef(n));
+			type = getClassForType(getDataTypeOfNodeDef(n, input));
 		} catch (final DLInvalidTypeException e) {
 			// This node definition has no type. We cannot create a spec for it
 			return Optional.empty();
@@ -245,11 +245,15 @@ public class TFMetaGraphDef {
 		return shape != null && !shape.getUnknownRank();
 	}
 
-	private DataType getDataTypeOfNodeDef(final NodeDef n) throws DLInvalidTypeException {
+	private DataType getDataTypeOfNodeDef(final NodeDef n, final boolean input) throws DLInvalidTypeException {
 		if (n.containsAttr("dtype")) {
 			return n.getAttrOrThrow("dtype").getType();
 		} else if (n.containsAttr("T")) {
 			return n.getAttrOrThrow("T").getType();
+		} else if (input && n.containsAttr("Tin")) {
+			return n.getAttrOrThrow("Tin").getType();
+		} else if (!input && n.containsAttr("Tout")) {
+			return n.getAttrOrThrow("Tout").getType();
 		} else {
 			throw new DLInvalidTypeException("NodeDef doesn't define a type: " + n);
 		}
