@@ -82,7 +82,7 @@
 	</fullDescription>
 
 	<ports>
-		<inPort index="0" name="Deep Learning Network">The TensorFlow deep learning network.
+		<inPort index="0" name="TensorFlow Network">The TensorFlow deep learning network.
 		</inPort>
 		<inPort index="1" name="Data Table">The input table.</inPort>
 		<outPort index="0" name="Data Table">The output table.</outPort>

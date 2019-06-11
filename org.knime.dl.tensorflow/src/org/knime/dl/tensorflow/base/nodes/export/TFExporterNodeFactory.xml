@@ -39,7 +39,7 @@
 		</link>
 	</fullDescription>
 	<ports>
-		<inPort index="0" name="Deep Learning Network">The TensorFlow deep learning network.
+		<inPort index="0" name="TensorFlow Network">The TensorFlow deep learning network.
 		</inPort>
 	</ports>
 </knimeNode>

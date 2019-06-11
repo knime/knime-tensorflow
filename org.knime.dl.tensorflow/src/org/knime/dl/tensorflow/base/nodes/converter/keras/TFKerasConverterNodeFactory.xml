@@ -22,9 +22,9 @@
 		</link>
 	</fullDescription>
 	<ports>
-		<inPort index="0" name="Deep Learning Network">Keras deep learning network.
+		<inPort index="0" name="Keras Network">The Keras deep learning network.
 		</inPort>
-		<outPort index="0" name="Deep Learning Network">The TensorFlow deep learning network.
+		<outPort index="0" name="TensorFlow Network">The TensorFlow deep learning network.
 		</outPort>
 	</ports>
 </knimeNode>
