@@ -54,7 +54,8 @@
 				devices 5 and 3 as "/device:GPU:0", and "/device:GPU:1", then one
 				would specify this field as "5,3". This field is similar in spirit
 				to the CUDA_VISIBLE_DEVICES environment variable, except it applies
-				to the visible GPU devices in the process.
+				to the visible GPU devices in the process and must list only valid
+				GPU indices.
 				<br></br>
 				<br></br>
 				NOTE:
