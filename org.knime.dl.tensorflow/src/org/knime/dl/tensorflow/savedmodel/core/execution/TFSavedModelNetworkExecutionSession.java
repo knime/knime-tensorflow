@@ -55,8 +55,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.knime.core.node.InvalidSettingsException;
 import org.knime.dl.core.DLCanceledExecutionException;
+import org.knime.dl.core.DLCheckedException;
 import org.knime.dl.core.DLFixedTensorShape;
 import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetworkInputPreparer;
@@ -152,7 +152,7 @@ public class TFSavedModelNetworkExecutionSession extends DLAbstractNetworkExecut
 						.load();
 			} catch (final IllegalArgumentException e) {
 				if (e.getMessage().contains("'visible_device_list' listed an invalid GPU id")) {
-					throw new InvalidSettingsException("Invalid GPU selected: " + e.getMessage(), e);
+					throw new DLCheckedException("Invalid GPU selected: " + e.getMessage(), e);
 				} else if (TFUtil.hasNewerTFVersion(m_network.getSpec().getTensorFlowVersion())) {
 					throw new DLInvalidSourceException("Could not load the TensorFlow graph. "
 							+ "Most likely the issue is that the network has been created with a "
