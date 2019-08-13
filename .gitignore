@@ -1,7 +1,5 @@
 */bin/
 */target/
 */build/
-*/.settings/
-
 *.pyc*
 **/.pydevproject
