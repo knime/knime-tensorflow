@@ -21,6 +21,5 @@ Require-Bundle: org.knime.base;bundle-version="[4.0.0,5.0.0)",
   org.knime.tensorflow.libs;bundle-version="[4.0.0,5.0.0)",
   org.knime.dl.keras;bundle-version="[4.0.0,5.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Eclipse-PlatformFilter: (osgi.arch=x86_64)
 Bundle-ActivationPolicy: lazy
 Eclipse-BundleShape: dir

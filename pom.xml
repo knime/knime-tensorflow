@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.knime.maven</groupId>
+		<artifactId>ap.parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<groupId>org.knime</groupId>
+	<artifactId>knime-tensorflow</artifactId>
+	<version>${revision}${changelist}</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<revision>4.2.0</revision>
+		<changelist>-SNAPSHOT</changelist>
+		<feature-branch-extension.branchListProperty>git.branch</feature-branch-extension.branchListProperty>
+		<feature-branch-extension.appendArtifactoryProperties>false</feature-branch-extension.appendArtifactoryProperties>
+	</properties>
+
+	<modules>
+		<module>org.knime.dl.tensorflow</module>
+		<module>org.knime.dl.tensorflow.testing</module>
+		<module>org.knime.features.dl.tensorflow</module>
+		<module>org.knime.tensorflow.bin.linux.amd64.cpu</module>
+		<module>org.knime.tensorflow.bin.linux.amd64.gpu</module>
+		<module>org.knime.tensorflow.bin.macosx.amd64.cpu</module>
+		<module>org.knime.tensorflow.bin.windows.amd64.cpu</module>
+		<module>org.knime.tensorflow.bin.windows.amd64.gpu</module>
+		<module>org.knime.tensorflow.libs</module>
+		<module>org.knime.update.tensorflow</module>
+	</modules>
+
+	<!-- List all required repositories here. The variables are defined in knime-maven-parent/pom.xml. -->
+	<repositories>
+		<repository>
+			<id>p2-knime-core</id>
+			<layout>p2</layout>
+			<url>${knime.core.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-filehandling</id>
+			<layout>p2</layout>
+			<url>${knime.filehandling.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-shared</id>
+			<layout>p2</layout>
+			<url>${knime.shared.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-tp</id>
+			<layout>p2</layout>
+			<url>${knime.tp.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-base</id>
+			<layout>p2</layout>
+			<url>${knime.base.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-deeplearning</id>
+			<layout>p2</layout>
+			<url>${knime.deeplearning.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-python</id>
+			<layout>p2</layout>
+			<url>${knime.python.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-jfreechart</id>
+			<layout>p2</layout>
+			<url>${knime.jfreechart.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-distance</id>
+			<layout>p2</layout>
+			<url>${knime.distance.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-expressions</id>
+			<layout>p2</layout>
+			<url>${knime.expressions.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-javasnippet</id>
+			<layout>p2</layout>
+			<url>${knime.javasnippet.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-svg</id>
+			<layout>p2</layout>
+			<url>${knime.svg.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-workbench</id>
+			<layout>p2</layout>
+			<url>${knime.workbench.p2}</url>
+		</repository>
+	</repositories>
+
+	<!-- This whole block is only needed if the repository contains plug-ins that don't have any sources. If it is omitted
+		 Tycho will complain. -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-source-feature-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>source-feature</id>
+						<phase>package</phase>
+						<goals>
+							<goal>source-feature</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<excludes>
+						<plugin id="org.knime.tensorflow.bin.linux.amd64.cpu"/>
+						<plugin id="org.knime.tensorflow.bin.linux.amd64.gpu"/>
+						<plugin id="org.knime.tensorflow.bin.macosx.amd64.cpu"/>
+						<plugin id="org.knime.tensorflow.bin.windows.amd64.cpu"/>
+						<plugin id="org.knime.tensorflow.bin.windows.amd64.gpu"/>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
