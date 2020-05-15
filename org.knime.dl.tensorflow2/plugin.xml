@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.knime.core.PortType">
+      <portType
+            color="#ff6f00"
+            hidden="false"
+            name="TensorFlow 2 Model"
+            objectClass="org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject"
+            objectSerializer="org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject$Serializer"
+            specClass="org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObjectSpec"
+            specSerializer="org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObjectSpec$Serializer">
+      </portType>
+   </extension>
+   <extension
+         point="org.knime.dl.python.DLPythonNetworkLoader">
+      <DLPythonNetworkLoader
+            DLPythonNetworkLoader="org.knime.dl.tensorflow2.core.TF2NetworkLoader">
+      </DLPythonNetworkLoader>
+   </extension>
+   <extension
+         point="org.knime.python.modules">
+      <directory
+            path="py/">
+      </directory>
+   </extension>
+   <extension
+         point="org.knime.dl.python.DLPythonModuleDependency">
+      <DLPythonModuleDependency
+            DLPythonModuleDependency="org.knime.dl.tensorflow2.core.TF2PythonModuleDependency">
+      </DLPythonModuleDependency>
+   </extension>
+</plugin>
