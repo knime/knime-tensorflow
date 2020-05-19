@@ -14,7 +14,85 @@ Additionally, the DL Python nodes provided in [KNIME Deep Learning](https://www.
 
 ![Workflow Screenshot](https://files.knime.com/sites/default/files/KNIME-TF-Screenshot.png)
 
-## TensorFlow Python Bindings
+## TensorFlow 2 Python Bindings
+
+The KNIME TensorFlow Integration can be used with the _DL Python Network_ nodes which allow you to create, train and modify a TensorFlow model using the powerful TensorFlow Python API.
+
+To make use of a TensorFlow 2 function it must be wrapped into a `tf.keras.Model`.
+
+### Required Python Packages
+
+* `tensorflow>=2.2.0`
+* `tensorflow-hub` (optional for using Models from the [TensorFlow Hub](https://tfhub.dev))
+
+Note that this package provides GPU support on Windows and Linux with CUDA Toolkit 10.1 and cuDNN >= 7.6.
+
+### Example
+
+__Create a TensorFlow 2 model:__
+
+```python
+import tensorflow as tf
+import tensorflow_hub as hub
+
+inp = tf.keras.layers.Input((224,224,3))
+
+# Use a tf.keras layer
+x = tf.keras.layers.Conv2D(3, 1)(inp)
+
+# Use a Model from the TensorFlow Hub
+hub_url = "https://tfhub.dev/google/imagenet/resnet_v2_50/feature_vector/4"
+x = hub.KerasLayer(hub_url, trainable=False)(x)
+
+# Use a TensorFlow Op
+x = x + 10.0
+x = tf.math.subtract(x, 10.0)
+
+# Use another model
+m = tf.keras.Sequential([
+	tf.keras.layers.Dense(100),
+	tf.keras.layers.Dense(10)
+])
+x = m(x)
+
+# Create the output model
+output_network = tf.keras.Model(inp, x)
+```
+
+__Train a TensorFlow 2 model:__
+
+```python
+# Get the input network
+model = input_network
+
+# Get the training data
+x_train = input_table.iloc[:,:4].values
+y_train = input_table.iloc[:,5:].values
+
+# Compile the model (Specify optimizer, loss and metrics)
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model
+model.fit(x=x_train, y=y_train, batch_size=8, epochs=20)
+
+# Assign the trained model to the output
+output_network = model
+```
+
+__Execute a TensorFlow 2 model:__
+
+```python
+# Get the input data
+x = input_table.iloc[:,:4].values
+
+# Execute the model
+y = input_network.predict(x)
+
+# Create the output table
+output_table = pd.DataFrame({'output': y[:,0]})
+```
+
+## TensorFlow 1 Python Bindings (Legacy)
 
 The KNIME TensorFlow Integration can be used with the _DL Python Network_ nodes which allow you to create, train and modify a TensorFlow model using the powerful TensorFlow Python API.
 
