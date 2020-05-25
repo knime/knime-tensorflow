@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="rmodelreader.png" type="Source"
+	xmlns="http://knime.org/node/v4.1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://knime.org/node/v4.1 http://knime.org/node/v4.1.xsd">
+	<name>TensorFlow 2 Network Reader</name>
+
+	<shortDescription>
+		Reads a TensorFlow 2 network from a file or directory.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>TODO</intro>
+	</fullDescription>
+
+	<ports>
+		<dynInPort insert-before="0" name="File system connection"
+			group-identifier="File System Connection">
+			The file system connection.
+		</dynInPort>
+		<outPort index="0" name="TensorFlow 2 network">The TensorFlow 2 network.</outPort>
+	</ports>
+</knimeNode>

@@ -14,6 +14,24 @@
       </portType>
    </extension>
    <extension
+         point="org.knime.workbench.repository.categories">
+      <category
+            icon="icons/tensorflow.png"
+            level-id="tensorflow2"
+            locked="true"
+            name="TensorFlow 2"
+            path="/labs/deeplearning">
+      </category>
+   </extension>
+   <extension
+         point="org.knime.workbench.repository.nodes">
+      <node
+            category-path="/labs/deeplearning/tensorflow2"
+            deprecated="false"
+            factory-class="org.knime.dl.tensorflow2.base.nodes.io.filehandling.tfnetwork.reader.TF2ReaderNodeFactory">
+      </node>
+   </extension>
+   <extension
          point="org.knime.dl.python.DLPythonNetworkLoader">
       <DLPythonNetworkLoader
             DLPythonNetworkLoader="org.knime.dl.tensorflow2.core.TF2NetworkLoader">
