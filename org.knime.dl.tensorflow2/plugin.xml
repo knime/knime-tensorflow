@@ -30,6 +30,11 @@
             deprecated="false"
             factory-class="org.knime.dl.tensorflow2.base.nodes.io.filehandling.tfnetwork.reader.TF2ReaderNodeFactory">
       </node>
+      <node
+            category-path="/labs/deeplearning/tensorflow2"
+            deprecated="false"
+            factory-class="org.knime.dl.tensorflow2.base.nodes.io.filehandling.tfnetwork.writer.TF2WriterNodeFactory">
+      </node>
    </extension>
    <extension
          point="org.knime.dl.python.DLPythonNetworkLoader">
