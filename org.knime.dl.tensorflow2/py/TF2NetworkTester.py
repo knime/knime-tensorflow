@@ -47,8 +47,10 @@
 @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
 '''
 
+
 def test():
-	import TF2NetworkType
-	print(TF2NetworkType.instance().test_installation(), end='', flush=True)
+    import TF2NetworkType
+    print(TF2NetworkType.instance().test_installation(), end='', flush=True)
+
 
 test()

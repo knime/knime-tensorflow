@@ -49,6 +49,7 @@
 
 import DLPythonNetworkType
 
+
 class TF2NetworkType(DLPythonNetworkType.DLPythonNetworkType):
 
     def __init__(self):
