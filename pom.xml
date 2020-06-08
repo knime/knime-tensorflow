@@ -24,8 +24,10 @@
 
 	<modules>
 		<module>org.knime.dl.tensorflow</module>
+		<module>org.knime.dl.tensorflow2</module>
 		<module>org.knime.dl.tensorflow.testing</module>
 		<module>org.knime.features.dl.tensorflow</module>
+		<module>org.knime.features.dl.tensorflow2</module>
 		<module>org.knime.tensorflow.bin.linux.amd64.cpu</module>
 		<module>org.knime.tensorflow.bin.linux.amd64.gpu</module>
 		<module>org.knime.tensorflow.bin.macosx.amd64.cpu</module>

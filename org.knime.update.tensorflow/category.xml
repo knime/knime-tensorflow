@@ -6,6 +6,12 @@
     <feature id="org.knime.features.dl.tensorflow.source" version="0.0.0">
         <category name="knime-tensorflow"/>
     </feature>
+    <feature id="org.knime.features.dl.tensorflow2" version="0.0.0">
+        <category name="knime-tensorflow"/>
+    </feature>
+    <feature id="org.knime.features.dl.tensorflow2.source" version="0.0.0">
+        <category name="knime-tensorflow"/>
+    </feature>
 
     <!-- <feature id="org.knime.features.ap-repository-template.testing" version="0.0.0"/> -->
     <category-def name="knime-tensorflow" label="Build artifacts from knime-tensorflow"/>
