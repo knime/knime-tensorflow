@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="rmodelreader.png" type="Source"
+<knimeNode icon="tf2reader.png" type="Source"
 	xmlns="http://knime.org/node/v4.1"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://knime.org/node/v4.1 http://knime.org/node/v4.1.xsd">
@@ -20,6 +20,15 @@
 				<li>A <b>SavedModel</b> file containing a TensorFlow Keras Model.</li>
 				<li>A <b>ZIP</b> file of the directory of a <b>SavedModel</b> containing a TensorFlow Keras Model.</li>
 			</ul>
+			<p>
+				<i>
+					The KNIME Deep Learning - TensorFlow 2 Integration is developed by
+					KNIME and uses the TensorFlow 2 library. The KNIME Deep Learning -
+					TensorFlow 2 Integration is not endorsed by or otherwise affiliated
+					with Google. TensorFlow, the TensorFlow logo and any related marks
+					are trademarks of Google Inc.
+				</i>
+			</p>
 		</intro>
 
 		<option name="Read from">

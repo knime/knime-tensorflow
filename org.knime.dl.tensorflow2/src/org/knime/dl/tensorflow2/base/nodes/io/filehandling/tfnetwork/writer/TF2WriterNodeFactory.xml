@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./rmodelwriter.png" type="Sink"
+<knimeNode icon="tf2writer.png" type="Sink"
 	xmlns="http://knime.org/node/v4.1"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://knime.org/node/v4.1 http://knime.org/node/v4.1.xsd">
@@ -10,22 +10,31 @@
 	</shortDescription>
 
 	<fullDescription>
-	<intro>
-		Writes a TensorFlow 2 Model to a file or directory. The file extension
-		determines the format of the written file. If
-		<b>no file extension</b>
-		is given the model is saved in the
-		<b>SavedModel</b>
-		format. If the file extension
-		<b>.h5</b>
-		is given the model is saved in the
-		<b>HDF5</b>
-		format. If the file extension
-		<b>.zip</b>
-		is given the model is in the
-		<b>SavedModel format and compressed as a ZIP file</b>
-		.
-	</intro>
+		<intro>
+			Writes a TensorFlow 2 Model to a file or directory. The file extension
+			determines the format of the written file. If
+			<b>no file extension</b>
+			is given the model is saved in the
+			<b>SavedModel</b>
+			format. If the file extension
+			<b>.h5</b>
+			is given the model is saved in the
+			<b>HDF5</b>
+			format. If the file extension
+			<b>.zip</b>
+			is given the model is in the
+			<b>SavedModel format and compressed as a ZIP file</b>
+			.
+			<p>
+				<i>
+					The KNIME Deep Learning - TensorFlow 2 Integration is developed by
+					KNIME and uses the TensorFlow 2 library. The KNIME Deep Learning -
+					TensorFlow 2 Integration is not endorsed by or otherwise affiliated
+					with Google. TensorFlow, the TensorFlow logo and any related marks
+					are trademarks of Google Inc.
+				</i>
+			</p>
+		</intro>
 		<option name="Write to">
 			Select a file system in which you want to store the file. There
 			are
