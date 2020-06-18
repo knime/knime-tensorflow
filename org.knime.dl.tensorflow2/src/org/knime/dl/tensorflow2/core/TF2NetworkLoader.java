@@ -83,7 +83,8 @@ public class TF2NetworkLoader extends DLPythonAbstractNetworkLoader<TF2Network> 
 
     private static final String URL_EXTENSION = "";
 
-    private static final DLPythonInstallationTester INSTALLATION_TESTER = new DLPythonInstallationTester();
+    private static final DLPythonInstallationTester INSTALLATION_TESTER =
+        new DLPythonInstallationTester(() -> new TF2PythonContext());
 
     @Override
     public Class<TF2Network> getNetworkType() {

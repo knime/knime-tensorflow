@@ -88,8 +88,9 @@ public final class TF2PythonCommands extends DLPythonAbstractCommands {
      * Create Python commands for handling TensorFlow 2 networks. A new Python context to communicate with Python is
      * created automatically and has to be closed by calling the {@link #close()} method of this object.
      */
+    @SuppressWarnings("resource") // Context is closed in #close
     public TF2PythonCommands() {
-        // Creates Python commands without a context
+        super(new TF2PythonContext());
     }
 
     /**

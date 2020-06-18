@@ -61,9 +61,9 @@ import org.knime.dl.core.DLMissingExtensionException;
 import org.knime.dl.core.DLNetworkFileStoreLocation;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.keras.core.DLKerasNetworkSpec;
+import org.knime.dl.keras.core.DLKerasPythonContext;
 import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetwork;
 import org.knime.dl.python.core.DLPythonContext;
-import org.knime.dl.python.core.DLPythonDefaultContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkLoaderRegistry;
 import org.knime.dl.python.util.DLPythonSourceCodeBuilder;
@@ -114,7 +114,7 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 			final File tmpFile = new File(FileUtil.createTempDir("tf"), "sm");
 
 			// Save the keras model as a SavedModel using python
-			try (final DLPythonContext pythonContext = new DLPythonDefaultContext()) {
+			try (final DLPythonContext pythonContext = new DLKerasPythonContext()) {
 				final DLPythonNetworkHandle networkHandle = DLPythonNetworkLoaderRegistry.getInstance()
 						.getNetworkLoader(network.getClass())
 						.orElseThrow(() -> new DLMissingExtensionException(

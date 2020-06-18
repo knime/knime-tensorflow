@@ -64,15 +64,14 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.util.PathUtils;
 import org.knime.dl.core.DLExecutionMonitorCancelable;
 import org.knime.dl.python.core.DLPythonContext;
-import org.knime.dl.python.core.DLPythonDefaultContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkLoaderRegistry;
 import org.knime.dl.python.util.DLPythonUtils;
 import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
 import org.knime.dl.tensorflow2.core.TF2Network;
 import org.knime.dl.tensorflow2.core.TF2NetworkLoader;
+import org.knime.dl.tensorflow2.core.TF2PythonContext;
 import org.knime.filehandling.core.node.portobject.writer.PortObjectToPathWriterNodeModel;
-import org.knime.python2.kernel.PythonKernel;
 
 /**
  * Node model of the TensorFlow writer node.
@@ -120,8 +119,7 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
         // Save the model to the model path (can be a temporary directory)
         final TF2NetworkLoader loader = new TF2NetworkLoader();
         loader.checkAvailability(false, DLPythonNetworkLoaderRegistry.getInstallationTestTimeout(), cancelable);
-        try (final PythonKernel kernel = DLPythonDefaultContext.createKernel();
-                final DLPythonContext context = new DLPythonDefaultContext(kernel)) {
+        try (final DLPythonContext context = new TF2PythonContext()) {
             final DLPythonNetworkHandle handle = loader.load(network, context, saveOptimizerState, cancelable);
             final String saveCode = getSaveNetworkCode(handle, saveOptimizerState, modelPath.toString(), format);
             context.executeInKernel(saveCode, cancelable);

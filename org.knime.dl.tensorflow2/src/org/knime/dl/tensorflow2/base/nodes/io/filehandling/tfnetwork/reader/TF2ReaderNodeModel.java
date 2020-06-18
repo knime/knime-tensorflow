@@ -72,15 +72,14 @@ import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.core.DLExecutionMonitorCancelable;
 import org.knime.dl.core.DLNetworkFileStoreLocation;
 import org.knime.dl.python.core.DLPythonContext;
-import org.knime.dl.python.core.DLPythonDefaultContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkLoaderRegistry;
 import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
 import org.knime.dl.tensorflow2.core.TF2Network;
 import org.knime.dl.tensorflow2.core.TF2NetworkLoader;
+import org.knime.dl.tensorflow2.core.TF2PythonContext;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectFromPathReaderNodeModel;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeConfig;
-import org.knime.python2.kernel.PythonKernel;
 
 /**
  * Node model of the TensorFlow 2 network reader node.
@@ -152,8 +151,7 @@ final class TF2ReaderNodeModel extends PortObjectFromPathReaderNodeModel<PortObj
         final TF2NetworkLoader loader = new TF2NetworkLoader();
         loader.checkAvailability(false, DLPythonNetworkLoaderRegistry.getInstallationTestTimeout(), cancelable);
         final TF2Network network;
-        try (final PythonKernel kernel = DLPythonDefaultContext.createKernel();
-                final DLPythonContext context = new DLPythonDefaultContext(kernel)) {
+        try (final DLPythonContext context = new TF2PythonContext()) {
             final DLPythonNetworkHandle handle = loader.load(networkUri, context, true, cancelable);
 
             // For H5 the network is not in the file store yet. Save it to the file store
