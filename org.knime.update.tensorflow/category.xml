@@ -14,5 +14,7 @@
     </feature>
 
     <!-- <feature id="org.knime.features.ap-repository-template.testing" version="0.0.0"/> -->
-    <category-def name="knime-tensorflow" label="Build artifacts from knime-tensorflow"/>
+    <category-def name="knime-tensorflow" label="Build artifacts from knime-tensorflow">
+        <description>Build artifacts from knime-tensorflow</description>
+    </category-def>
 </site>
