@@ -68,7 +68,7 @@ import org.knime.dl.tensorflow2.core.TF2NetworkLoader;
  */
 public class TF2ExecutionContext implements DLExecutionContext<TF2Network> {
 
-    private static final String EXECUTION_CONTEXT_NAME = "TensorFlow (Python)";
+    private static final String EXECUTION_CONTEXT_NAME = "TensorFlow 2 (Python)";
 
     @Override
     public Class<TF2Network> getNetworkType() {
