@@ -50,7 +50,10 @@ package org.knime.dl.tensorflow2.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.Platform;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.util.Version;
 import org.knime.dl.core.DLCancelable;
@@ -82,6 +85,9 @@ import org.knime.python2.extensions.serializationlibrary.interfaces.TableChunker
 public final class TF2PythonCommands extends DLPythonAbstractCommands {
 
     private static final NodeLogger LOGGER = NodeLogger.getLogger(TF2PythonCommands.class);
+
+    private static final Pattern WINDOWS_LONG_PATH_ERROR_PATTERN =
+        Pattern.compile(".*Failed to create a NewWriteableFile: (.*) : The system cannot find the path specified.*");
 
     private static final String TF_VERSION_NAME = "tf_version";
 
@@ -145,6 +151,41 @@ public final class TF2PythonCommands extends DLPythonAbstractCommands {
                 return super.loadNetwork(path, false, cancelable);
             }
             throw e;
+        }
+    }
+
+    @Override
+    public void saveNetwork(final DLPythonNetworkHandle network, final String path, final DLCancelable cancelable)
+        throws DLInvalidEnvironmentException, IOException, DLCanceledExecutionException {
+        try {
+            super.saveNetwork(network, path, cancelable);
+        } catch (final Exception e) {
+            // TODO(benjamin) which exception is thrown?
+            if (!Platform.getOS().equals(Platform.OS_WIN32)) {
+                // Cannot be the long path issue
+                throw e;
+            }
+            // Check if the message fits the path issue
+            final Matcher matcher = WINDOWS_LONG_PATH_ERROR_PATTERN.matcher(e.getMessage());
+            boolean matching = matcher.find();
+
+            if (matching) {
+                final String filePath = matcher.group(1);
+                if (filePath.length() > 260) {
+                    // TODO(benjamin) Exception text
+                    // The message fits and the path is longer than 260 chars:
+                    // Inform the user that this is probably the issue
+                    throw new IOException("File path length to long", e);
+                } else {
+                    // TODO remove debug code
+                    throw new IOException("Path not long enough: '" + filePath + "' length: " + filePath.length());
+                }
+            } else {
+                // TODO remove debug code
+                throw new IOException("Not matching: '" + e.getMessage() + "'");
+            }
+            // The message for the path issue does not match
+            // throw e;
         }
     }
 
