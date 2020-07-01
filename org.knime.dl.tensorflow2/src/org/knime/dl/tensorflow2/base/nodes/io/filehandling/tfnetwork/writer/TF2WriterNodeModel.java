@@ -190,7 +190,7 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
         // Not sure if this always works
         // However, if the file is local and the check fails the node will still work
         // by using a temporary directory
-        return outputPath.toUri().getScheme().equals("file");
+        return outputPath.toUri().getScheme().equals("local");
     }
 
     /** Create code for saving the network in the given format */
