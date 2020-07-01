@@ -48,7 +48,9 @@
  */
 package org.knime.dl.tensorflow2.base.nodes.io.filehandling.tfnetwork.writer;
 
+import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -71,6 +73,7 @@ import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
 import org.knime.dl.tensorflow2.core.TF2Network;
 import org.knime.dl.tensorflow2.core.TF2NetworkLoader;
 import org.knime.dl.tensorflow2.core.TF2PythonContext;
+import org.knime.filehandling.core.defaultnodesettings.filechooser.writer.FileOverwritePolicy;
 import org.knime.filehandling.core.node.portobject.writer.PortObjectToPathWriterNodeModel;
 
 /**
@@ -106,6 +109,9 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
         final boolean saveOptimizerState = getConfig().getSaveOptimizerStateModel().getBooleanValue();
         final boolean writeDirectly = isLocalPath(outputPath) && !NetworkFormat.SAVED_MODEL_ZIP.equals(format);
 
+        // Fail fast if overwrite is disabled but the output exists
+        checkOverwrite(outputPath);
+
         // Get the path for writing the model to using Python
         final Path modelPath;
         if (writeDirectly) {
@@ -133,14 +139,11 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
                     break;
 
                 case SAVED_MODEL_ZIP:
-                    final OpenOption[] openOptions =
-                        getConfig().getFileChooserModel().getFileOverwritePolicy().getOpenOptions();
-                    final OutputStream outputStream = Files.newOutputStream(outputPath, openOptions);
-                    PathUtils.zip(modelPath, outputStream, Deflater.DEFAULT_COMPRESSION);
+                    PathUtils.zip(modelPath, openOutputStream(outputPath), Deflater.DEFAULT_COMPRESSION);
                     break;
 
                 case H5:
-                    Files.copy(modelPath, outputPath);
+                    Files.copy(modelPath, openOutputStream(outputPath));
                     break;
 
                 default:
@@ -151,6 +154,21 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
 
             // Delete the temp file
             PathUtils.deleteDirectoryIfExists(modelPath);
+        }
+    }
+
+    /** Open an output stream at the given location with the configured open options */
+    private OutputStream openOutputStream(final Path outputPath) throws IOException {
+        final OpenOption[] openOptions =
+            getConfig().getFileChooserModel().getFileOverwritePolicy().getOpenOptions();
+        return Files.newOutputStream(outputPath, openOptions);
+    }
+
+    /** @throws FileAlreadyExistsException if the given file exits and shoul not be overwritten */
+    private void checkOverwrite(final Path outputPath) throws FileAlreadyExistsException {
+        if (getConfig().getFileChooserModel().getFileOverwritePolicy() == FileOverwritePolicy.FAIL &&
+                Files.exists(outputPath)) {
+            throw new FileAlreadyExistsException(outputPath.toString());
         }
     }
 
