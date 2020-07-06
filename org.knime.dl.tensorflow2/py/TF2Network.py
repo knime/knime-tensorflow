@@ -70,8 +70,8 @@ from DLPythonNetwork import DLPythonTensorSpec
 
 class TF2NetworkReader(DLPythonNetworkReader):
 
-    def read(self, path, **kwargs):
-        return TF2Network(tf.keras.models.load_model(path))
+    def read(self, path, compile=True, **kwargs):
+        return TF2Network(tf.keras.models.load_model(path, compile=compile))
 
 
 class TF2Network(DLPythonNetwork):

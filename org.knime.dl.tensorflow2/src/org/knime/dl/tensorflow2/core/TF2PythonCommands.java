@@ -51,6 +51,7 @@ package org.knime.dl.tensorflow2.core;
 import java.io.File;
 import java.io.IOException;
 
+import org.knime.core.node.NodeLogger;
 import org.knime.core.util.Version;
 import org.knime.dl.core.DLCancelable;
 import org.knime.dl.core.DLCanceledExecutionException;
@@ -79,6 +80,8 @@ import org.knime.python2.extensions.serializationlibrary.interfaces.TableChunker
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public final class TF2PythonCommands extends DLPythonAbstractCommands {
+
+    private static final NodeLogger LOGGER = NodeLogger.getLogger(TF2PythonCommands.class);
 
     private static final String TF_VERSION_NAME = "tf_version";
 
@@ -128,6 +131,24 @@ public final class TF2PythonCommands extends DLPythonAbstractCommands {
     }
 
     @Override
+    public DLPythonNetworkHandle loadNetwork(final String path, final boolean loadTrainingConfig,
+        final DLCancelable cancelable) throws DLInvalidEnvironmentException, IOException, DLCanceledExecutionException {
+        try {
+            // Try to load it as requested
+            return super.loadNetwork(path, loadTrainingConfig, cancelable);
+        } catch (final IOException e) {
+            if (loadTrainingConfig) {
+                // If we tried to load it compiled this could have been the problem
+                // -> Warn the user and try it uncompiled
+                LOGGER.warn("Couldn't load the model with the training configuration. See log for details. "
+                    + "Trying to load it uncompiled.", e);
+                return super.loadNetwork(path, false, cancelable);
+            }
+            throw e;
+        }
+    }
+
+    @Override
     protected String getSetupEnvironmentCode() {
         // Nothing to do
         return "";
@@ -145,7 +166,7 @@ public final class TF2PythonCommands extends DLPythonAbstractCommands {
     }
 
     @Override
-    protected DLPythonAbstractNetworkReaderCommands getNetworkReaderCommands() {
+    protected TF2NetworkReaderCommands getNetworkReaderCommands() {
         return new TF2NetworkReaderCommands();
     }
 
@@ -188,7 +209,7 @@ public final class TF2PythonCommands extends DLPythonAbstractCommands {
         @Override
         public String read(final String path, final boolean loadTrainingConfig) {
             return DLPythonUtils.createSourceCodeBuilder() //
-                .a("read(").asr(path).a(")") //
+                .a("read(").asr(path).a(", compile=").a(loadTrainingConfig).a(")") //
                 .toString();
         }
     }
