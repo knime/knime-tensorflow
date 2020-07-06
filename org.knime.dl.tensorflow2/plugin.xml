@@ -4,7 +4,7 @@
    <extension
          point="org.knime.core.PortType">
       <portType
-            color="#ff6f00"
+            color="#ff3300"
             hidden="false"
             name="TensorFlow 2 Model"
             objectClass="org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject"
