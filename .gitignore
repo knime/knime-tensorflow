@@ -3,5 +3,5 @@
 */build/
 *.pyc*
 **/.pydevproject
-.flattened-pom.xml
-org.knime.dl.tensorflow/knime-dl-tensorflow.jar
+**/.flattened-pom.xml
+*/*.jar
