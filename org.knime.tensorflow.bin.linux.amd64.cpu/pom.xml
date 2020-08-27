@@ -14,6 +14,11 @@
   <artifactId>org.knime.tensorflow.bin.linux.amd64.cpu</artifactId>
   <version>${revision}${changelist}</version>
   <packaging>eclipse-plugin</packaging>
+  
+  <properties>
+    <revision>4.3.0</revision>
+  </properties>
+
   <build>
     <plugins>
       <!-- tycho is not able to automatically determine os/ws/arch of this bundle -->

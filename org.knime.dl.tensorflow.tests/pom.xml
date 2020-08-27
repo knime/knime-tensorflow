@@ -11,6 +11,11 @@
 	</parent>
 	<artifactId>org.knime.dl.tensorflow.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
+  
+    <properties>
+        <revision>4.3.0</revision>
+    </properties>
+
 	<build>
 		<plugins>
 			<plugin>
