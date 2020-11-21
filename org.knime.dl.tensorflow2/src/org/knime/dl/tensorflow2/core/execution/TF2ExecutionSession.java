@@ -54,6 +54,7 @@ import org.knime.dl.core.DLTensorFactory;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
+import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.execution.DLPythonAbstractNetworkExecutionSession;
 import org.knime.dl.tensorflow2.core.TF2Network;
 import org.knime.dl.tensorflow2.core.TF2PythonCommands;
@@ -75,14 +76,15 @@ public class TF2ExecutionSession extends DLPythonAbstractNetworkExecutionSession
      * @param outputConsumer the output consumer
      * @param tensorFactory a tensor factory
      */
-    public TF2ExecutionSession(final TF2Network network, final Set<DLTensorSpec> executionInputSpecs,
-        final Set<DLTensorId> requestedOutputs, final DLNetworkInputPreparer inputPreparer,
-        final DLNetworkOutputConsumer outputConsumer, final DLTensorFactory tensorFactory) {
-        super(network, executionInputSpecs, requestedOutputs, inputPreparer, outputConsumer, tensorFactory);
+    public TF2ExecutionSession(final DLPythonContext context, final TF2Network network,
+        final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
+        final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer,
+        final DLTensorFactory tensorFactory) {
+        super(context, network, executionInputSpecs, requestedOutputs, inputPreparer, outputConsumer, tensorFactory);
     }
 
     @Override
-    protected TF2PythonCommands createCommands() throws DLInvalidEnvironmentException {
-        return new TF2PythonCommands();
+    protected TF2PythonCommands createCommands(final DLPythonContext context) throws DLInvalidEnvironmentException {
+        return new TF2PythonCommands(context);
     }
 }

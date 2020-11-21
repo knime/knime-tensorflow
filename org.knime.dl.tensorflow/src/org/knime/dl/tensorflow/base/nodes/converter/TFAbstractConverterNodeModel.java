@@ -48,6 +48,7 @@ package org.knime.dl.tensorflow.base.nodes.converter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.node.CanceledExecutionException;
@@ -65,30 +66,45 @@ import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.base.portobjects.DLNetworkPortObjectSpec;
 import org.knime.dl.core.DLExecutionMonitorCancelable;
 import org.knime.dl.core.DLNetworkSpec;
+import org.knime.dl.python.core.DLPythonContext;
+import org.knime.dl.python.core.DLPythonDefaultContext;
+import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObjectSpec;
 import org.knime.dl.tensorflow.core.TFNetwork;
 import org.knime.dl.tensorflow.core.TFNetworkSpec;
 import org.knime.dl.tensorflow.core.convert.DLNetworkConversionException;
 import org.knime.dl.tensorflow.core.convert.TFNetworkConverter;
+import org.knime.python2.PythonCommand;
+import org.knime.python2.PythonVersion;
+import org.knime.python2.base.PythonBasedNodeModel;
+import org.knime.python2.config.PythonCommandFlowVariableConfig;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public abstract class TFAbstractConverterNodeModel extends NodeModel {
+public abstract class TFAbstractConverterNodeModel extends PythonBasedNodeModel {
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFAbstractConverterNodeModel.class);
 
-	private TFNetworkConverter m_converter;
+    static PythonCommandFlowVariableConfig createPythonCommandConfig() {
+        return new PythonCommandFlowVariableConfig(PythonVersion.PYTHON3,
+            DLPythonPreferences::getCondaInstallationPath);
+    }
+
+    private final PythonCommandFlowVariableConfig m_pythonCommandConfig = createPythonCommandConfig();
+
+	private TFNetworkConverter<?> m_converter;
 
 	/**
 	 * Creates a new abstract {@link NodeModel} for a TensorFlow Network Converter.
 	 *
 	 * @param inPortType Type of the input port which holds the network.
 	 */
-	protected TFAbstractConverterNodeModel(final PortType inPortType) {
-		super(new PortType[] { inPortType }, new PortType[] { TFNetworkPortObject.TYPE });
-	}
+    protected TFAbstractConverterNodeModel(final PortType inPortType, final Supplier<PythonCommand> commandPreference) {
+        super(new PortType[]{inPortType}, new PortType[]{TFNetworkPortObject.TYPE});
+        addPythonCommandConfig(m_pythonCommandConfig, commandPreference);
+    }
 
 	/**
 	 * Creates a network converter for the specific network.
@@ -97,7 +113,7 @@ public abstract class TFAbstractConverterNodeModel extends NodeModel {
 	 * @return a network creator suitable for the given network type
 	 * @throws DLNetworkConversionException if no converter can be created
 	 */
-	protected abstract TFNetworkConverter getTFNetworkConverter(DLNetworkPortObjectSpec inSpec)
+	protected abstract TFNetworkConverter<?> getTFNetworkConverter(DLNetworkPortObjectSpec inSpec)
 			throws DLNetworkConversionException;
 
 	@Override
@@ -138,10 +154,13 @@ public abstract class TFAbstractConverterNodeModel extends NodeModel {
 
 		// Convert the network
 		final FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
-		final TFNetwork tfNetwork = m_converter.convertNetwork(in.getNetwork(), fileStore,
-				new DLExecutionMonitorCancelable(exec));
-
-		return new PortObject[] { new TFNetworkPortObject(tfNetwork, fileStore) };
+		// FIXME: We assume that converters will always be Python-based (see also constructor).
+        try (final DLPythonContext context =
+            new DLPythonDefaultContext(getConfiguredPythonCommand(m_pythonCommandConfig))) {
+            final TFNetwork tfNetwork = ((TFNetworkConverter)m_converter).convertNetwork(context, in.getNetwork(),
+                fileStore, new DLExecutionMonitorCancelable(exec));
+            return new PortObject[]{new TFNetworkPortObject(tfNetwork, fileStore)};
+        }
 	}
 
 	@Override
@@ -157,17 +176,17 @@ public abstract class TFAbstractConverterNodeModel extends NodeModel {
 	}
 
 	@Override
-	protected void saveSettingsTo(final NodeSettingsWO settings) {
+	protected void saveSettingsToDerived(final NodeSettingsWO settings) {
 		// nothing to do
 	}
 
 	@Override
-	protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+	protected void validateSettingsDerived(final NodeSettingsRO settings) throws InvalidSettingsException {
 		// nothing to do
 	}
 
 	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+	protected void loadValidatedSettingsFromDerived(final NodeSettingsRO settings) throws InvalidSettingsException {
 		// nothing to do
 	}
 

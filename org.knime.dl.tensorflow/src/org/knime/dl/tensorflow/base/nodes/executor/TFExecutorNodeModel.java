@@ -53,7 +53,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.dl.base.nodes.executor2.DLAbstractExecutorNodeModel;
 import org.knime.dl.core.DLExecutionSpecCreator;
 import org.knime.dl.core.DLMissingExtensionException;
 import org.knime.dl.core.DLNetwork;
@@ -63,14 +62,18 @@ import org.knime.dl.core.data.convert.DLTensorToDataCellConverterFactory;
 import org.knime.dl.core.execution.DLExecutionContext;
 import org.knime.dl.core.execution.DLNetworkExecutionSession;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
+import org.knime.dl.python.base.node.DLAbstractPythonBasedExecutorNodeModel;
+import org.knime.dl.python.core.DLPythonContext;
+import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow.base.nodes.TFConfigProtoConfig;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
+import org.knime.dl.tensorflow.savedmodel.core.execution.TFPythonSavedModelExecutionContext;
 import org.knime.dl.tensorflow.savedmodel.core.execution.TFSavedModelNetworkExecutionSession;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFExecutorNodeModel extends DLAbstractExecutorNodeModel {
+public class TFExecutorNodeModel extends DLAbstractPythonBasedExecutorNodeModel {
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFExecutorNodeModel.class);
 
@@ -81,19 +84,31 @@ public class TFExecutorNodeModel extends DLAbstractExecutorNodeModel {
 	private final TFConfigProtoConfig m_configProtoConfig;
 
 	TFExecutorNodeModel() {
-		super(TFNetworkPortObject.TYPE);
+		super(TFNetworkPortObject.TYPE, DLPythonPreferences::getPythonCommandPreference);
 		m_configProtoConfig = createConfigProtoConfig();
 	}
 
-	@Override
-	protected <N extends DLNetwork> DLNetworkExecutionSession createExecutionSession(final N network,
-			final int batchSize, final Map<DLTensorId, int[]> columnsForTensorId,
-			final Map<DLTensorId, DLTensorToDataCellConverterFactory<?, ?>> outputConverterForTensorId,
-			final DataRow firstRow, final DLNetworkInputPreparer inputPreparer,
-			final DLNetworkOutputConsumer outputConsumer) throws DLMissingExtensionException, InvalidSettingsException {
+    @Override
+    protected DLPythonContext getContext(final DLExecutionContext<?, ?> ctx) {
+        if (ctx instanceof TFPythonSavedModelExecutionContext) {
+            return super.getContext(ctx);
+        } else {
+            return null;
+        }
+    }
 
-		final DLExecutionContext<N> ctx = getExecutionContext();
-		final DLNetworkExecutionSession session = ctx.createExecutionSession(network,
+    /**
+     * Note: {@code context} will be {@code null} if the Java back end is selected (see above).
+     */
+    @Override
+    protected <N extends DLNetwork> DLNetworkExecutionSession createExecutionSession(final DLPythonContext context,
+        final N network, final int batchSize, final Map<DLTensorId, int[]> columnsForTensorId,
+        final Map<DLTensorId, DLTensorToDataCellConverterFactory<?, ?>> outputConverterForTensorId,
+        final DataRow firstRow, final DLNetworkInputPreparer inputPreparer,
+        final DLNetworkOutputConsumer outputConsumer) throws DLMissingExtensionException, InvalidSettingsException {
+
+		final DLExecutionContext<DLPythonContext, N> ctx = getExecutionContext(context);
+		final DLNetworkExecutionSession session = ctx.createExecutionSession(context, network,
 				DLExecutionSpecCreator.createExecutionSpecs(firstRow, ctx.getTensorFactory(), batchSize,
 						columnsForTensorId, m_inputConverters),
 				outputConverterForTensorId.keySet(), inputPreparer, outputConsumer);

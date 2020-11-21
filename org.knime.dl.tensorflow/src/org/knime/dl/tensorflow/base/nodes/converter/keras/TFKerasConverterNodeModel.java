@@ -49,10 +49,12 @@ package org.knime.dl.tensorflow.base.nodes.converter.keras;
 import org.knime.dl.base.portobjects.DLNetworkPortObjectSpec;
 import org.knime.dl.core.DLNetwork;
 import org.knime.dl.keras.base.portobjects.DLKerasNetworkPortObjectBase;
+import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow.base.nodes.converter.TFAbstractConverterNodeModel;
 import org.knime.dl.tensorflow.core.convert.DLNetworkConversionException;
 import org.knime.dl.tensorflow.core.convert.TFNetworkConverter;
 import org.knime.dl.tensorflow.core.convert.TFNetworkConverterRegistry;
+import org.knime.python2.PythonCommand;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -61,11 +63,15 @@ public class TFKerasConverterNodeModel extends TFAbstractConverterNodeModel {
 
 	private static final TFNetworkConverterRegistry CONVERTER_REGISTRY = TFNetworkConverterRegistry.getInstance();
 
+	static PythonCommand getDefaultPythonCommand() {
+	    return DLPythonPreferences.getPythonKerasCommandPreference();
+	}
+
 	/**
 	 * Creates a new {@link TFKerasConverterNodeModel}.
 	 */
 	protected TFKerasConverterNodeModel() {
-		super(DLKerasNetworkPortObjectBase.TYPE);
+		super(DLKerasNetworkPortObjectBase.TYPE, TFKerasConverterNodeModel::getDefaultPythonCommand);
 	}
 
 	@Override

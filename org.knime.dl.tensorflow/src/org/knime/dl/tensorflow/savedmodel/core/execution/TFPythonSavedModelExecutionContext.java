@@ -56,7 +56,10 @@ import org.knime.dl.core.DLNetworkInputPreparer;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
+import org.knime.dl.python.core.DLPythonContext;
+import org.knime.dl.python.core.DLPythonDefaultContext;
 import org.knime.dl.python.core.DLPythonDefaultTensorFactory;
+import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow.core.execution.TFAbstractExecutionContext;
 import org.knime.dl.tensorflow.core.execution.TFNetworkExecutionSession;
 import org.knime.dl.tensorflow.savedmodel.core.TFPythonNetworkLoader;
@@ -65,7 +68,7 @@ import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetwork;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFPythonSavedModelExecutionContext extends TFAbstractExecutionContext<TFSavedModelNetwork>{
+public class TFPythonSavedModelExecutionContext extends TFAbstractExecutionContext<DLPythonContext, TFSavedModelNetwork>{
 
 	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow (Python)";
 
@@ -76,18 +79,24 @@ public class TFPythonSavedModelExecutionContext extends TFAbstractExecutionConte
 		super(TFSavedModelNetwork.class, new DLPythonDefaultTensorFactory(), EXECUTION_CONTEXT_NAME);
 	}
 
-	@Override
-	public void checkAvailability(final boolean forceRefresh, final int timeout, final DLCancelable cancelable)
-			throws DLMissingDependencyException, DLInstallationTestTimeoutException, DLCanceledExecutionException {
-		new TFPythonNetworkLoader().checkAvailability(forceRefresh, timeout, cancelable);
-	}
+    @Override
+    public DLPythonContext createDefaultContext() {
+        return new DLPythonDefaultContext(DLPythonPreferences.getPythonCommandPreference());
+    }
 
 	@Override
-	public TFNetworkExecutionSession createExecutionSession(final TFSavedModelNetwork network,
-			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
-			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer) {
-		return new TFPythonSavedModelNetworkExecutionSession(network, executionInputSpecs, requestedOutputs,
-				inputPreparer, outputConsumer, getTensorFactory());
+    public void checkAvailability(final DLPythonContext context, final boolean forceRefresh, final int timeout,
+        final DLCancelable cancelable)
+        throws DLMissingDependencyException, DLInstallationTestTimeoutException, DLCanceledExecutionException {
+		new TFPythonNetworkLoader().checkAvailability(context, forceRefresh, timeout, cancelable);
 	}
 
+    @Override
+    public TFNetworkExecutionSession createExecutionSession(final DLPythonContext context,
+        final TFSavedModelNetwork network, final Set<DLTensorSpec> executionInputSpecs,
+        final Set<DLTensorId> requestedOutputs, final DLNetworkInputPreparer inputPreparer,
+        final DLNetworkOutputConsumer outputConsumer) {
+        return new TFPythonSavedModelNetworkExecutionSession(context, network, executionInputSpecs, requestedOutputs,
+            inputPreparer, outputConsumer, getTensorFactory());
+    }
 }

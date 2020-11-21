@@ -55,7 +55,7 @@ import org.knime.dl.tensorflow.core.TFNetwork;
  * @param <N> the specific {@link TFNetwork} of this execution context
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public abstract class TFAbstractExecutionContext<N extends TFNetwork> implements TFExecutionContext<N> {
+public abstract class TFAbstractExecutionContext<C, N extends TFNetwork> implements TFExecutionContext<C, N> {
 
 	private final Class<N> m_networkType;
 
@@ -70,7 +70,7 @@ public abstract class TFAbstractExecutionContext<N extends TFNetwork> implements
 	 * @param tensorFactory the tensor factory
 	 * @param name the name of the execution context
 	 */
-	protected TFAbstractExecutionContext(final Class<N> networkType, DLTensorFactory tensorFactory, final String name) {
+	protected TFAbstractExecutionContext(final Class<N> networkType, final DLTensorFactory tensorFactory, final String name) {
 		m_networkType = networkType;
 		m_name = name;
 		m_tensorFactory = tensorFactory;

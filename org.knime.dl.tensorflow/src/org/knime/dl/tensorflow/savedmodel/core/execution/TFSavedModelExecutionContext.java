@@ -64,8 +64,7 @@ import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelTensorFactory;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFSavedModelExecutionContext
-	extends TFAbstractExecutionContext<TFSavedModelNetwork> {
+public class TFSavedModelExecutionContext extends TFAbstractExecutionContext<Void, TFSavedModelNetwork> {
 
 	private static final String EXECUTION_CONTEXT_NAME = "TensorFlow";
 
@@ -76,17 +75,24 @@ public class TFSavedModelExecutionContext
 		super(TFSavedModelNetwork.class, new TFSavedModelTensorFactory(), EXECUTION_CONTEXT_NAME);
 	}
 
+    @Override
+    public Void createDefaultContext() {
+        // No external context.
+        return null;
+    }
+
 	@Override
-	public void checkAvailability(final boolean forceRefresh, final int timeout, final DLCancelable cancelable)
-			throws DLMissingDependencyException, DLInstallationTestTimeoutException, DLCanceledExecutionException {
+    public void checkAvailability(final Void noContext, final boolean forceRefresh, final int timeout,
+        final DLCancelable cancelable)
+        throws DLMissingDependencyException, DLInstallationTestTimeoutException, DLCanceledExecutionException {
 		// No-op: No external dependencies.
 	}
 
-	@Override
-	public TFNetworkExecutionSession createExecutionSession(final TFSavedModelNetwork network,
-			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
-			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer) {
-		return new TFSavedModelNetworkExecutionSession(network, executionInputSpecs, requestedOutputs,
-				inputPreparer, outputConsumer, getTensorFactory());
-	}
+    @Override
+    public TFNetworkExecutionSession createExecutionSession(final Void noContext, final TFSavedModelNetwork network,
+        final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
+        final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer) {
+        return new TFSavedModelNetworkExecutionSession(network, executionInputSpecs, requestedOutputs, inputPreparer,
+            outputConsumer, getTensorFactory());
+    }
 }

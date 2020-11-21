@@ -62,6 +62,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.filehandling.core.node.portobject.SelectionMode;
 import org.knime.filehandling.core.node.portobject.writer.PortObjectWriterNodeDialog;
+import org.knime.python2.config.PythonCommandFlowVariableModel;
 
 /**
  * Node dialog of the TensorFlow writer node.
@@ -69,6 +70,9 @@ import org.knime.filehandling.core.node.portobject.writer.PortObjectWriterNodeDi
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 final class TF2WriterNodeDialog extends PortObjectWriterNodeDialog<TF2WriterNodeConfig> {
+
+    private final PythonCommandFlowVariableModel m_pythonCommandModel =
+        new PythonCommandFlowVariableModel(this, TF2WriterNodeModel.createPythonCommandConfig());
 
     private final DialogComponentBoolean m_saveOptimizerStateCheckbox;
 
@@ -92,12 +96,19 @@ final class TF2WriterNodeDialog extends PortObjectWriterNodeDialog<TF2WriterNode
     protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
         m_saveOptimizerStateCheckbox.saveSettingsTo(settings);
         super.saveSettingsTo(settings);
+        m_pythonCommandModel.saveSettingsTo(settings);
     }
 
     @Override
     protected void loadSettingsFrom(final NodeSettingsRO settings, final DataTableSpec[] specs)
         throws NotConfigurableException {
+        m_pythonCommandModel.loadSettingsFrom(settings);
         m_saveOptimizerStateCheckbox.loadSettingsFrom(settings, specs);
         super.loadSettingsFrom(settings, specs);
+    }
+
+    @Override
+    public void onOpen() {
+        m_pythonCommandModel.onDialogOpen();
     }
 }

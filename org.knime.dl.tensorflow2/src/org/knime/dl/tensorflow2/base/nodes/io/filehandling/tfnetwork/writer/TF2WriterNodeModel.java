@@ -61,6 +61,8 @@ import java.util.zip.Deflater;
 import org.apache.commons.io.FilenameUtils;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.context.NodeCreationConfiguration;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.util.PathUtils;
@@ -68,6 +70,7 @@ import org.knime.dl.core.DLExecutionMonitorCancelable;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkLoaderRegistry;
+import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.python.util.DLPythonUtils;
 import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
 import org.knime.dl.tensorflow2.core.TF2Network;
@@ -75,6 +78,8 @@ import org.knime.dl.tensorflow2.core.TF2NetworkLoader;
 import org.knime.dl.tensorflow2.core.TF2PythonContext;
 import org.knime.filehandling.core.defaultnodesettings.filechooser.writer.FileOverwritePolicy;
 import org.knime.filehandling.core.node.portobject.writer.PortObjectToPathWriterNodeModel;
+import org.knime.python2.PythonVersion;
+import org.knime.python2.config.PythonCommandFlowVariableConfig;
 
 /**
  * Node model of the TensorFlow writer node.
@@ -96,8 +101,33 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
         }
     }
 
+    static PythonCommandFlowVariableConfig createPythonCommandConfig() {
+        return new PythonCommandFlowVariableConfig(PythonVersion.PYTHON3,
+            DLPythonPreferences::getCondaInstallationPath);
+    }
+
+    private final PythonCommandFlowVariableConfig m_pythonCommandConfig = createPythonCommandConfig();
+
     protected TF2WriterNodeModel(final NodeCreationConfiguration creationConfig, final TF2WriterNodeConfig config) {
         super(creationConfig, config);
+    }
+
+    @Override
+    protected void saveSettingsTo(final NodeSettingsWO settings) {
+        super.saveSettingsTo(settings);
+        m_pythonCommandConfig.saveSettingsTo(settings);
+    }
+
+    @Override
+    protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+        m_pythonCommandConfig.validateSettings(settings);
+        super.validateSettings(settings);
+    }
+
+    @Override
+    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+        m_pythonCommandConfig.loadSettingsFrom(settings);
+        super.loadValidatedSettingsFrom(settings);
     }
 
     @Override
@@ -123,9 +153,11 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
         }
 
         // Save the model to the model path (can be a temporary directory)
-        final TF2NetworkLoader loader = new TF2NetworkLoader();
-        loader.checkAvailability(false, DLPythonNetworkLoaderRegistry.getInstallationTestTimeout(), cancelable);
-        try (final DLPythonContext context = new TF2PythonContext()) {
+        try (final DLPythonContext context = new TF2PythonContext(
+            m_pythonCommandConfig.getCommand().orElseGet(DLPythonPreferences::getPythonTF2CommandPreference))) {
+            final TF2NetworkLoader loader = new TF2NetworkLoader();
+            loader.checkAvailability(context, false, DLPythonNetworkLoaderRegistry.getInstallationTestTimeout(),
+                cancelable);
             final DLPythonNetworkHandle handle = loader.load(network, context, saveOptimizerState, cancelable);
             final String saveCode = getSaveNetworkCode(handle, saveOptimizerState, modelPath.toString(), format);
             context.executeInKernel(saveCode, cancelable);

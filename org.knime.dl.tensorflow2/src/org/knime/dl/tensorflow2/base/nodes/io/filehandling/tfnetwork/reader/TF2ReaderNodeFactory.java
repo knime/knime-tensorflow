@@ -51,7 +51,6 @@ package org.knime.dl.tensorflow2.base.nodes.io.filehandling.tfnetwork.reader;
 import org.knime.core.node.context.NodeCreationConfiguration;
 import org.knime.core.node.port.PortType;
 import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
-import org.knime.filehandling.core.node.portobject.SelectionMode;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeConfig;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeDialog;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeFactory;
@@ -64,17 +63,13 @@ import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeFa
 public final class TF2ReaderNodeFactory
     extends PortObjectReaderNodeFactory<TF2ReaderNodeModel, PortObjectReaderNodeDialog<PortObjectReaderNodeConfig>> {
 
-    /** History Id for the file chooser */
-    private static final String HISTORY_ID = "tf2_network_reader_writer";
-
     /** File extension/suffix */
     private static final String[] FILE_SUFFIX = new String[]{".zip", ".h5"};
 
     @Override
-    protected PortObjectReaderNodeDialog<PortObjectReaderNodeConfig>
-        createDialog(final NodeCreationConfiguration creationConfig) {
+    protected TF2ReaderNodeDialog createDialog(final NodeCreationConfiguration creationConfig) {
         // TODO(filehandling) The dialog does show an error if a directory is selected
-        return new PortObjectReaderNodeDialog<>(getConfig(creationConfig), HISTORY_ID, SelectionMode.FILE_AND_FOLDER);
+        return new TF2ReaderNodeDialog(getConfig(creationConfig));
     }
 
     @Override

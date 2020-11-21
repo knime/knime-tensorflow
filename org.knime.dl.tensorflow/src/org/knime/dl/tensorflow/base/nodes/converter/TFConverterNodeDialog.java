@@ -43,21 +43,41 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
+ * History
+ *   Nov 21, 2020 (marcel): created
  */
-package org.knime.dl.tensorflow2.base.nodes.executor;
+package org.knime.dl.tensorflow.base.nodes.converter;
 
-import org.knime.dl.python.base.node.DLAbstractPythonBasedExecutorNodeModel;
-import org.knime.dl.python.prefs.DLPythonPreferences;
-import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
+import java.util.function.Supplier;
+
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.python2.PythonCommand;
+import org.knime.python2.base.PythonBasedDataUnawareNodeDialog;
+import org.knime.python2.config.PythonCommandFlowVariableConfig;
 
 /**
- * The node model for the TensorFlow 2 Executor.
- *
- * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
+ * @author Marcel Wiedenmann, KNIME GmbH, Konstanz, Germany
  */
-final class TF2ExecutorNodeModel extends DLAbstractPythonBasedExecutorNodeModel {
+public final class TFConverterNodeDialog extends PythonBasedDataUnawareNodeDialog {
 
-    TF2ExecutorNodeModel() {
-        super(TF2NetworkPortObject.TYPE, DLPythonPreferences::getPythonTF2CommandPreference);
+    public TFConverterNodeDialog(final Supplier<PythonCommand> commandPreference) {
+        final PythonCommandFlowVariableConfig pythonCommandConfig =
+            TFAbstractConverterNodeModel.createPythonCommandConfig();
+        addPythonCommandConfig(pythonCommandConfig, commandPreference);
+    }
+
+    @Override
+    protected void loadSettingsFromDerived(final NodeSettingsRO settings, final PortObjectSpec[] specs)
+        throws NotConfigurableException {
+        // Nothing to do.
+    }
+
+    @Override
+    protected void saveSettingsToDerived(final NodeSettingsWO settings) throws InvalidSettingsException {
+        // Nothing to do.
     }
 }

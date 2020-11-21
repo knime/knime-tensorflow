@@ -72,6 +72,7 @@ import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetwork;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkPortObject;
+import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
 
 /**
@@ -83,8 +84,7 @@ public class TF2NetworkLoader extends DLPythonAbstractNetworkLoader<TF2Network> 
 
     private static final String URL_EXTENSION = "";
 
-    private static final DLPythonInstallationTester INSTALLATION_TESTER =
-        new DLPythonInstallationTester(() -> new TF2PythonContext());
+    private static final DLPythonInstallationTester INSTALLATION_TESTER = new DLPythonInstallationTester();
 
     @Override
     public Class<TF2Network> getNetworkType() {
@@ -144,6 +144,11 @@ public class TF2NetworkLoader extends DLPythonAbstractNetworkLoader<TF2Network> 
                 "An error occurred while resolving the TensorFlow network file location.\nCause: " + e.getMessage(), e);
         }
         return destinationURL;
+    }
+
+    @Override
+    public DLPythonContext createDefaultContext() {
+        return new TF2PythonContext(DLPythonPreferences.getPythonTF2CommandPreference());
     }
 
     @Override

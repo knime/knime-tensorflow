@@ -65,6 +65,8 @@ import org.apache.commons.io.IOUtils;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.context.NodeCreationConfiguration;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.util.PathUtils;
@@ -74,12 +76,15 @@ import org.knime.dl.core.DLNetworkFileStoreLocation;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkLoaderRegistry;
+import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
 import org.knime.dl.tensorflow2.core.TF2Network;
 import org.knime.dl.tensorflow2.core.TF2NetworkLoader;
 import org.knime.dl.tensorflow2.core.TF2PythonContext;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectFromPathReaderNodeModel;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeConfig;
+import org.knime.python2.PythonVersion;
+import org.knime.python2.config.PythonCommandFlowVariableConfig;
 
 /**
  * Node model of the TensorFlow 2 network reader node.
@@ -88,15 +93,40 @@ import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeCo
  */
 final class TF2ReaderNodeModel extends PortObjectFromPathReaderNodeModel<PortObjectReaderNodeConfig> {
 
-    private static final String SAVED_MODEL_REGEX =
-        "^.*saved_model.pb$" + "|^.*variables(/.*|\\.*)?$" + "|^.*assets(/.*|\\.*)?$";
-
     private enum NetworkFormat {
             SAVED_MODEL, SAVED_MODEL_ZIP, H5
     }
 
+    private static final String SAVED_MODEL_REGEX =
+        "^.*saved_model.pb$" + "|^.*variables(/.*|\\.*)?$" + "|^.*assets(/.*|\\.*)?$";
+
+    static PythonCommandFlowVariableConfig createPythonCommandConfig() {
+        return new PythonCommandFlowVariableConfig(PythonVersion.PYTHON3,
+            DLPythonPreferences::getCondaInstallationPath);
+    }
+
+    private final PythonCommandFlowVariableConfig m_pythonCommandConfig = createPythonCommandConfig();
+
     TF2ReaderNodeModel(final NodeCreationConfiguration creationConfig, final PortObjectReaderNodeConfig config) {
         super(creationConfig, config);
+    }
+
+    @Override
+    protected void saveSettingsTo(final NodeSettingsWO settings) {
+        super.saveSettingsTo(settings);
+        m_pythonCommandConfig.saveSettingsTo(settings);
+    }
+
+    @Override
+    protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
+        m_pythonCommandConfig.validateSettings(settings);
+        super.validateSettings(settings);
+    }
+
+    @Override
+    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings) throws InvalidSettingsException {
+        m_pythonCommandConfig.loadSettingsFrom(settings);
+        super.loadValidatedSettingsFrom(settings);
     }
 
     @Override
@@ -148,10 +178,12 @@ final class TF2ReaderNodeModel extends PortObjectFromPathReaderNodeModel<PortObj
         }
 
         // Load the model
-        final TF2NetworkLoader loader = new TF2NetworkLoader();
-        loader.checkAvailability(false, DLPythonNetworkLoaderRegistry.getInstallationTestTimeout(), cancelable);
         final TF2Network network;
-        try (final DLPythonContext context = new TF2PythonContext()) {
+        try (final DLPythonContext context = new TF2PythonContext(
+            m_pythonCommandConfig.getCommand().orElseGet(DLPythonPreferences::getPythonTF2CommandPreference))) {
+            final TF2NetworkLoader loader = new TF2NetworkLoader();
+            loader.checkAvailability(context, false, DLPythonNetworkLoaderRegistry.getInstallationTestTimeout(),
+                cancelable);
             final DLPythonNetworkHandle handle = loader.load(networkUri, context, true, cancelable);
 
             // For H5 the network is not in the file store yet. Save it to the file store

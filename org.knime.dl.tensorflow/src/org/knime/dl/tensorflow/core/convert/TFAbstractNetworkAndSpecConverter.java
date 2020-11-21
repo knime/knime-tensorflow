@@ -56,8 +56,8 @@ import org.knime.dl.tensorflow.core.TFNetworkSpec;
  * @param <N> type of the deep-learning networks that can be converted
  * @param <S> type of the deep-learning network specs that can be converted
  */
-public abstract class TFAbstractNetworkAndSpecConverter<N extends DLNetwork, S extends DLNetworkSpec>
-	extends TFAbstractNetworkConverter<N> {
+public abstract class TFAbstractNetworkAndSpecConverter<C, N extends DLNetwork, S extends DLNetworkSpec>
+	extends TFAbstractNetworkConverter<C, N> {
 
 	private final Class<S> m_specType;
 

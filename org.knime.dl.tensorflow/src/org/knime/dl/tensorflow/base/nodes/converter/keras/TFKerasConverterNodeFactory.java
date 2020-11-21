@@ -49,35 +49,36 @@ package org.knime.dl.tensorflow.base.nodes.converter.keras;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
+import org.knime.dl.tensorflow.base.nodes.converter.TFConverterNodeDialog;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
 public class TFKerasConverterNodeFactory extends NodeFactory<TFKerasConverterNodeModel> {
 
-	@Override
-	public TFKerasConverterNodeModel createNodeModel() {
-		return new TFKerasConverterNodeModel();
-	}
+    @Override
+    public TFKerasConverterNodeModel createNodeModel() {
+        return new TFKerasConverterNodeModel();
+    }
 
-	@Override
-	protected int getNrNodeViews() {
-		return 0;
-	}
+    @Override
+    protected int getNrNodeViews() {
+        return 0;
+    }
 
-	@Override
-	public NodeView<TFKerasConverterNodeModel> createNodeView(final int viewIndex,
-			final TFKerasConverterNodeModel nodeModel) {
-		return null;
-	}
+    @Override
+    public NodeView<TFKerasConverterNodeModel> createNodeView(final int viewIndex,
+        final TFKerasConverterNodeModel nodeModel) {
+        return null;
+    }
 
-	@Override
-	protected boolean hasDialog() {
-		return false;
-	}
+    @Override
+    protected boolean hasDialog() {
+        return true;
+    }
 
-	@Override
-	protected NodeDialogPane createNodeDialogPane() {
-		return null;
-	}
+    @Override
+    protected NodeDialogPane createNodeDialogPane() {
+        return new TFConverterNodeDialog(TFKerasConverterNodeModel::getDefaultPythonCommand);
+    }
 }

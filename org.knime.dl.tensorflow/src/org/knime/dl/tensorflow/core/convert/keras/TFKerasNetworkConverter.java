@@ -61,7 +61,6 @@ import org.knime.dl.core.DLMissingExtensionException;
 import org.knime.dl.core.DLNetworkFileStoreLocation;
 import org.knime.dl.core.DLNetworkSpec;
 import org.knime.dl.keras.core.DLKerasNetworkSpec;
-import org.knime.dl.keras.core.DLKerasPythonContext;
 import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetwork;
 import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
@@ -79,7 +78,7 @@ import org.knime.dl.tensorflow.savedmodel.core.TFSavedModelNetworkSpec;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasTensorFlowNetwork> {
+public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLPythonContext, DLKerasTensorFlowNetwork> {
 
 	private static final String SAVE_TAG = "knime";
 
@@ -108,37 +107,36 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLKerasT
 	}
 
 	@Override
-	public TFNetwork convertNetworkInternal(final DLKerasTensorFlowNetwork network, final FileStore fileStore,
-			final DLCancelable cancelable) throws DLNetworkConversionException, DLCanceledExecutionException {
+    public TFNetwork convertNetworkInternal(final DLPythonContext context, final DLKerasTensorFlowNetwork network,
+        final FileStore fileStore, final DLCancelable cancelable)
+        throws DLNetworkConversionException, DLCanceledExecutionException {
 		try {
 			final File tmpFile = new File(FileUtil.createTempDir("tf"), "sm");
 
 			// Save the keras model as a SavedModel using python
-			try (final DLPythonContext pythonContext = new DLKerasPythonContext()) {
-				final DLPythonNetworkHandle networkHandle = DLPythonNetworkLoaderRegistry.getInstance()
-						.getNetworkLoader(network.getClass())
-						.orElseThrow(() -> new DLMissingExtensionException(
-								"Python back end '" + network.getClass().getCanonicalName()
-										+ "' could not be found. Are you missing a KNIME Deep Learning extension?"))
-						.load(network.getSource().getURI(), pythonContext, false, cancelable);
+            final DLPythonNetworkHandle networkHandle = DLPythonNetworkLoaderRegistry.getInstance()
+                .getNetworkLoader(network.getClass())
+                .orElseThrow(
+                    () -> new DLMissingExtensionException("Python back end '" + network.getClass().getCanonicalName()
+                        + "' could not be found. Are you missing a KNIME Deep Learning extension?"))
+                .load(network.getSource().getURI(), context, false, cancelable);
 
-				// Export the SavedModel to a temporary directory
-				final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
-						.a("import DLPythonNetwork") //
-						.n("import keras.backend as K") //
-						.n("from tensorflow import saved_model") //
-						.n("model = DLPythonNetwork.get_network(").as(networkHandle.getIdentifier()).a(").model") //
-						.n("inp, oup = model.input, model.output") //
-						.n("builder = saved_model.builder.SavedModelBuilder(r").as(tmpFile.getAbsolutePath()).a(")") //
-						.n("signature = saved_model.signature_def_utils.predict_signature_def(") //
-						.n().t().a("inputs = dict([ (t.name,t) for t in (inp if type(inp) is list else [inp]) ]),") //
-						.n().t().a("outputs = dict([ (t.name,t) for t in (oup if type(oup) is list else [oup]) ]))") //
-						.n("signature_def_map = { ").as(SIGNATURE_KEY).a(": signature }") //
-						.n("builder.add_meta_graph_and_variables(K.get_session(), [").as(SAVE_TAG)
-						.a("], signature_def_map=signature_def_map)") //
-						.n("builder.save()");
-				pythonContext.executeInKernel(b.toString(), cancelable);
-			}
+            // Export the SavedModel to a temporary directory
+            final DLPythonSourceCodeBuilder b = DLPythonUtils.createSourceCodeBuilder() //
+                .a("import DLPythonNetwork") //
+                .n("import keras.backend as K") //
+                .n("from tensorflow import saved_model") //
+                .n("model = DLPythonNetwork.get_network(").as(networkHandle.getIdentifier()).a(").model") //
+                .n("inp, oup = model.input, model.output") //
+                .n("builder = saved_model.builder.SavedModelBuilder(r").as(tmpFile.getAbsolutePath()).a(")") //
+                .n("signature = saved_model.signature_def_utils.predict_signature_def(") //
+                .n().t().a("inputs = dict([ (t.name,t) for t in (inp if type(inp) is list else [inp]) ]),") //
+                .n().t().a("outputs = dict([ (t.name,t) for t in (oup if type(oup) is list else [oup]) ]))") //
+                .n("signature_def_map = { ").as(SIGNATURE_KEY).a(": signature }") //
+                .n("builder.add_meta_graph_and_variables(K.get_session(), [").as(SAVE_TAG)
+                .a("], signature_def_map=signature_def_map)") //
+                .n("builder.save()");
+            context.executeInKernel(b.toString(), cancelable);
 
 			// Move the model to the filestore
 			FileUtils.moveDirectory(tmpFile, fileStore.getFile());

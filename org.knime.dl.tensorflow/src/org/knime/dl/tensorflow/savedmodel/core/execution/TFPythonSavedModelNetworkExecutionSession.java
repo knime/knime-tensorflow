@@ -54,6 +54,7 @@ import org.knime.dl.core.DLTensorFactory;
 import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
+import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.execution.DLPythonAbstractNetworkExecutionSession;
 import org.knime.dl.tensorflow.core.execution.TFNetworkExecutionSession;
 import org.knime.dl.tensorflow.savedmodel.core.TFPythonCommands;
@@ -76,15 +77,15 @@ public class TFPythonSavedModelNetworkExecutionSession
 	 * @param outputConsumer the output consumer
 	 * @param tensorFactory a tensor factory
 	 */
-	public TFPythonSavedModelNetworkExecutionSession(final TFSavedModelNetwork network,
-			final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
+    public TFPythonSavedModelNetworkExecutionSession(final DLPythonContext context, final TFSavedModelNetwork network,
+        final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
 			final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer,
 			final DLTensorFactory tensorFactory) {
-		super(network, executionInputSpecs, requestedOutputs, inputPreparer, outputConsumer, tensorFactory);
+		super(context, network, executionInputSpecs, requestedOutputs, inputPreparer, outputConsumer, tensorFactory);
 	}
 
 	@Override
-	protected TFPythonCommands createCommands() throws DLInvalidEnvironmentException {
-		return new TFPythonCommands();
+	protected TFPythonCommands createCommands(final DLPythonContext context) throws DLInvalidEnvironmentException {
+		return new TFPythonCommands(context);
 	}
 }

@@ -47,7 +47,6 @@
 package org.knime.dl.tensorflow2.core;
 
 import org.knime.dl.python.core.DLPythonAbstractContext;
-import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.python2.PythonCommand;
 import org.knime.python2.kernel.PythonKernel;
 
@@ -58,11 +57,14 @@ import org.knime.python2.kernel.PythonKernel;
  */
 public final class TF2PythonContext extends DLPythonAbstractContext {
 
+    private final PythonCommand m_command;
+
     /**
      * Create a new default DL Python context. The Python kernel will be created on demand.
      */
-    public TF2PythonContext() {
+    public TF2PythonContext(final PythonCommand command) {
         super();
+        m_command = command;
     }
 
     /**
@@ -70,12 +72,13 @@ public final class TF2PythonContext extends DLPythonAbstractContext {
      *
      * @param kernel the Python kernel which is used by this context. Closed on {@link #close()}.
      */
-    public TF2PythonContext(final PythonKernel kernel) {
+    public TF2PythonContext(final PythonCommand command, final PythonKernel kernel) {
         super(kernel);
+        m_command = command;
     }
 
     @Override
     protected PythonCommand getPythonCommand() {
-        return DLPythonPreferences.getPythonTF2CommandPreference();
+        return m_command;
     }
 }

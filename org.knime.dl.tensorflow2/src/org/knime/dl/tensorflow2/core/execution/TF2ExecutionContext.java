@@ -57,16 +57,19 @@ import org.knime.dl.core.DLTensorId;
 import org.knime.dl.core.DLTensorSpec;
 import org.knime.dl.core.execution.DLExecutionContext;
 import org.knime.dl.core.execution.DLNetworkOutputConsumer;
+import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonDefaultTensorFactory;
+import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow2.core.TF2Network;
 import org.knime.dl.tensorflow2.core.TF2NetworkLoader;
+import org.knime.dl.tensorflow2.core.TF2PythonContext;
 
 /**
  * The execution context for a {@link TF2Network} using the Python API.
  *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TF2ExecutionContext implements DLExecutionContext<TF2Network> {
+public class TF2ExecutionContext implements DLExecutionContext<DLPythonContext, TF2Network> {
 
     private static final String EXECUTION_CONTEXT_NAME = "TensorFlow 2 (Python)";
 
@@ -86,16 +89,22 @@ public class TF2ExecutionContext implements DLExecutionContext<TF2Network> {
     }
 
     @Override
-    public void checkAvailability(final boolean forceRefresh, final int timeout, final DLCancelable cancelable)
-        throws DLMissingDependencyException, DLInstallationTestTimeoutException, DLCanceledExecutionException {
-        new TF2NetworkLoader().checkAvailability(forceRefresh, timeout, cancelable);
+    public DLPythonContext createDefaultContext() {
+        return new TF2PythonContext(DLPythonPreferences.getPythonTF2CommandPreference());
     }
 
     @Override
-    public TF2ExecutionSession createExecutionSession(final TF2Network network,
+    public void checkAvailability(final DLPythonContext context, final boolean forceRefresh, final int timeout,
+        final DLCancelable cancelable)
+        throws DLMissingDependencyException, DLInstallationTestTimeoutException, DLCanceledExecutionException {
+        new TF2NetworkLoader().checkAvailability(context, forceRefresh, timeout, cancelable);
+    }
+
+    @Override
+    public TF2ExecutionSession createExecutionSession(final DLPythonContext context, final TF2Network network,
         final Set<DLTensorSpec> executionInputSpecs, final Set<DLTensorId> requestedOutputs,
         final DLNetworkInputPreparer inputPreparer, final DLNetworkOutputConsumer outputConsumer) {
-        return new TF2ExecutionSession(network, executionInputSpecs, requestedOutputs, inputPreparer, outputConsumer,
-            getTensorFactory());
+        return new TF2ExecutionSession(context, network, executionInputSpecs, requestedOutputs, inputPreparer,
+            outputConsumer, getTensorFactory());
     }
 }

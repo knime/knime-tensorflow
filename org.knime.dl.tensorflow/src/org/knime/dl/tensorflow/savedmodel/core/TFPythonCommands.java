@@ -83,12 +83,6 @@ public final class TFPythonCommands extends DLPythonAbstractCommands {
 	private static final String TF_VERSION_NAME = "tf_version";
 
 	/**
-	 * Creates new TensorFlow python commands without a context.
-	 */
-	public TFPythonCommands() {
-	}
-
-	/**
 	 * Creates new TensorFlow python commands with a context.
 	 *
 	 * @param context the python context

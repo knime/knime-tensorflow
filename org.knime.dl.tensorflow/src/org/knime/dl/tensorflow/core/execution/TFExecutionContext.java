@@ -14,10 +14,9 @@ import org.knime.dl.tensorflow.core.TFNetwork;
  *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-interface TFExecutionContext<N extends TFNetwork> extends DLExecutionContext<N> {
+interface TFExecutionContext<C, N extends TFNetwork> extends DLExecutionContext<C, N> {
 
-	@Override
-	TFNetworkExecutionSession createExecutionSession(N network, Set<DLTensorSpec> executionInputSpecs,
-			Set<DLTensorId> requestedOutputs, DLNetworkInputPreparer inputPreparer,
-			DLNetworkOutputConsumer outputConsumer);
+    @Override
+    TFNetworkExecutionSession createExecutionSession(C context, N network, Set<DLTensorSpec> executionInputSpecs,
+        Set<DLTensorId> requestedOutputs, DLNetworkInputPreparer inputPreparer, DLNetworkOutputConsumer outputConsumer);
 }

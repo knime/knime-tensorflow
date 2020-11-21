@@ -43,21 +43,52 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * ---------------------------------------------------------------------
  *
+ * History
+ *   Nov 21, 2020 (marcel): created
  */
-package org.knime.dl.tensorflow2.base.nodes.executor;
+package org.knime.dl.tensorflow2.base.nodes.io.filehandling.tfnetwork.reader;
 
-import org.knime.dl.python.base.node.DLAbstractPythonBasedExecutorNodeModel;
-import org.knime.dl.python.prefs.DLPythonPreferences;
-import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.filehandling.core.node.portobject.SelectionMode;
+import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeConfig;
+import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeDialog;
+import org.knime.python2.config.PythonCommandFlowVariableModel;
 
 /**
- * The node model for the TensorFlow 2 Executor.
- *
+ * @author Marcel Wiedenmann, KNIME GmbH, Konstanz, Germany
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-final class TF2ExecutorNodeModel extends DLAbstractPythonBasedExecutorNodeModel {
+final class TF2ReaderNodeDialog extends PortObjectReaderNodeDialog<PortObjectReaderNodeConfig> {
 
-    TF2ExecutorNodeModel() {
-        super(TF2NetworkPortObject.TYPE, DLPythonPreferences::getPythonTF2CommandPreference);
+    /** History id for the file chooser */
+    private static final String HISTORY_ID = "tf2_network_reader_writer";
+
+    private final PythonCommandFlowVariableModel m_pythonCommandModel =
+        new PythonCommandFlowVariableModel(this, TF2ReaderNodeModel.createPythonCommandConfig());
+
+    public TF2ReaderNodeDialog(final PortObjectReaderNodeConfig config) {
+        super(config, HISTORY_ID, SelectionMode.FILE_AND_FOLDER);
+    }
+
+    @Override
+    protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
+        throws NotConfigurableException {
+        m_pythonCommandModel.loadSettingsFrom(settings);
+        super.loadSettingsFrom(settings, specs);
+    }
+
+    @Override
+    protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
+        super.saveSettingsTo(settings);
+        m_pythonCommandModel.saveSettingsTo(settings);
+    }
+
+    @Override
+    public void onOpen() {
+        m_pythonCommandModel.onDialogOpen();
     }
 }

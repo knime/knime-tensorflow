@@ -57,7 +57,7 @@ import org.knime.dl.tensorflow.core.TFNetworkSpec;
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public interface TFNetworkConverter {
+public interface TFNetworkConverter<C> {
 
 	/**
 	 * @return Type of the deep-learning network this converter can handle
@@ -103,6 +103,6 @@ public interface TFNetworkConverter {
 	 * @throws DLNetworkConversionException if converting the network failed
 	 * @throws DLCanceledExecutionException if the execution has been canceled
 	 */
-	TFNetwork convertNetwork(DLNetwork network, FileStore fileStore, DLCancelable cancelable)
+	TFNetwork convertNetwork(C context, DLNetwork network, FileStore fileStore, DLCancelable cancelable)
 			throws DLNetworkConversionException, DLCanceledExecutionException;
 }

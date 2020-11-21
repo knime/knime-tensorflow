@@ -89,7 +89,7 @@ public class TFNetworkConverterRegistryTest {
 	/**
 	 * Dummy network converter.
 	 */
-	public static class DummyNetworkConverter extends TFAbstractNetworkConverter<DummyNetwork> {
+	public static class DummyNetworkConverter extends TFAbstractNetworkConverter<Void, DummyNetwork> {
 
 		/**
 		 * Creates instance of dummy network converter.
@@ -99,8 +99,8 @@ public class TFNetworkConverterRegistryTest {
 		}
 
 		@Override
-		protected TFNetwork convertNetworkInternal(final DummyNetwork network, final FileStore fileStore, final DLCancelable cancelable)
-				throws DLNetworkConversionException {
+        protected TFNetwork convertNetworkInternal(final Void noContext, final DummyNetwork network,
+            final FileStore fileStore, final DLCancelable cancelable) throws DLNetworkConversionException {
 			throw new NotImplementedException("Should not be called");
 		}
 

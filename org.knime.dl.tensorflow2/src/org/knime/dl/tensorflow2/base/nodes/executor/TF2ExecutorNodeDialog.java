@@ -46,13 +46,13 @@
  */
 package org.knime.dl.tensorflow2.base.nodes.executor;
 
-import org.knime.dl.base.nodes.executor2.DLAbstractExecutorNodeDialog;
+import org.knime.dl.python.base.node.DLAbstractPythonBasedExecutorNodeDialog;
 
 /**
  * The node dialog for the TensorFlow 2 Executor.
  *
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-final class TF2ExecutorNodeDialog extends DLAbstractExecutorNodeDialog {
+final class TF2ExecutorNodeDialog extends DLAbstractPythonBasedExecutorNodeDialog {
     // TODO add TF2 specific settings (GPU settings)
 }

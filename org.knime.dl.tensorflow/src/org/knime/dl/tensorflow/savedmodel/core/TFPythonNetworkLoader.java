@@ -65,9 +65,11 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetworkLocation;
 import org.knime.dl.python.core.DLPythonAbstractNetworkLoader;
 import org.knime.dl.python.core.DLPythonContext;
+import org.knime.dl.python.core.DLPythonDefaultContext;
 import org.knime.dl.python.core.DLPythonNetwork;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkPortObject;
+import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 
 /**
@@ -134,6 +136,11 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 		}
 		return destinationURL;
 	}
+
+    @Override
+    public DLPythonContext createDefaultContext() {
+        return new DLPythonDefaultContext(DLPythonPreferences.getPythonCommandPreference());
+    }
 
 	@Override
 	public DLPythonNetworkHandle load(final URI source, final DLPythonContext context, final boolean loadTrainingConfig,

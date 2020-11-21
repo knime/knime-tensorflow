@@ -88,15 +88,6 @@ public final class TF2PythonCommands extends DLPythonAbstractCommands {
     private static final Version MIN_TF_VERSION = new Version(2, 2, 0);
 
     /**
-     * Create Python commands for handling TensorFlow 2 networks. A new Python context to communicate with Python is
-     * created automatically and has to be closed by calling the {@link #close()} method of this object.
-     */
-    @SuppressWarnings("resource") // Context is closed in #close
-    public TF2PythonCommands() {
-        super(new TF2PythonContext());
-    }
-
-    /**
      * Create Python commands for handling TensorFlow 2 networks.
      *
      * @param context The context which is used to communicate with Python. Note that this context is closed when

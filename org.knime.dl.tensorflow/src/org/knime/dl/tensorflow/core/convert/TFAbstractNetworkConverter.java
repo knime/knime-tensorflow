@@ -58,7 +58,7 @@ import org.knime.dl.tensorflow.core.TFNetworkSpec;
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  * @param <N> type of the deep-learning networks that can be converted
  */
-public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements TFNetworkConverter {
+public abstract class TFAbstractNetworkConverter<C, N extends DLNetwork> implements TFNetworkConverter<C> {
 
 	private final Class<N> m_networkType;
 
@@ -97,13 +97,13 @@ public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public TFNetwork convertNetwork(final DLNetwork network, final FileStore fileStore, final DLCancelable cancelable)
-			throws DLNetworkConversionException, DLCanceledExecutionException {
+    public TFNetwork convertNetwork(final C context, final DLNetwork network, final FileStore fileStore,
+        final DLCancelable cancelable) throws DLNetworkConversionException, DLCanceledExecutionException {
 		if (!m_networkType.isAssignableFrom(network.getClass())) {
 			throw new IllegalArgumentException("This converter is not applicable for networks of type \""
 					+ network.getClass() + "\". Expected type: \"" + m_networkType + "\".");
 		}
-		return convertNetworkInternal((N) network, fileStore, cancelable);
+		return convertNetworkInternal(context, (N) network, fileStore, cancelable);
 	}
 
 	/**
@@ -116,6 +116,6 @@ public abstract class TFAbstractNetworkConverter<N extends DLNetwork> implements
 	 * @throws DLNetworkConversionException if converting the network failed
 	 * @throws DLCanceledExecutionException if the execution has been canceled
 	 */
-	protected abstract TFNetwork convertNetworkInternal(N network, FileStore fileStore, DLCancelable cancelable)
-			throws DLNetworkConversionException, DLCanceledExecutionException;
+    protected abstract TFNetwork convertNetworkInternal(C context, N network, FileStore fileStore,
+        DLCancelable cancelable) throws DLNetworkConversionException, DLCanceledExecutionException;
 }
