@@ -67,7 +67,7 @@ public class TFConverterNodeSetFactory implements NodeSetFactory {
 	public Collection<String> getNodeFactoryIds() {
 		try {
 			Class.forName(DLKerasNetwork.class.getCanonicalName());
-			m_nodeFactories.put(TFKerasConverterNodeFactory.class.getCanonicalName(), "/labs/deeplearning/tensorflow");
+			m_nodeFactories.put(TFKerasConverterNodeFactory.class.getCanonicalName(), "/analytics/mining/deeplearning/tensorflow");
 		} catch (final ClassNotFoundException e) {
 			// org.knime.dl.keras is not available. Nothing to do
 		}
