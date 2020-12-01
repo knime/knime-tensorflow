@@ -21,23 +21,23 @@
             level-id="tensorflow"
             locked="true"
             name="TensorFlow"
-            path="/analytics/mining/deeplearning">
+            path="/analytics/integrations/deeplearning">
       </category>
    </extension>
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-            category-path="/analytics/mining/deeplearning/tensorflow"
+            category-path="/analytics/integrations/deeplearning/tensorflow"
             deprecated="false"
             factory-class="org.knime.dl.tensorflow.base.nodes.reader.TFReaderNodeFactory">
       </node>
       <node
-            category-path="/analytics/mining/deeplearning/tensorflow"
+            category-path="/analytics/integrations/deeplearning/tensorflow"
             deprecated="false"
             factory-class="org.knime.dl.tensorflow.base.nodes.export.TFExporterNodeFactory">
       </node>
       <node
-            category-path="/analytics/mining/deeplearning/tensorflow"
+            category-path="/analytics/integrations/deeplearning/tensorflow"
             deprecated="false"
             factory-class="org.knime.dl.tensorflow.base.nodes.executor.TFExecutorNodeFactory">
       </node>
