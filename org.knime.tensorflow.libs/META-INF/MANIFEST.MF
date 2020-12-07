@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TensorFlow Libraries
 Bundle-SymbolicName: org.knime.tensorflow.libs;singleton:=true
-Bundle-Version: 4.3.0.qualifier
+Bundle-Version: 4.4.0.qualifier
 Bundle-ClassPath: .,
  lib/libtensorflow-1.13.1.jar,
  lib/proto-1.13.1.jar,
