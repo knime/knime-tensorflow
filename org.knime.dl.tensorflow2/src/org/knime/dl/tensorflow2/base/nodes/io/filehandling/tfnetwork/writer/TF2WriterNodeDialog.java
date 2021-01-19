@@ -54,12 +54,12 @@ import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.filehandling.core.node.portobject.SelectionMode;
 import org.knime.filehandling.core.node.portobject.writer.PortObjectWriterNodeDialog;
 import org.knime.python2.config.PythonCommandFlowVariableModel;
@@ -100,7 +100,7 @@ final class TF2WriterNodeDialog extends PortObjectWriterNodeDialog<TF2WriterNode
     }
 
     @Override
-    protected void loadSettingsFrom(final NodeSettingsRO settings, final DataTableSpec[] specs)
+    protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
         throws NotConfigurableException {
         m_pythonCommandModel.loadSettingsFrom(settings);
         m_saveOptimizerStateCheckbox.loadSettingsFrom(settings, specs);
