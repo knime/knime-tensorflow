@@ -11,6 +11,11 @@
 
 	<fullDescription>
 		<intro>
+		          <p><i>This node supports the 
+            </i><a href="https://docs.knime.com/latest/analytics_platform_file_handling_guide/index.html#path"><i>path flow variable.</i></a>
+            <i> For further information about file handling in general see the 
+            </i><a href="https://docs.knime.com/latest/analytics_platform_file_handling_guide/index.html"><i>File Handling Guide.</i></a><br/></p>
+            <p>
 			Writes a TensorFlow 2 Model to a file or directory. The file extension
 			determines the format of the written file. If
 			<b>no file extension</b>
@@ -24,7 +29,7 @@
 			<b>.zip</b>
 			is given the model is in the
 			<b>SavedModel format and compressed as a ZIP file</b>
-			.
+			.</p>
 			<p>
 				<i>
 					The KNIME Deep Learning - TensorFlow 2 Integration is developed by
@@ -95,6 +100,9 @@
 					Browsing is disabled if the connector node hasn't been executed since the workflow has been opened.
 					(Re)execute the connector node to enable browsing.</li>
 				</ul>
+                <i>The location can be exposed as or automatically set via a 
+                </i><a href="https://docs.knime.com/latest/analytics_platform_file_handling_guide/index.html#path">
+                <i>path flow variable.</i></a>
 			</option>
 			<option name="Create missing folders">Select if the folders of the selected
 				output location should be created if they do not already exist. 
