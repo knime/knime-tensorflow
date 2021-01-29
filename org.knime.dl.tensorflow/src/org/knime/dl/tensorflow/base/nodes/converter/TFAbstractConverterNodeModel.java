@@ -113,8 +113,8 @@ public abstract class TFAbstractConverterNodeModel extends PythonBasedNodeModel 
 	 * @return a network creator suitable for the given network type
 	 * @throws DLNetworkConversionException if no converter can be created
 	 */
-	protected abstract TFNetworkConverter<?> getTFNetworkConverter(DLNetworkPortObjectSpec inSpec)
-			throws DLNetworkConversionException;
+	protected abstract TFNetworkConverter<?> // NOSONAR There is no way to know/narrow the types.
+	getTFNetworkConverter(DLNetworkPortObjectSpec inSpec) throws DLNetworkConversionException;
 
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs) throws InvalidSettingsException {
