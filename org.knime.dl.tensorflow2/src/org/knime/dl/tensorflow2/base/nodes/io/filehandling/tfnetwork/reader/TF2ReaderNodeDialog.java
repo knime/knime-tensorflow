@@ -53,7 +53,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.filehandling.core.node.portobject.SelectionMode;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeConfig;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeDialog;
 import org.knime.python2.config.PythonCommandFlowVariableModel;
@@ -71,7 +70,7 @@ final class TF2ReaderNodeDialog extends PortObjectReaderNodeDialog<PortObjectRea
         new PythonCommandFlowVariableModel(this, TF2ReaderNodeModel.createPythonCommandConfig());
 
     public TF2ReaderNodeDialog(final PortObjectReaderNodeConfig config) {
-        super(config, HISTORY_ID, SelectionMode.FILE_AND_FOLDER);
+        super(config, HISTORY_ID);
     }
 
     @Override

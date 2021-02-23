@@ -53,6 +53,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.context.NodeCreationConfiguration;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.filehandling.core.node.portobject.SelectionMode;
 import org.knime.filehandling.core.node.portobject.writer.PortObjectWriterNodeConfig;
 
 /**
@@ -70,7 +71,7 @@ final class TF2WriterNodeConfig extends PortObjectWriterNodeConfig {
     private final SettingsModelBoolean m_saveOptimizerState = new SettingsModelBoolean(CFG_SAVE_OPTIMIZER_STATE, false);
 
     TF2WriterNodeConfig(final NodeCreationConfiguration creationConfig) {
-        super(creationConfig, FILE_SUFFIXES);
+        super(builder(creationConfig).withFileSuffixes(FILE_SUFFIXES).withSelectionMode(SelectionMode.FILE_AND_FOLDER));
     }
 
     /** @return the model if the optimizer state should be saved */

@@ -51,6 +51,7 @@ package org.knime.dl.tensorflow2.base.nodes.io.filehandling.tfnetwork.reader;
 import org.knime.core.node.context.NodeCreationConfiguration;
 import org.knime.core.node.port.PortType;
 import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
+import org.knime.filehandling.core.node.portobject.SelectionMode;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeConfig;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeDialog;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeFactory;
@@ -84,6 +85,9 @@ public final class TF2ReaderNodeFactory
 
     /** The reader configuration */
     private static PortObjectReaderNodeConfig getConfig(final NodeCreationConfiguration creationConfig) {
-        return new PortObjectReaderNodeConfig(creationConfig, FILE_SUFFIX);
+        return PortObjectReaderNodeConfig.builder(creationConfig)//
+                .withSelectionMode(SelectionMode.FILE_AND_FOLDER)//
+                .withFileSuffixes(FILE_SUFFIX)//
+                .build();
     }
 }

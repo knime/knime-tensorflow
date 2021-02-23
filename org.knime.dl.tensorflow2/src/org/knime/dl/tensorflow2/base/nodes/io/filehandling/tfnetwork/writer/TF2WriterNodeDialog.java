@@ -60,7 +60,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.filehandling.core.node.portobject.SelectionMode;
 import org.knime.filehandling.core.node.portobject.writer.PortObjectWriterNodeDialog;
 import org.knime.python2.config.PythonCommandFlowVariableModel;
 
@@ -77,7 +76,7 @@ final class TF2WriterNodeDialog extends PortObjectWriterNodeDialog<TF2WriterNode
     private final DialogComponentBoolean m_saveOptimizerStateCheckbox;
 
     TF2WriterNodeDialog(final TF2WriterNodeConfig config, final String fileChooserHistoryId) {
-        super(config, fileChooserHistoryId, SelectionMode.FILE_AND_FOLDER);
+        super(config, fileChooserHistoryId);
         m_saveOptimizerStateCheckbox =
             new DialogComponentBoolean(config.getSaveOptimizerStateModel(), "Save Optimizer State");
         addAdditionalPanel(createNetworkSettingsPanel());
