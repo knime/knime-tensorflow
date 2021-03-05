@@ -16,6 +16,6 @@ Require-Bundle: org.knime.core;bundle-version="[4.2.0,5.0.0)",
  org.apache.commons.lang3;bundle-version="[3.2.1,4.0.0)",
  org.apache.commons.compress;bundle-version="[1.15.0,2.0.0)",
  com.google.guava;bundle-version="[19.0.0,19.0.0]"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Eclipse-BundleShape: dir
