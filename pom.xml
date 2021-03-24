@@ -102,6 +102,11 @@
 			<layout>p2</layout>
 			<url>${knime.workbench.p2}</url>
 		</repository>
+		<repository>
+			<id>p2-knime-filehandling-core</id>
+			<layout>p2</layout>
+			<url>${knime.filehandling.core.p2}</url>
+		</repository>
 	</repositories>
 
 	<!-- This whole block is only needed if the repository contains plug-ins that don't have any sources. If it is omitted
