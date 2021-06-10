@@ -61,7 +61,8 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.filehandling.core.node.portobject.writer.PortObjectWriterNodeDialog;
-import org.knime.python2.config.PythonCommandFlowVariableModel;
+import org.knime.python2.config.PythonExecutableSelectionPanel;
+import org.knime.python2.config.PythonFixedVersionExecutableSelectionPanel;
 
 /**
  * Node dialog of the TensorFlow writer node.
@@ -70,8 +71,8 @@ import org.knime.python2.config.PythonCommandFlowVariableModel;
  */
 final class TF2WriterNodeDialog extends PortObjectWriterNodeDialog<TF2WriterNodeConfig> {
 
-    private final PythonCommandFlowVariableModel m_pythonCommandModel =
-        new PythonCommandFlowVariableModel(this, TF2WriterNodeModel.createPythonCommandConfig());
+    private final PythonExecutableSelectionPanel m_executableSelectionTab =
+        new PythonFixedVersionExecutableSelectionPanel(this, TF2WriterNodeModel.createPythonCommandConfig());
 
     private final DialogComponentBoolean m_saveOptimizerStateCheckbox;
 
@@ -80,6 +81,7 @@ final class TF2WriterNodeDialog extends PortObjectWriterNodeDialog<TF2WriterNode
         m_saveOptimizerStateCheckbox =
             new DialogComponentBoolean(config.getSaveOptimizerStateModel(), "Save Optimizer State");
         addAdditionalPanel(createNetworkSettingsPanel());
+        addTab(PythonExecutableSelectionPanel.DEFAULT_TAB_NAME, m_executableSelectionTab);
     }
 
     private JPanel createNetworkSettingsPanel() {
@@ -95,19 +97,14 @@ final class TF2WriterNodeDialog extends PortObjectWriterNodeDialog<TF2WriterNode
     protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
         m_saveOptimizerStateCheckbox.saveSettingsTo(settings);
         super.saveSettingsTo(settings);
-        m_pythonCommandModel.saveSettingsTo(settings);
+        m_executableSelectionTab.saveSettingsTo(settings);
     }
 
     @Override
     protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
         throws NotConfigurableException {
-        m_pythonCommandModel.loadSettingsFrom(settings);
+        m_executableSelectionTab.loadSettingsFrom(settings);
         m_saveOptimizerStateCheckbox.loadSettingsFrom(settings, specs);
         super.loadSettingsFrom(settings, specs);
-    }
-
-    @Override
-    public void onOpen() {
-        m_pythonCommandModel.onDialogOpen();
     }
 }

@@ -79,7 +79,7 @@ import org.knime.dl.tensorflow2.core.TF2PythonContext;
 import org.knime.filehandling.core.defaultnodesettings.filechooser.writer.FileOverwritePolicy;
 import org.knime.filehandling.core.node.portobject.writer.PortObjectToPathWriterNodeModel;
 import org.knime.python2.PythonVersion;
-import org.knime.python2.config.PythonCommandFlowVariableConfig;
+import org.knime.python2.config.PythonCommandConfig;
 
 /**
  * Node model of the TensorFlow writer node.
@@ -101,12 +101,12 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
         }
     }
 
-    static PythonCommandFlowVariableConfig createPythonCommandConfig() {
-        return new PythonCommandFlowVariableConfig(PythonVersion.PYTHON3,
-            DLPythonPreferences::getCondaInstallationPath);
+    static PythonCommandConfig createPythonCommandConfig() {
+        return new PythonCommandConfig(PythonVersion.PYTHON3, DLPythonPreferences::getCondaInstallationPath,
+            DLPythonPreferences::getPythonTF2CommandPreference);
     }
 
-    private final PythonCommandFlowVariableConfig m_pythonCommandConfig = createPythonCommandConfig();
+    private final PythonCommandConfig m_pythonCommandConfig = createPythonCommandConfig();
 
     protected TF2WriterNodeModel(final NodeCreationConfiguration creationConfig, final TF2WriterNodeConfig config) {
         super(creationConfig, config);
@@ -120,7 +120,7 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
 
     @Override
     protected void validateSettings(final NodeSettingsRO settings) throws InvalidSettingsException {
-        m_pythonCommandConfig.validateSettings(settings);
+        m_pythonCommandConfig.loadSettingsFrom(settings);
         super.validateSettings(settings);
     }
 
@@ -153,8 +153,7 @@ final class TF2WriterNodeModel extends PortObjectToPathWriterNodeModel<TF2Writer
         }
 
         // Save the model to the model path (can be a temporary directory)
-        try (final DLPythonContext context = new TF2PythonContext(
-            m_pythonCommandConfig.getCommand().orElseGet(DLPythonPreferences::getPythonTF2CommandPreference))) {
+        try (final DLPythonContext context = new TF2PythonContext(m_pythonCommandConfig.getCommand())) {
             final TF2NetworkLoader loader = new TF2NetworkLoader();
             loader.checkAvailability(context, false, DLPythonNetworkLoaderRegistry.getInstallationTestTimeout(),
                 cancelable);

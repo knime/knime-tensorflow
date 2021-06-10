@@ -78,7 +78,7 @@ import org.knime.dl.tensorflow.core.convert.TFNetworkConverter;
 import org.knime.python2.PythonCommand;
 import org.knime.python2.PythonVersion;
 import org.knime.python2.base.PythonBasedNodeModel;
-import org.knime.python2.config.PythonCommandFlowVariableConfig;
+import org.knime.python2.config.PythonCommandConfig;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -87,12 +87,12 @@ public abstract class TFAbstractConverterNodeModel extends PythonBasedNodeModel 
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFAbstractConverterNodeModel.class);
 
-    static PythonCommandFlowVariableConfig createPythonCommandConfig() {
-        return new PythonCommandFlowVariableConfig(PythonVersion.PYTHON3,
-            DLPythonPreferences::getCondaInstallationPath);
+    static PythonCommandConfig createPythonCommandConfig(final Supplier<PythonCommand> commandPreference) {
+        return new PythonCommandConfig(PythonVersion.PYTHON3, DLPythonPreferences::getCondaInstallationPath,
+            commandPreference);
     }
 
-    private final PythonCommandFlowVariableConfig m_pythonCommandConfig = createPythonCommandConfig();
+    private final PythonCommandConfig m_pythonCommandConfig;
 
 	private TFNetworkConverter<?> m_converter;
 
@@ -103,7 +103,8 @@ public abstract class TFAbstractConverterNodeModel extends PythonBasedNodeModel 
 	 */
     protected TFAbstractConverterNodeModel(final PortType inPortType, final Supplier<PythonCommand> commandPreference) {
         super(new PortType[]{inPortType}, new PortType[]{TFNetworkPortObject.TYPE});
-        addPythonCommandConfig(m_pythonCommandConfig, commandPreference);
+        m_pythonCommandConfig = createPythonCommandConfig(commandPreference);
+        addPythonCommandConfig(m_pythonCommandConfig);
     }
 
 	/**
@@ -155,8 +156,7 @@ public abstract class TFAbstractConverterNodeModel extends PythonBasedNodeModel 
 		// Convert the network
 		final FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
 		// FIXME: We assume that converters will always be Python-based (see also constructor).
-        try (final DLPythonContext context =
-            new DLPythonDefaultContext(getConfiguredPythonCommand(m_pythonCommandConfig))) {
+        try (final DLPythonContext context = new DLPythonDefaultContext(m_pythonCommandConfig.getCommand())) {
             final TFNetwork tfNetwork = ((TFNetworkConverter)m_converter).convertNetwork(context, in.getNetwork(),
                 fileStore, new DLExecutionMonitorCancelable(exec));
             return new PortObject[]{new TFNetworkPortObject(tfNetwork, fileStore)};

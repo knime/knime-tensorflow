@@ -55,7 +55,8 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeConfig;
 import org.knime.filehandling.core.node.portobject.reader.PortObjectReaderNodeDialog;
-import org.knime.python2.config.PythonCommandFlowVariableModel;
+import org.knime.python2.config.PythonExecutableSelectionPanel;
+import org.knime.python2.config.PythonFixedVersionExecutableSelectionPanel;
 
 /**
  * @author Marcel Wiedenmann, KNIME GmbH, Konstanz, Germany
@@ -66,28 +67,24 @@ final class TF2ReaderNodeDialog extends PortObjectReaderNodeDialog<PortObjectRea
     /** History id for the file chooser */
     private static final String HISTORY_ID = "tf2_network_reader_writer";
 
-    private final PythonCommandFlowVariableModel m_pythonCommandModel =
-        new PythonCommandFlowVariableModel(this, TF2ReaderNodeModel.createPythonCommandConfig());
+    private final PythonExecutableSelectionPanel m_executableSelectionTab =
+        new PythonFixedVersionExecutableSelectionPanel(this, TF2ReaderNodeModel.createPythonCommandConfig());
 
     public TF2ReaderNodeDialog(final PortObjectReaderNodeConfig config) {
         super(config, HISTORY_ID);
+        addTab(PythonExecutableSelectionPanel.DEFAULT_TAB_NAME, m_executableSelectionTab);
     }
 
     @Override
     protected void loadSettingsFrom(final NodeSettingsRO settings, final PortObjectSpec[] specs)
         throws NotConfigurableException {
-        m_pythonCommandModel.loadSettingsFrom(settings);
+        m_executableSelectionTab.loadSettingsFrom(settings);
         super.loadSettingsFrom(settings, specs);
     }
 
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
         super.saveSettingsTo(settings);
-        m_pythonCommandModel.saveSettingsTo(settings);
-    }
-
-    @Override
-    public void onOpen() {
-        m_pythonCommandModel.onDialogOpen();
+        m_executableSelectionTab.saveSettingsTo(settings);
     }
 }

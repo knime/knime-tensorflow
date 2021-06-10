@@ -57,7 +57,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.python2.PythonCommand;
 import org.knime.python2.base.PythonBasedDataUnawareNodeDialog;
-import org.knime.python2.config.PythonCommandFlowVariableConfig;
+import org.knime.python2.config.PythonCommandConfig;
 
 /**
  * @author Marcel Wiedenmann, KNIME GmbH, Konstanz, Germany
@@ -65,9 +65,14 @@ import org.knime.python2.config.PythonCommandFlowVariableConfig;
 public final class TFConverterNodeDialog extends PythonBasedDataUnawareNodeDialog {
 
     public TFConverterNodeDialog(final Supplier<PythonCommand> commandPreference) {
-        final PythonCommandFlowVariableConfig pythonCommandConfig =
-            TFAbstractConverterNodeModel.createPythonCommandConfig();
-        addPythonCommandConfig(pythonCommandConfig, commandPreference);
+        final PythonCommandConfig pythonCommandConfig =
+            TFAbstractConverterNodeModel.createPythonCommandConfig(commandPreference);
+        addDefaultPythonExecutableSelectionTab(pythonCommandConfig);
+    }
+
+    @Override
+    protected void onPythonCommandChanged(final PythonCommandConfig config) {
+        // Nothing to do.
     }
 
     @Override
