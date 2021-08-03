@@ -70,6 +70,7 @@ import org.knime.dl.core.DLNetworkFileStoreLocation;
 import org.knime.dl.core.DLNetworkReferenceLocation;
 import org.knime.dl.python.core.DLPythonNetworkPortObject;
 import org.knime.dl.tensorflow.core.TFNetwork;
+import org.knime.python2.PythonCommand;
 
 import com.google.common.base.Objects;
 
@@ -143,6 +144,16 @@ public class TFNetworkPortObject
 	public String getModelName() {
 		return "TensorFlow Deep Learning Network";
 	}
+
+    /**
+     * TensorFlow 1 networks are always materialized, so simply delegate to the base implementation.
+     * <P>
+     * {@inheritDoc}
+     */
+    @Override
+    public TFNetwork getNetwork(final PythonCommand command) throws DLInvalidSourceException, IOException {
+        return super.getNetwork();
+    }
 
 	@Override
 	protected TFNetwork getNetworkInternal(final TFNetworkPortObjectSpec spec)

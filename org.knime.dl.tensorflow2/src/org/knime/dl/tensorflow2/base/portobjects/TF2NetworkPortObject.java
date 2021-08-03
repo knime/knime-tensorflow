@@ -64,6 +64,7 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetworkFileStoreLocation;
 import org.knime.dl.python.core.DLPythonNetworkPortObject;
 import org.knime.dl.tensorflow2.core.TF2Network;
+import org.knime.python2.PythonCommand;
 
 /**
  * TensorFlow 2 implementation of a deep learning {@link DLNetworkPortObject}.
@@ -128,6 +129,16 @@ public class TF2NetworkPortObject extends DLAbstractNetworkPortObject<TF2Network
     protected boolean equalsInternal(final DLNetworkPortObject other) {
         // Nothing to check (Checks are done by super class)
         return true;
+    }
+
+    /**
+     * TensorFlow 2 networks are always materialized, so simply delegate to the base implementation.
+     * <P>
+     * {@inheritDoc}
+     */
+    @Override
+    public TF2Network getNetwork(final PythonCommand command) throws DLInvalidSourceException, IOException {
+        return super.getNetwork();
     }
 
     @Override
