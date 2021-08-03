@@ -49,18 +49,22 @@ package org.knime.dl.tensorflow.base.nodes.export;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
-import org.knime.dl.base.nodes.export.DLDefaultExporterNodeDialog;
-import org.knime.dl.base.nodes.export.DLDefaultExporterNodeModel;
+import org.knime.dl.base.nodes.export.DLAbstractExporterNodeDialog;
+import org.knime.dl.base.nodes.export.DLAbstractExporterNodeModel;
+import org.knime.dl.base.portobjects.DLNetworkPortObject;
+import org.knime.dl.core.DLNetwork;
+import org.knime.dl.tensorflow.base.nodes.export.TFExporterNodeFactory.TFExporterNodeModel;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
+import org.knime.dl.tensorflow.core.TFNetwork;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
  */
-public class TFExporterNodeFactory extends NodeFactory<DLDefaultExporterNodeModel> {
+public class TFExporterNodeFactory extends NodeFactory<TFExporterNodeModel> {
 
     @Override
-    public DLDefaultExporterNodeModel createNodeModel() {
-        return new DLDefaultExporterNodeModel(TFNetworkPortObject.TYPE);
+    public TFExporterNodeModel createNodeModel() {
+        return new TFExporterNodeModel();
     }
 
     @Override
@@ -69,8 +73,7 @@ public class TFExporterNodeFactory extends NodeFactory<DLDefaultExporterNodeMode
     }
 
     @Override
-    public NodeView<DLDefaultExporterNodeModel> createNodeView(final int viewIndex,
-        final DLDefaultExporterNodeModel nodeModel) {
+    public NodeView<TFExporterNodeModel> createNodeView(final int viewIndex, final TFExporterNodeModel nodeModel) {
         return null;
     }
 
@@ -81,6 +84,25 @@ public class TFExporterNodeFactory extends NodeFactory<DLDefaultExporterNodeMode
 
     @Override
     protected NodeDialogPane createNodeDialogPane() {
-        return new DLDefaultExporterNodeDialog("org.knime.dl.tensorflow.base.nodes.export.TFExporterNodeFactory");
+        return new TFExporterNodeDialog();
+    }
+
+    static final class TFExporterNodeModel extends DLAbstractExporterNodeModel<TFNetwork> {
+
+        public TFExporterNodeModel() {
+            super(TFNetworkPortObject.TYPE);
+        }
+
+        @Override
+        protected DLNetwork extractNetworkFromPortObject(final DLNetworkPortObject networkPortObject) throws Exception {
+            return ((TFNetworkPortObject)networkPortObject).getNetwork();
+        }
+    }
+
+    private static final class TFExporterNodeDialog extends DLAbstractExporterNodeDialog {
+
+        public TFExporterNodeDialog() {
+            super("org.knime.dl.tensorflow.base.nodes.export.TFExporterNodeFactory");
+        }
     }
 }
