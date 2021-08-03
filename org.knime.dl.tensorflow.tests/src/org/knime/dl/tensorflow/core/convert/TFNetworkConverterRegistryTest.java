@@ -54,6 +54,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
 import org.knime.core.data.filestore.FileStore;
+import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.core.DLAbstractNetwork;
 import org.knime.dl.core.DLAbstractNetworkSpec;
 import org.knime.dl.core.DLCancelable;
@@ -97,6 +98,12 @@ public class TFNetworkConverterRegistryTest {
 		public DummyNetworkConverter() {
 			super(DummyNetwork.class, TFNetwork.class);
 		}
+
+        @Override
+        protected DummyNetwork extractNetworkFromPortObject(final Void noContext,
+            final DLNetworkPortObject networkPortObject) throws DLNetworkConversionException {
+            throw new NotImplementedException("Should not be called");
+        }
 
 		@Override
         protected TFNetwork convertNetworkInternal(final Void noContext, final DummyNetwork network,

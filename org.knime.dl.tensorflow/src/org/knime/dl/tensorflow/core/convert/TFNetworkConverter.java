@@ -47,6 +47,7 @@
 package org.knime.dl.tensorflow.core.convert;
 
 import org.knime.core.data.filestore.FileStore;
+import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.core.DLCancelable;
 import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLNetwork;
@@ -96,13 +97,13 @@ public interface TFNetworkConverter<C> {
 	/**
 	 * Converts the deep-learning network to a TensorFlow deep-learning network.
 	 *
-	 * @param network the deep-learning network
+	 * @param networkPortObject the port object containing the deep-learning network
 	 * @param fileStore a file store to store the TensorFlow deep-learning network in
 	 * @param cancelable to check if the execution has been canceled
 	 * @return the converted TensorFlow deep-learning network
 	 * @throws DLNetworkConversionException if converting the network failed
 	 * @throws DLCanceledExecutionException if the execution has been canceled
 	 */
-	TFNetwork convertNetwork(C context, DLNetwork network, FileStore fileStore, DLCancelable cancelable)
-			throws DLNetworkConversionException, DLCanceledExecutionException;
+    TFNetwork convertNetwork(C context, DLNetworkPortObject networkPortObject, FileStore fileStore,
+        DLCancelable cancelable) throws DLNetworkConversionException, DLCanceledExecutionException;
 }

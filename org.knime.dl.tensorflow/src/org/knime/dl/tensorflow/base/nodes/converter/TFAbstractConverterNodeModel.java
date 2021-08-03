@@ -157,8 +157,8 @@ public abstract class TFAbstractConverterNodeModel extends PythonBasedNodeModel 
 		final FileStore fileStore = DLNetworkPortObject.createFileStoreForSaving(null, exec);
 		// FIXME: We assume that converters will always be Python-based (see also constructor).
         try (final DLPythonContext context = new DLPythonDefaultContext(m_pythonCommandConfig.getCommand())) {
-            final TFNetwork tfNetwork = ((TFNetworkConverter)m_converter).convertNetwork(context, in.getNetwork(),
-                fileStore, new DLExecutionMonitorCancelable(exec));
+            final TFNetwork tfNetwork = ((TFNetworkConverter)m_converter).convertNetwork(context, in, fileStore,
+                new DLExecutionMonitorCancelable(exec));
             return new PortObject[]{new TFNetworkPortObject(tfNetwork, fileStore)};
         }
 	}
