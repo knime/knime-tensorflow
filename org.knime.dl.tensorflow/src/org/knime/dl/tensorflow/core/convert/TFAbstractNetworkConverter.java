@@ -47,7 +47,6 @@
 package org.knime.dl.tensorflow.core.convert;
 
 import org.knime.core.data.filestore.FileStore;
-import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.core.DLCancelable;
 import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLNetwork;
@@ -96,28 +95,16 @@ public abstract class TFAbstractNetworkConverter<C, N extends DLNetwork> impleme
 		return null;
 	}
 
-    @Override
-    public TFNetwork convertNetwork(final C context, final DLNetworkPortObject networkPortObject,
-        final FileStore fileStore, final DLCancelable cancelable)
-        throws DLNetworkConversionException, DLCanceledExecutionException {
-        final Class<? extends DLNetwork> actualNetworkType = networkPortObject.getSpec().getNetworkType();
-        if (!m_networkType.isAssignableFrom(actualNetworkType)) {
-            throw new IllegalArgumentException("This converter is not applicable for networks of type \"" +
-                actualNetworkType + "\". Expected type: \"" + m_networkType + "\".");
-        }
-        return convertNetworkInternal(context, extractNetworkFromPortObject(context, networkPortObject), fileStore,
-            cancelable);
-    }
-
-    /**
-     * Extracts the deep learning network to convert from the given input port object.
-     *
-     * @param networkPortObject the port object from which to extract the network to convert
-     * @return the network to convert
-     * @throws DLNetworkConversionException if extracting the network failed
-     */
-    protected abstract N extractNetworkFromPortObject(C context, DLNetworkPortObject networkPortObject)
-        throws DLNetworkConversionException;
+	@SuppressWarnings("unchecked")
+	@Override
+    public TFNetwork convertNetwork(final C context, final DLNetwork network, final FileStore fileStore,
+        final DLCancelable cancelable) throws DLNetworkConversionException, DLCanceledExecutionException {
+		if (!m_networkType.isAssignableFrom(network.getClass())) {
+			throw new IllegalArgumentException("This converter is not applicable for networks of type \""
+					+ network.getClass() + "\". Expected type: \"" + m_networkType + "\".");
+		}
+		return convertNetworkInternal(context, (N) network, fileStore, cancelable);
+	}
 
 	/**
 	 * Internally convert the deep-learning network to a TensorFlow deep-learning network.

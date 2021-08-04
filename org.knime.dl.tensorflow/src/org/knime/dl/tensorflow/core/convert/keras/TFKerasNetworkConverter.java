@@ -53,7 +53,6 @@ import org.apache.commons.io.FileUtils;
 import org.knime.core.data.filestore.FileStore;
 import org.knime.core.util.FileUtil;
 import org.knime.core.util.Version;
-import org.knime.dl.base.portobjects.DLNetworkPortObject;
 import org.knime.dl.core.DLCancelable;
 import org.knime.dl.core.DLCanceledExecutionException;
 import org.knime.dl.core.DLInvalidEnvironmentException;
@@ -61,7 +60,6 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLMissingExtensionException;
 import org.knime.dl.core.DLNetworkFileStoreLocation;
 import org.knime.dl.core.DLNetworkSpec;
-import org.knime.dl.keras.base.portobjects.DLKerasNetworkPortObjectBase;
 import org.knime.dl.keras.core.DLKerasNetworkSpec;
 import org.knime.dl.keras.tensorflow.core.DLKerasTensorFlowNetwork;
 import org.knime.dl.python.core.DLPythonContext;
@@ -107,18 +105,6 @@ public class TFKerasNetworkConverter extends TFAbstractNetworkConverter<DLPython
 							+ MIN_KERAS_VERSION.toString() + ".");
 		}
 	}
-
-    @SuppressWarnings("resource") // Kernel will be closed along with context.
-    @Override
-    protected DLKerasTensorFlowNetwork extractNetworkFromPortObject(final DLPythonContext context,
-        final DLNetworkPortObject networkPortObject) throws DLNetworkConversionException {
-        try {
-            return (DLKerasTensorFlowNetwork)((DLKerasNetworkPortObjectBase)networkPortObject)
-                .getNetwork(context.getKernel().getPythonCommand());
-        } catch (final DLInvalidSourceException | DLInvalidEnvironmentException | IOException e) {
-            throw new DLNetworkConversionException(e.getMessage(), e);
-        }
-    }
 
 	@Override
     public TFNetwork convertNetworkInternal(final DLPythonContext context, final DLKerasTensorFlowNetwork network,
