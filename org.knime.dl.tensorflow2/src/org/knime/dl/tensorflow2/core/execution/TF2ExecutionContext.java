@@ -88,6 +88,7 @@ public class TF2ExecutionContext implements DLExecutionContext<DLPythonContext, 
         return new DLPythonDefaultTensorFactory();
     }
 
+    @Deprecated
     @Override
     public DLPythonContext createDefaultContext() {
         return new TF2PythonContext(DLPythonPreferences.getPythonTF2CommandPreference());

@@ -72,7 +72,6 @@ import org.knime.dl.python.core.DLPythonContext;
 import org.knime.dl.python.core.DLPythonNetwork;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkPortObject;
-import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
 
 /**
@@ -83,8 +82,6 @@ import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
 public class TF2NetworkLoader extends DLPythonAbstractNetworkLoader<TF2Network> {
 
     private static final String URL_EXTENSION = "";
-
-    private static final DLPythonInstallationTester INSTALLATION_TESTER = new DLPythonInstallationTester();
 
     @Override
     public Class<TF2Network> getNetworkType() {
@@ -147,11 +144,6 @@ public class TF2NetworkLoader extends DLPythonAbstractNetworkLoader<TF2Network> 
     }
 
     @Override
-    public DLPythonContext createDefaultContext() {
-        return new TF2PythonContext(DLPythonPreferences.getPythonTF2CommandPreference());
-    }
-
-    @Override
     @SuppressWarnings("resource") // Commands do not need to be closed because they use the given context
     public DLPythonNetworkHandle load(final URI source, final DLPythonContext context, final boolean loadTrainingConfig,
         final DLCancelable cancelable)
@@ -181,11 +173,6 @@ public class TF2NetworkLoader extends DLPythonAbstractNetworkLoader<TF2Network> 
     @Override
     protected TF2PythonCommands createCommands(final DLPythonContext context) throws DLInvalidEnvironmentException {
         return new TF2PythonCommands(context);
-    }
-
-    @Override
-    protected DLPythonInstallationTester getInstallationTester() {
-        return INSTALLATION_TESTER;
     }
 
     /** Checks if the URI points to a local file and throws an exception if not */

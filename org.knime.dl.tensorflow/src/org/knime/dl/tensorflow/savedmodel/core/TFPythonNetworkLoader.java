@@ -65,11 +65,9 @@ import org.knime.dl.core.DLInvalidSourceException;
 import org.knime.dl.core.DLNetworkLocation;
 import org.knime.dl.python.core.DLPythonAbstractNetworkLoader;
 import org.knime.dl.python.core.DLPythonContext;
-import org.knime.dl.python.core.DLPythonDefaultContext;
 import org.knime.dl.python.core.DLPythonNetwork;
 import org.knime.dl.python.core.DLPythonNetworkHandle;
 import org.knime.dl.python.core.DLPythonNetworkPortObject;
-import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 
 /**
@@ -80,8 +78,6 @@ import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSavedModelNetwork> {
 
 	private static final String URL_EXTENSION = "";
-
-	private static final DLPythonInstallationTester INSTALLATION_TESTER = new DLPythonInstallationTester();
 
 	@Override
 	public Class<TFSavedModelNetwork> getNetworkType() {
@@ -137,11 +133,8 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 		return destinationURL;
 	}
 
-    @Override
-    public DLPythonContext createDefaultContext() {
-        return new DLPythonDefaultContext(DLPythonPreferences.getPythonCommandPreference());
-    }
-
+	// Commands object must be kept open along with the context. Context will be closed by the client.
+	@SuppressWarnings("resource")
 	@Override
 	public DLPythonNetworkHandle load(final URI source, final DLPythonContext context, final boolean loadTrainingConfig,
 			final DLCancelable cancelable)
@@ -149,15 +142,17 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 		final URL sourceURL = validateSource(source);
 		try {
 			final File savedModelDir = TFSavedModelUtil.getSavedModelInDir(sourceURL);
-			final TFPythonCommands commands = createCommands(checkNotNull(context));
+            final TFPythonCommands commands = createCommands(checkNotNull(context));
 			return commands.loadNetwork(savedModelDir.getAbsolutePath(), loadTrainingConfig, cancelable);
-		} catch (final Throwable e) {
+		} catch (final Throwable e) { // NOSONAR: Clean-up is necessary in any exceptional situation.
 			// Delete the temporary file if it exists
 			TFSavedModelUtil.deleteTempIfLocal(sourceURL);
 			throw e;
 		}
 	}
 
+	// Commands object must be kept open along with the context. Context will be closed by the client.
+	@SuppressWarnings("resource")
 	@Override
 	public TFSavedModelNetwork fetch(final DLPythonNetworkHandle handle, final DLNetworkLocation source,
 			final DLPythonContext context, final DLCancelable cancelable) throws IllegalArgumentException,
@@ -176,10 +171,5 @@ public class TFPythonNetworkLoader extends DLPythonAbstractNetworkLoader<TFSaved
 	@Override
 	protected TFPythonCommands createCommands(final DLPythonContext context) throws DLInvalidEnvironmentException {
 		return new TFPythonCommands(context);
-	}
-
-	@Override
-	protected DLPythonInstallationTester getInstallationTester() {
-		return INSTALLATION_TESTER;
 	}
 }
