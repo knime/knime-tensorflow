@@ -79,6 +79,7 @@ public class TFPythonSavedModelExecutionContext extends TFAbstractExecutionConte
 		super(TFSavedModelNetwork.class, new DLPythonDefaultTensorFactory(), EXECUTION_CONTEXT_NAME);
 	}
 
+    @Deprecated
     @Override
     public DLPythonContext createDefaultContext() {
         return new DLPythonDefaultContext(DLPythonPreferences.getPythonCommandPreference());

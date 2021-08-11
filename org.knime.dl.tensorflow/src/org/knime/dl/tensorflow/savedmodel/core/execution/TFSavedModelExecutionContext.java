@@ -75,6 +75,7 @@ public class TFSavedModelExecutionContext extends TFAbstractExecutionContext<Voi
 		super(TFSavedModelNetwork.class, new TFSavedModelTensorFactory(), EXECUTION_CONTEXT_NAME);
 	}
 
+    @Deprecated
     @Override
     public Void createDefaultContext() {
         // No external context.
