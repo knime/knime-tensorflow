@@ -49,6 +49,7 @@ package org.knime.dl.tensorflow2.base.nodes.executor;
 import org.knime.dl.python.base.node.DLAbstractPythonBasedExecutorNodeModel;
 import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
+import org.knime.python2.PythonCommand;
 
 /**
  * The node model for the TensorFlow 2 Executor.
@@ -57,7 +58,11 @@ import org.knime.dl.tensorflow2.base.portobjects.TF2NetworkPortObject;
  */
 final class TF2ExecutorNodeModel extends DLAbstractPythonBasedExecutorNodeModel {
 
+    static PythonCommand getDefaultPythonCommand() {
+        return DLPythonPreferences.getPythonTF2CommandPreference();
+    }
+
     TF2ExecutorNodeModel() {
-        super(TF2NetworkPortObject.TYPE, DLPythonPreferences::getPythonTF2CommandPreference);
+        super(TF2NetworkPortObject.TYPE, TF2ExecutorNodeModel::getDefaultPythonCommand);
     }
 }
