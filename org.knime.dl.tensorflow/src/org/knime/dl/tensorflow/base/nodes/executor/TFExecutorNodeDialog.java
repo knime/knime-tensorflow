@@ -53,7 +53,6 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.dl.base.nodes.DLDefaultNodeDialogTab;
 import org.knime.dl.python.base.node.DLAbstractPythonBasedExecutorNodeDialog;
-import org.knime.dl.python.prefs.DLPythonPreferences;
 import org.knime.dl.tensorflow.base.nodes.TFConfigProtoConfig;
 import org.knime.dl.tensorflow.base.nodes.TFConfigProtoPanel;
 
@@ -65,7 +64,7 @@ public class TFExecutorNodeDialog extends DLAbstractPythonBasedExecutorNodeDialo
 	private final TFConfigProtoConfig m_configProtoConfig;
 
 	TFExecutorNodeDialog() {
-        super(DLPythonPreferences::getPythonKerasCommandPreference);
+        super(TFExecutorNodeModel::getDefaultPythonCommand);
 		final DLDefaultNodeDialogTab advancedTab = new DLDefaultNodeDialogTab("Advanced Options");
 		addTab(advancedTab.getTitle(), advancedTab.getTab(), false);
 

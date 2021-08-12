@@ -69,6 +69,7 @@ import org.knime.dl.tensorflow.base.nodes.TFConfigProtoConfig;
 import org.knime.dl.tensorflow.base.portobjects.TFNetworkPortObject;
 import org.knime.dl.tensorflow.savedmodel.core.execution.TFPythonSavedModelExecutionContext;
 import org.knime.dl.tensorflow.savedmodel.core.execution.TFSavedModelNetworkExecutionSession;
+import org.knime.python2.PythonCommand;
 
 /**
  * @author Benjamin Wilhelm, KNIME GmbH, Konstanz, Germany
@@ -77,6 +78,10 @@ public class TFExecutorNodeModel extends DLAbstractPythonBasedExecutorNodeModel 
 
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(TFExecutorNodeModel.class);
 
+	static PythonCommand getDefaultPythonCommand() {
+	    return DLPythonPreferences.getPythonCommandPreference();
+	}
+
 	static TFConfigProtoConfig createConfigProtoConfig() {
 		return new TFConfigProtoConfig();
 	}
@@ -84,7 +89,7 @@ public class TFExecutorNodeModel extends DLAbstractPythonBasedExecutorNodeModel 
 	private final TFConfigProtoConfig m_configProtoConfig;
 
 	TFExecutorNodeModel() {
-		super(TFNetworkPortObject.TYPE, DLPythonPreferences::getPythonCommandPreference);
+		super(TFNetworkPortObject.TYPE, TFExecutorNodeModel::getDefaultPythonCommand);
 		m_configProtoConfig = createConfigProtoConfig();
 	}
 
