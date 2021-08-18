@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Deep Learning - TensorFlow Integration
 Bundle-SymbolicName: org.knime.dl.tensorflow;singleton:=true
-Bundle-Version: 4.4.0.qualifier
+Bundle-Version: 4.4.1.qualifier
 Bundle-ClassPath: knime-dl-tensorflow.jar
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Export-Package: org.knime.dl.tensorflow.base.nodes.converter,
