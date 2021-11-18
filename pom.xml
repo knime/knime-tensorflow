@@ -68,6 +68,11 @@
 			<url>${knime.deeplearning.p2}</url>
 		</repository>
 		<repository>
+			<id>p2-knime-core-arrow</id>
+			<layout>p2</layout>
+			<url>${knime.core.arrow.p2}</url>
+		</repository>
+		<repository>
 			<id>p2-knime-python</id>
 			<layout>p2</layout>
 			<url>${knime.python.p2}</url>
