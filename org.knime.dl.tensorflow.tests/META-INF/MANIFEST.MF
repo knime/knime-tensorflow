@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Deep Learning - TensorFlow Integration Testing
 Bundle-SymbolicName: org.knime.dl.tensorflow.tests;singleton:=true
-Bundle-Version: 4.5.0.qualifier
+Bundle-Version: 4.6.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Fragment-Host: org.knime.dl.tensorflow;bundle-version="3.6.0"

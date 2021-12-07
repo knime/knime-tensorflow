@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: KNIME Deep Learning - TensorFlow 2 Integration
 Bundle-SymbolicName: org.knime.dl.tensorflow2;singleton:=true
 Automatic-Module-Name: org.knime.dl.tensorflow2
-Bundle-Version: 4.5.0.qualifier
+Bundle-Version: 4.6.0.qualifier
 Bundle-ClassPath: knime-dl-tensorflow.jar
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Require-Bundle: org.knime.core;bundle-version="[4.2.0,5.0.0)",
