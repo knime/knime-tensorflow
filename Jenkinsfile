@@ -18,7 +18,8 @@ try {
     workflowTests.runTests(
         dependencies: [
             repositories: [
-                'knime-tensorflow', 'knime-deeplearning', 'knime-python', 'knime-filehandling', 'knime-jfreechart', 'knime-distance', 'knime-kerberos'
+                'knime-tensorflow', 'knime-deeplearning', 'knime-python-legacy', 'knime-conda',
+                'knime-filehandling', 'knime-jfreechart', 'knime-distance', 'knime-kerberos'
             ]
         ]
     )
