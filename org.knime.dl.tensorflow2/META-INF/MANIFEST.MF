@@ -6,7 +6,7 @@ Automatic-Module-Name: org.knime.dl.tensorflow2
 Bundle-Version: 4.7.0.qualifier
 Bundle-ClassPath: knime-dl-tensorflow.jar
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
-Require-Bundle: org.knime.core;bundle-version="[4.2.0,5.0.0)",
+Require-Bundle: org.knime.core;bundle-version="[4.7.0,5.0.0)",
  org.knime.base;bundle-version="[4.2.0,5.0.0)",
  org.knime.base.filehandling;bundle-version="[4.2.0,5.0.0)",
  org.knime.filehandling.core;bundle-version="[4.4.0,5.0.0)",
