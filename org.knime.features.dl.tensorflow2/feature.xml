@@ -733,7 +733,6 @@ propagated with or for interoperation with KNIME.
 
    <plugin
          id="org.knime.dl.tensorflow2"
-         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
