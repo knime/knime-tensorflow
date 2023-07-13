@@ -74,9 +74,9 @@
 			<url>${knime.deeplearning.p2}</url>
 		</repository>
 		<repository>
-			<id>p2-knime-core-arrow</id>
+			<id>p2-knime-core-columnar</id>
 			<layout>p2</layout>
-			<url>${knime.core.arrow.p2}</url>
+			<url>${knime.core.columnar.p2}</url>
 		</repository>
 		<repository>
 			<id>p2-knime-python-legacy</id>
