@@ -4,7 +4,7 @@ Bundle-Name: TensorFlow CPU Libraries for Windows x86_64
 Bundle-SymbolicName: org.knime.tensorflow.bin.windows.amd64.cpu
 Bundle-Version: 5.2.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
-Fragment-Host: org.knime.tensorflow.libs;bundle-version="[5.0.0,6.0.0)"
+Fragment-Host: org.knime.tensorflow.libs;bundle-version="[5.2.0,6.0.0)"
 Eclipse-PlatformFilter: (&(osgi.os=win32)(osgi.arch=x86_64))
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Eclipse-BundleShape: dir
