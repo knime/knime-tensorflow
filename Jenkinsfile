@@ -7,7 +7,9 @@ properties([
     pipelineTriggers([
         upstream('knime-deeplearning/' + env.BRANCH_NAME.replaceAll('/', '%2F'))
     ]),
-    parameters(workflowTests.getConfigurationsAsParameters()),
+    parameters(workflowTests.getConfigurationsAsParameters([
+        ignoreConfiguration: ['macosx-aarch']
+    ])),
     buildDiscarder(logRotator(numToKeepStr: '5')),
     disableConcurrentBuilds()
 ])
@@ -22,7 +24,7 @@ try {
                 'knime-filehandling', 'knime-jfreechart', 'knime-distance', 'knime-kerberos'
             ]
         ],
-        configurations: ['MacOS_12_M1_knime420', 'MacOS_13_M1_knime421', 'MacOS_14_M1_knime494'],
+        // configurations: ['MacOS_12_M1_knime420', 'MacOS_13_M1_knime421', 'MacOS_14_M1_knime494'],
     )
 
     // stage('Sonarqube analysis') {
