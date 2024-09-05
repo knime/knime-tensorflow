@@ -7,7 +7,9 @@ properties([
     pipelineTriggers([
         upstream('knime-deeplearning/' + env.BRANCH_NAME.replaceAll('/', '%2F'))
     ]),
-    parameters(workflowTests.getConfigurationsAsParameters()),
+    parameters(workflowTests.getConfigurationsAsParameters([
+        ignoreConfiguration: ['macosx-aarch']
+    ])),
     buildDiscarder(logRotator(numToKeepStr: '5')),
     disableConcurrentBuilds()
 ])
