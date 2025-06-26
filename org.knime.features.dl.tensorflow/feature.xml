@@ -3,7 +3,8 @@
       id="org.knime.features.dl.tensorflow"
       label="KNIME Deep Learning - TensorFlow Integration"
       version="5.5.0.qualifier"
-      provider-name="KNIME AG, Zurich, Switzerland">
+      provider-name="KNIME AG, Zurich, Switzerland"
+      arch="x86_64">
 
    <description url="http://tech.knime.org/knime-labs">
       This feature contains nodes of the TensorFlow integration of KNIME Deep Learning.
@@ -734,61 +735,41 @@ propagated with or for interoperation with KNIME.
    <plugin
          id="org.knime.dl.tensorflow"
          arch="x86_64"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="org.knime.tensorflow.libs"
          arch="x86_64"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.knime.tensorflow.bin.macosx.amd64.cpu"
          os="macosx"
          arch="x86_64"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.knime.tensorflow.bin.linux.amd64.cpu"
          os="linux"
          arch="x86_64"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.knime.tensorflow.bin.linux.amd64.gpu"
          os="linux"
          arch="x86_64"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.knime.tensorflow.bin.windows.amd64.cpu"
          os="win32"
          arch="x86_64"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.knime.tensorflow.bin.windows.amd64.gpu"
          os="win32"
          arch="x86_64"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
 </feature>
