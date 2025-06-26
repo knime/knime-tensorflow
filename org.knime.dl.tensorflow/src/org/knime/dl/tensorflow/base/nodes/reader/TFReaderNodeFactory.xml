@@ -3,7 +3,7 @@
 	xmlns="http://knime.org/node/v3.6"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
-	<name>TensorFlow Network Reader</name>
+	<name>TensorFlow 1 Network Reader</name>
 
 	<shortDescription>
 		Reads a TensorFlow saved model from an input zip file

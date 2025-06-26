@@ -3,7 +3,7 @@
 	xmlns="http://knime.org/node/v3.6"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
-	<name>TensorFlow Network Executor</name>
+	<name>TensorFlow 1 Network Executor</name>
 
 	<shortDescription>
 		Executes a TensorFlow deep learning network.

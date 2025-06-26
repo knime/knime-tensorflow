@@ -3,7 +3,7 @@
 	xmlns="http://knime.org/node/v3.6"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://knime.org/node/v3.6 http://knime.org/node/v3.6.xsd">
-	<name>Keras to TensorFlow Network Converter</name>
+	<name>Keras to TensorFlow 1 Network Converter</name>
 
 	<shortDescription>
 		Converts a Keras deep learning model with TensorFlow

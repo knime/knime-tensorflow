@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: KNIME Deep Learning - TensorFlow Integration
+Bundle-Name: KNIME Deep Learning - TensorFlow 1 Integration
 Bundle-SymbolicName: org.knime.dl.tensorflow;singleton:=true
 Bundle-Version: 5.5.0.qualifier
 Bundle-ClassPath: knime-dl-tensorflow.jar
