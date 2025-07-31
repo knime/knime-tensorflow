@@ -6,5 +6,5 @@ Bundle-Version: 5.6.0.qualifier
 Bundle-Vendor: KNIME AG, Zurich, Switzerland
 Fragment-Host: org.knime.tensorflow.libs;bundle-version="[5.2.0,6.0.0)"
 Eclipse-PlatformFilter: (&(osgi.os=linux)(osgi.arch=x86_64))
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-BundleShape: dir
