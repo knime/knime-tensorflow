@@ -23,7 +23,8 @@ try {
                 'knime-tensorflow', 'knime-deeplearning', 'knime-python-legacy', 'knime-conda',
                 'knime-filehandling', 'knime-jfreechart', 'knime-distance', 'knime-kerberos'
             ]
-        ]
+        ],
+        ignoreConfiguration: ['macosx-aarch']
     )
 
     stage('Sonarqube analysis') {
