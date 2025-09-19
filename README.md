@@ -27,7 +27,7 @@ To make use of a TensorFlow 2 function it must be wrapped into a `tf.keras.Model
 
 ### Required Python Packages
 
-* `tensorflow>=2.2.0`
+* `tensorflow>=2.20.0`
 * `tensorflow-hub` (optional for using Models from the [TensorFlow Hub](https://tfhub.dev))
 
 Note that this package provides GPU support on Windows and Linux with CUDA Toolkit 10.1 and cuDNN >= 7.6.
@@ -105,7 +105,7 @@ The KNIME TensorFlow Integration provides a `TFModel` object to Python whenever 
 
 ### Required Python Packages
 
-* `tensorflow` or `tensorflow-gpu` (version: 1.13.1)
+* `tensorflow` or `tensorflow-gpu` (version: 2.20.0)
 
 Note that newer or older versions can cause problems because the TensorFlow for Java version used is 1.13.1.
 
