@@ -123,5 +123,20 @@
 			<layout>p2</layout>
 			<url>${knime.workbench.p2}</url>
 		</repository>
+		<repository>
+			<id>p2-knime-gateway</id>
+			<layout>p2</layout>
+			<url>${knime.gateway.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-product</id>
+			<layout>p2</layout>
+			<url>${knime.product.p2}</url>
+		</repository>
+		<repository>
+			<id>p2-knime-js-swt</id>
+			<layout>p2</layout>
+			<url>${knime.js.base.p2}</url>
+		</repository>
 	</repositories>
 </project>
