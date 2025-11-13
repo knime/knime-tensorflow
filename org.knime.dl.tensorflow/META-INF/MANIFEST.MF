@@ -10,7 +10,7 @@ Export-Package: org.knime.dl.tensorflow.base.nodes.converter,
   org.knime.dl.tensorflow.core,
   org.knime.dl.tensorflow.core.convert,
   org.knime.dl.tensorflow.savedmodel.core
-Require-Bundle: org.knime.base;bundle-version="[5.6.0,6.0.0)",
+Require-Bundle: org.knime.base;bundle-version="[5.9.0,6.0.0)",
   org.knime.base.filehandling;bundle-version="[5.6.0,6.0.0)",
   org.knime.core;bundle-version="[5.6.0,6.0.0)",
   org.knime.dl;bundle-version="[5.6.0,6.0.0)",
