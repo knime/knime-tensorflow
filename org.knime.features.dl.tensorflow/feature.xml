@@ -2,7 +2,7 @@
 <feature
       id="org.knime.features.dl.tensorflow"
       label="KNIME Deep Learning - TensorFlow Integration"
-      version="5.10.0.qualifier"
+      version="5.11.0.qualifier"
       provider-name="KNIME AG, Zurich, Switzerland">
 
    <description url="http://tech.knime.org/knime-labs">
@@ -728,7 +728,7 @@ propagated with or for interoperation with KNIME.
    </license>
 
    <requires>
-      <import feature="org.knime.features.dl.keras" version="5.10.0" match="greaterOrEqual"/>
+      <import feature="org.knime.features.dl.keras" version="5.11.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
